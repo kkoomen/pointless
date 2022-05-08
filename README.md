@@ -1,5 +1,13 @@
 ![logo](./banner.jpg)
 
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Installation](#installation)
+- [Development](#development)
+- [Creating a build](#creating-a-build)
+
 # Features
 
 - [ ] Save as PNG
@@ -22,6 +30,13 @@
   - [x] Save
   - [x] Load
 - [x] Light/dark theme
+
+# Installation
+
+```
+$ git clone https://github.com/kkoomen/pointless.git && cd pointless
+$ yarn install
+```
 
 # Development
 
