@@ -23,6 +23,8 @@ import {
 } from './constants';
 import { KEY } from './../../constants';
 import { setPaperPoints } from './../../reducers/library/librarySlice';
+import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
+import { to } from '../../reducers/router/routerSlice';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -724,6 +726,10 @@ class Paper extends React.Component {
     );
   };
 
+  onBackButtonClick = () => {
+    this.props.dispatch(to({ name: 'library' }));
+  };
+
   render() {
     if (this.props.readonly) {
       return this.renderCanvas();
@@ -766,6 +772,10 @@ class Paper extends React.Component {
           canvasIsEmpty={this.state.points.length === 0}
         />
         <Info />
+        <div className={styles['back-button__container']} onClick={this.onBackButtonClick}>
+          <LeftArrowIcon />
+          <span>Library</span>
+        </div>
       </div>
     );
   }

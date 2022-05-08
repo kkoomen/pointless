@@ -15,7 +15,6 @@
 
 .library__folders-container {
   height: 100vh;
-  padding-top: 10rem;
   min-width: 30rem;
   max-width: 30rem;
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.15);

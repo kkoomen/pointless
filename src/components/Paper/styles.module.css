@@ -36,3 +36,36 @@
   top: 1rem;
   right: 1rem;
 }
+
+.back-button__container {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.back-button__container svg {
+  margin-right: 1rem;
+  width: auto;
+  height: 2.5rem;
+  position: relative;
+  left: 0;
+  transition-property: left;
+  transition-duration: 0.1s;
+  transition-timing-function: ease-in-out;
+}
+
+.back-button__container:hover {
+  cursor: pointer;
+}
+
+.back-button__container:hover svg {
+  left: -5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .back-button__container svg {
+    fill: #fff;
+  }
+}

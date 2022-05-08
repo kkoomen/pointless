@@ -5,7 +5,6 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import './assets/vendor/bootstrap/bootstrap-grid.min.css';
 import App from './components/App';
-import Menu from './components/Menu';
 import './index.css';
 import { loadLibrary } from './reducers/library/librarySlice';
 import { setDarkMode } from './reducers/settings/settingsSlice';
@@ -28,7 +27,6 @@ invoke('get_system_theme').then((theme) => {
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <Menu />
       <App />
     </Provider>
   </React.StrictMode>,
