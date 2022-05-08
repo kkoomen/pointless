@@ -11,11 +11,7 @@ fn main() {
             config::init(handle);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            commands::load_library,
-            commands::save_library,
-            commands::get_system_theme,
-        ])
+        .invoke_handler(commands::get_handlers())
         .run(tauri::generate_context!())
         .expect("failed to run app");
 }

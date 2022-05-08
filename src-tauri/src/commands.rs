@@ -38,3 +38,11 @@ pub fn get_system_theme() -> String {
         },
     }
 }
+
+pub fn get_handlers() -> Box<dyn Fn(tauri::Invoke<tauri::Wry>) + Send + Sync> {
+    Box::new(tauri::generate_handler![
+        load_library,
+        save_library,
+        get_system_theme
+    ])
+}
