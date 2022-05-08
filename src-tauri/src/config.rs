@@ -10,7 +10,7 @@ pub fn get_root(app: AppHandle) -> String {
 
 pub fn get_library_path(app: AppHandle) -> String {
     let config_dir = get_root(app);
-    return format!("{}/library.json", config_dir);
+    return format!("{}/library.dat", config_dir);
 }
 
 pub fn init(app: AppHandle) {

@@ -2280,6 +2280,7 @@ dependencies = [
 name = "pointless"
 version = "0.1.0"
 dependencies = [
+ "brotli",
  "dark-light",
  "serde",
  "serde_json",

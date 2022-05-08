@@ -2,6 +2,7 @@ use tauri::{Manager, AppHandle};
 mod config;
 mod menu;
 mod commands;
+mod file;
 
 fn main() {
     tauri::Builder::default()
