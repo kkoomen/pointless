@@ -1,4 +1,6 @@
-![logo](./banner.jpg)
+![logo](./screenshots/banner.jpg)
+![paper](./screenshots/paper.png)
+![library](./screenshots/library.png)
 
 # Table of Contents
 
