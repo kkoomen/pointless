@@ -1,0 +1,48 @@
+.color-palette__container {
+  cursor: default;
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 7px;
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
+}
+
+.color-palette__color {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 5px;
+  border-radius: 50%;
+  transform: scale(1);
+  transition: transform 0.15s ease-out;
+  position: relative;
+}
+
+.color-palette__color:hover {
+  cursor: pointer;
+}
+
+.color-palette__color:active {
+  opacity: 0.5;
+}
+
+.color-palette__color-active {
+  transform: scale(0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-palette__container {
+    background: #323232;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .color-palette__container {
+    background: #fff;
+    border: 1px solid #d1d1d1;
+  }
+}

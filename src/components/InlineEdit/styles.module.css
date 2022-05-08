@@ -1,0 +1,23 @@
+.inline-edit__input {
+  background: transparent;
+  border: 1px dashed #999;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  min-width: 1rem;
+  max-width: 100%;
+}
+
+.inline-edit__text:hover {
+  cursor: text;
+}
+
+.inline-edit__input:focus {
+  outline: none;
+}
+
+.inline-edit__input__tmp-element {
+  white-space: pre;
+  position: fixed;
+  opacity: 0;
+}

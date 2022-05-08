@@ -1,0 +1,171 @@
+.toolbar__container {
+  cursor: default;
+  position: fixed;
+  padding: 5px;
+  border-radius: 7px;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
+}
+
+.toolbar__item-disabled {
+  pointer-events: none !important;
+  opacity: 0.3 !important;
+}
+
+.toolbar__item {
+  color: #fff;
+  width: 3rem;
+  height: 3rem;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar__item:hover {
+  cursor: pointer;
+}
+
+.toolbar__item:active {
+  opacity: 0.5;
+}
+
+.toolbar-right__button {
+  width: 5rem;
+  height: 5rem;
+}
+
+.toolbar-right__button img,
+.toolbar-right__button svg,
+.toolbar__item img,
+.toolbar__item svg {
+  pointer-events: none;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
+}
+
+.toolbar__item-separator {
+  min-height: 2.5rem;
+  width: 1px;
+  margin: 0 5px;
+}
+
+.toolbar__item-active.toolbar__item__linewidth {
+  border-color: #f5a123;
+}
+
+.toolbar__item__linewidth {
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.toolbar__item__linewidth:before {
+  content: '';
+  border-radius: 50%;
+}
+
+.toolbar__item__linewidth-small:before {
+  width: 7px;
+  height: 7px;
+}
+
+.toolbar__item__linewidth-medium:before {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.toolbar__item__linewidth-large:before {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.toolbar__item-active {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.toolbar__item.toolbar__item-active path {
+  fill: #f5a123;
+}
+
+.toolbar-right__container {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 5rem;
+}
+
+.toolbar-right__button {
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  padding: 1rem;
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-right__button-delete svg path {
+  fill: #fd5865;
+}
+
+.toolbar-right__button:active {
+  opacity: 0.5;
+}
+
+.toolbar-right__button:hover {
+  cursor: pointer;
+}
+
+.toolbar-right__button img {
+  pointer-events: none;
+}
+
+.toolbar-right__button + .toolbar-right__button {
+  margin-top: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .toolbar__item-separator {
+    background-color: #707070;
+  }
+
+  .toolbar-right__button path,
+  .toolbar__item path {
+    fill: #fff;
+  }
+
+  .toolbar__item__linewidth:before {
+    background-color: #fff;
+  }
+
+  .toolbar-right__button,
+  .toolbar__container {
+    background: #323232;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .toolbar__item-separator {
+    background-color: #d1d1d1;
+  }
+
+  .toolbar-right__button path,
+  .toolbar__item path {
+    fill: #000;
+  }
+
+  .toolbar__item__linewidth:before {
+    background-color: #000;
+  }
+
+  .toolbar-right__button,
+  .toolbar__container {
+    background: #fff;
+    border: 1px solid #d1d1d1;
+  }
+}

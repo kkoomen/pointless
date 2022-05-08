@@ -1,0 +1,117 @@
+.library__container {
+  display: flex;
+}
+
+.library__new-folder {
+  background: #888;
+}
+
+.library__folders-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.library__folders-container {
+  height: 100vh;
+  padding-top: 10rem;
+  min-width: 30rem;
+  max-width: 30rem;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.library__papers-container {
+  padding: 2rem;
+  flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.library__new-paper__container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+}
+
+.library__new-paper__container svg {
+  width: 5rem;
+  height: auto;
+}
+
+.folders-list__container {
+  flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.library__new-paper__inner-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed #f5a123;
+  color: #f5a123;
+  border-radius: 1rem;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-weight: bold;
+  transition-property: background-color, color, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+.library__new-paper__inner-container:hover {
+  background-color: #f9bd3f;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);
+}
+
+.no-folder-selected {
+  display: flex;
+  align-items: center;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.library__paper-list-view {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.library__paper-list-view__title {
+  max-width: calc(100% - 20rem);
+}
+
+.library__paper-list-view__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.library__paper-list-view__filters label {
+  margin-right: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .library__folders-container {
+    background-color: #353535;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .library__folders-container {
+    background-color: #fff;
+  }
+}

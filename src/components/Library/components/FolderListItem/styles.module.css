@@ -1,0 +1,66 @@
+.folder-list-item__container {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  border-style: solid;
+  border-width: 1px 0 1px;
+}
+
+.folder-list-item__container + .folder-list-item__container {
+  margin-top: -1px;
+}
+
+.folder-list-item__container:hover {
+  cursor: pointer;
+}
+
+.folder-list-item__container:hover .folder-list-item__delete-btn {
+  opacity: 1;
+}
+
+.folder-list-item__name {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  margin-left: 1rem;
+}
+
+.folder-list-item__delete-btn {
+  opacity: 0;
+}
+
+.folder-list-item__delete-btn svg path {
+  fill: #fd5865;
+}
+
+.folder-list-item__container__icon {
+  min-width: 1.8rem;
+  max-width: 1.8rem;
+  height: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .folder-list-item__container {
+    background: #353535;
+    border-color: #454545;
+  }
+
+  .folder-list-item__container > svg path {
+    fill: #fff;
+  }
+
+  .folder-list-item__active {
+    background-color: #404040;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .folder-list-item__container {
+    background: #fff;
+    border-color: #eaeaea;
+  }
+
+  .folder-list-item__active {
+    background-color: #eaeaea;
+  }
+}

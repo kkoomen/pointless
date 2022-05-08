@@ -1,0 +1,38 @@
+.canvas__container {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.canvas__is-pan-mode {
+  cursor: grab;
+}
+
+.canvas__is-panning {
+  cursor: grabbing;
+}
+
+.canvas__element {
+  vertical-align: middle;
+}
+
+.canvas__element {
+  width: 100%;
+  height: 100%;
+}
+
+.canvas__is-draw-mode {
+  cursor: cell;
+}
+
+.canvas__is-erase-mode {
+  cursor: none;
+}
+
+.canvas__info-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}

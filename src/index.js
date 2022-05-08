@@ -1,13 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { invoke } from "@tauri-apps/api/tauri";
+import "rc-tooltip/assets/bootstrap_white.css";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import "./assets/vendor/bootstrap/bootstrap-grid.min.css";
+import App from "./components/App";
+import Menu from "./components/Menu";
+import "./index.css";
+import { loadLibrary } from "./reducers/library/librarySlice";
+import reportWebVitals from "./reportWebVitals";
+import { store } from "./store";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+// Load the library state on load.
+invoke("load_library").then((libraryState) => {
+  store.dispatch(loadLibrary(libraryState));
+});
+
+createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <Menu />
+      <App />
+    </Provider>
   </React.StrictMode>
 );
 

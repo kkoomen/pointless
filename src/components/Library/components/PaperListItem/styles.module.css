@@ -1,0 +1,73 @@
+.paper-list-item__container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  transition-property: box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+}
+
+.paper-list-item__container:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.paper-list-item__container:hover .paper-list-item__delete-btn {
+  opacity: 1;
+}
+
+.paper-list-item__container > svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.paper-list-item__name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  font-size: 1rem;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.paper-list-item__delete-btn {
+  opacity: 0;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.paper-list-item__delete-btn svg {
+  fill: #fd5865;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .paper-list-item__name {
+    border-top: 1px solid #353535;
+    background-color: #454545;
+  }
+
+  .paper-list-item__container {
+    border: 1px solid #353535;
+    background-color: #292929;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .paper-list-item__name {
+    border-top: 1px solid #d1d1d1;
+    background-color: #f0f0f0;
+  }
+
+  .paper-list-item__container {
+    border: 1px solid #d1d1d1;
+    background-color: #fff;
+  }
+}

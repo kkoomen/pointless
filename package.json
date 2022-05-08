@@ -2,25 +2,59 @@
   "name": "pointless",
   "version": "0.1.0",
   "private": true,
+  "description": "An infinite drawing canvas.",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "react-scripts": "5.0.1",
+    "@tauri-apps/api": "^1.0.0-rc.4",
+    "@reduxjs/toolkit": "^1.8.1",
+    "classnames": "^2.3.1",
+    "compress-json": "^2.0.1",
+    "dayjs": "^1.11.1",
+    "prop-types": "^15.8.1",
+    "rc-tooltip": "^5.1.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-redux": "^8.0.1",
+    "react-scripts": "5.0.0",
+    "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "postinstall": "husky install",
+    "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "eslint \"src/**/*.js\" --fix",
+    "tauri": "tauri"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
+      "prettier"
+    ],
+    "rules": {
+      "no-restricted-globals": "off",
+      "comma-dangle": [
+        "warn",
+        "always-multiline"
+      ],
+      "max-len": "off"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --ext js"
+    ],
+    "*.{md,html,json}": [
+      "prettier --write"
     ]
   },
   "browserslist": {
@@ -34,5 +68,18 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.0.0-rc.9",
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
+    "concurrently": "^7.1.0",
+    "electron": "^18.0.3",
+    "electron-packager": "^15.4.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1",
+    "prettier": "^2.6.2",
+    "wait-on": "^6.0.1"
   }
 }

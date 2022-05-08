@@ -1,0 +1,26 @@
+.info-icon {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+}
+
+.info-icon:hover {
+  cursor: pointer;
+}
+
+.info-icon:focus,
+.info-icon:active {
+  opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .info-icon path {
+    fill: #fff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .info-icon path {
+    fill: #000;
+  }
+}
