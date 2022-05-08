@@ -44,6 +44,7 @@ const getInitialState = (isDarkMode, args) => ({
   isErasing: false,
   translateX: 0,
   translateY: 0,
+  forceUpdate: false,
   scale: 1,
   canvasElements: [],
   masks: [],
@@ -692,11 +693,16 @@ class Paper extends React.Component {
       // being drawn and then the next render ends up with a zero width/height,
       // because the canvasElements will be drawn after this block of code.
       // In order to fix this, we need to force another update.
-      if (bbox.width === 0 && bbox.height === 0 && this.state.points.length > 0) {
-        this.forceUpdate();
+      if (
+        bbox.width === 0 &&
+        bbox.height === 0 &&
+        this.state.points.length > 0 &&
+        !this.state.forceUpdate
+      ) {
+        this.setState({ forceUpdate: true });
       }
 
-      attrs.viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
+      attrs.viewBox = `${bbox.x} ${bbox.y} ${Math.round(bbox.width)} ${Math.round(bbox.height)}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
       attrs.onMouseUp = this.canvasMouseUpHandler;
