@@ -692,7 +692,7 @@ class Paper extends React.Component {
       // being drawn and then the next render ends up with a zero width/height,
       // because the canvasElements will be drawn after this block of code.
       // In order to fix this, we need to force another update.
-      if (bbox.width === 0 && bbox.height === 0) {
+      if (bbox.width === 0 && bbox.height === 0 && this.state.points.length > 0) {
         this.forceUpdate();
       }
 
