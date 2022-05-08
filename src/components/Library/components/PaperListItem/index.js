@@ -6,16 +6,17 @@ import classNames from "classnames";
 import { deletePaper } from "./../../../../reducers/library/librarySlice";
 import { ReactComponent as TrashcanIcon } from "./../../../../assets/icons/trashcan.svg";
 import { store } from "./../../../../store";
+import { confirm } from "@tauri-apps/api/dialog";
 
 function PaperListItem(props) {
   const onDeletePaper = () => {
-    if (
-      confirm(
-        `Are you sure you want to delete the paper "${props.paper.name}" ?`
-      )
-    ) {
-      store.dispatch(deletePaper(props.paper.id));
-    }
+    confirm(
+      `Are you sure you want to delete the paper "${props.paper.name}" ?`
+    ).then((shouldDelete) => {
+      if (shouldDelete) {
+        store.dispatch(deletePaper(props.paper.id));
+      }
+    });
   };
 
   const onClick = (e) => {

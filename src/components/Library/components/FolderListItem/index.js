@@ -9,6 +9,7 @@ import {
 import { store } from "./../../../../store";
 import styles from "./styles.module.css";
 import { ReactComponent as TrashcanIcon } from "./../../../../assets/icons/trashcan.svg";
+import { confirm } from "@tauri-apps/api/dialog";
 
 function FolderListItem(props) {
   const onEditDone = (name) => {
@@ -28,14 +29,14 @@ function FolderListItem(props) {
   };
 
   const onDeleteFolder = () => {
-    if (
-      confirm(
-        `Are you sure you want to delete the folder "${props.folder.name}" ?`
-      )
-    ) {
-      store.dispatch(deleteFolder(props.folder.id));
-      props.onDelete();
-    }
+    confirm(
+      `Are you sure you want to delete the folder "${props.folder.name}" ?`
+    ).then((shouldDelete) => {
+      if (shouldDelete) {
+        store.dispatch(deleteFolder(props.folder.id));
+        props.onDelete();
+      }
+    });
   };
 
   return (

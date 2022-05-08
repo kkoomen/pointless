@@ -7,6 +7,7 @@ import { rotateAroundPoint } from "./helpers";
 import Palette from "./components/Palette";
 import Toolbar from "./components/Toolbar";
 import Info from "./components/Info";
+import { confirm } from "@tauri-apps/api/dialog";
 import {
   DEFAULT_STROKE_COLOR_LIGHT,
   DEFAULT_STROKE_COLOR_DARK,
@@ -184,9 +185,13 @@ class Paper extends React.Component {
   };
 
   clearCanvas = () => {
-    if (confirm("Are you sure you want to clear the canvas?")) {
-      this.setState(getInitialState(this.props.isDarkMode));
-    }
+    confirm("Are you sure you want to clear the canvas?").then(
+      (shouldClear) => {
+        if (shouldClear) {
+          this.setState(getInitialState(this.props.isDarkMode));
+        }
+      }
+    );
   };
 
   /**
