@@ -1,9 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Tooltip from "rc-tooltip";
-import { KEY } from "../../constants";
-import styles from "./styles.module.css";
-import classNames from "classnames";
+import React from 'react';
+import PropTypes from 'prop-types';
+import Tooltip from 'rc-tooltip';
+import { KEY } from '../../constants';
+import styles from './styles.module.css';
+import classNames from 'classnames';
 
 class InlineEdit extends React.Component {
   input = React.createRef();
@@ -64,11 +64,10 @@ class InlineEdit extends React.Component {
    * for the input element.
    */
   getInputWidth = () => {
-    var span = document.createElement("span");
-    span.classList.add(styles["inline-edit__tmp-element"]);
-    const value =
-      this.state.value !== null ? this.state.value : this.props.defaultValue;
-    span.innerHTML = value.replaceAll(" ", "&nbsp;");
+    var span = document.createElement('span');
+    span.classList.add(styles['inline-edit__tmp-element']);
+    const value = this.state.value !== null ? this.state.value : this.props.defaultValue;
+    span.innerHTML = value.replaceAll(' ', '&nbsp;');
     document.body.appendChild(span);
     const width = Math.round(span.getBoundingClientRect().width) + 2;
     document.body.removeChild(span);
@@ -82,7 +81,7 @@ class InlineEdit extends React.Component {
           style={{ width: this.getInputWidth() }}
           ref={this.input}
           type="text"
-          className={styles["inline-edit__input"]}
+          className={styles['inline-edit__input']}
           defaultValue={this.props.defaultValue}
           onChange={this.onChange}
           onBlur={this.onBlur}
@@ -95,7 +94,7 @@ class InlineEdit extends React.Component {
     return (
       <Tooltip placement="top" overlay="double click to edit">
         <span
-          className={classNames("ellipsis", styles["inline-edit__text"])}
+          className={classNames('ellipsis', styles['inline-edit__text'])}
           onDoubleClick={() => this.toggleEdit()}
         >
           {this.props.defaultValue}

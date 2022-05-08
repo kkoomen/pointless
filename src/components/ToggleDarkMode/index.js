@@ -1,10 +1,10 @@
-import React from "react";
-import classNames from "classnames";
-import { connect } from "react-redux";
-import { ReactComponent as LightModeIcon } from "./../../assets/icons/light-mode.svg";
-import { ReactComponent as DarkModeIcon } from "./../../assets/icons/dark-mode.svg";
-import styles from "./styles.module.css";
-import { setDarkMode } from "./../../reducers/settings/settingsSlice";
+import React from 'react';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import { ReactComponent as LightModeIcon } from './../../assets/icons/light-mode.svg';
+import { ReactComponent as DarkModeIcon } from './../../assets/icons/dark-mode.svg';
+import styles from './styles.module.css';
+import { setDarkMode } from './../../reducers/settings/settingsSlice';
 
 class ToggleDarkMode extends React.PureComponent {
   async componentDidMount() {
@@ -22,14 +22,14 @@ class ToggleDarkMode extends React.PureComponent {
     return (
       <div
         onClick={this.toggleDarkMode}
-        className={classNames(styles["toggle-dark-mode__container"], {
-          [styles["is-dark-mode"]]: this.props.isDarkMode,
+        className={classNames(styles['toggle-dark-mode__container'], {
+          [styles['is-dark-mode']]: this.props.isDarkMode,
         })}
       >
-        <div className={styles["toggle-dark-mode__icon-container"]}>
+        <div className={styles['toggle-dark-mode__icon-container']}>
           <LightModeIcon width="2rem" height="2rem" />
         </div>
-        <div className={styles["toggle-dark-mode__icon-container"]}>
+        <div className={styles['toggle-dark-mode__icon-container']}>
           <DarkModeIcon width="2rem" height="2rem" fill="white" />
         </div>
       </div>

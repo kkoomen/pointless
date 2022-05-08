@@ -1,13 +1,13 @@
-import React from "react";
-import classNames from "classnames";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
-import styles from "./styles.module.css";
-import { rotateAroundPoint } from "./helpers";
-import Palette from "./components/Palette";
-import Toolbar from "./components/Toolbar";
-import Info from "./components/Info";
-import { confirm } from "@tauri-apps/api/dialog";
+import React from 'react';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import styles from './styles.module.css';
+import { rotateAroundPoint } from './helpers';
+import Palette from './components/Palette';
+import Toolbar from './components/Toolbar';
+import Info from './components/Info';
+import { confirm } from '@tauri-apps/api/dialog';
 import {
   DEFAULT_STROKE_COLOR_LIGHT,
   DEFAULT_STROKE_COLOR_DARK,
@@ -20,16 +20,14 @@ import {
   MIN_SCALE,
   SCALE_FACTOR,
   SCALE_BY,
-} from "./constants";
-import { KEY } from "./../../constants";
-import { setPaperPoints } from "./../../reducers/library/librarySlice";
+} from './constants';
+import { KEY } from './../../constants';
+import { setPaperPoints } from './../../reducers/library/librarySlice';
 
-const IS_DEV = process.env.NODE_ENV === "development";
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 const getInitialState = (isDarkMode, args) => ({
-  selectedColor: isDarkMode
-    ? DEFAULT_STROKE_COLOR_DARK
-    : DEFAULT_STROKE_COLOR_LIGHT,
+  selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT,
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
   prevMode: null,
@@ -74,8 +72,8 @@ class Paper extends React.Component {
 
   componentDidMount() {
     if (!this.props.readonly) {
-      document.addEventListener("keydown", this.documentKeyDownHandler);
-      document.addEventListener("keyup", this.documentKeyUpHandler);
+      document.addEventListener('keydown', this.documentKeyDownHandler);
+      document.addEventListener('keyup', this.documentKeyUpHandler);
     }
 
     this.drawCanvasElements();
@@ -83,8 +81,8 @@ class Paper extends React.Component {
 
   componentWillUnmount() {
     if (!this.props.readonly) {
-      document.removeEventListener("keydown", this.documentKeyDownHandler);
-      document.removeEventListener("keyup", this.documentKeyUpHandler);
+      document.removeEventListener('keydown', this.documentKeyDownHandler);
+      document.removeEventListener('keyup', this.documentKeyUpHandler);
     }
   }
 
@@ -96,7 +94,7 @@ class Paper extends React.Component {
         setPaperPoints({
           id: this.props.paperId,
           points: this.state.points,
-        })
+        }),
       );
     }
 
@@ -111,7 +109,7 @@ class Paper extends React.Component {
   }
 
   isGlobalEvent = (e) => {
-    return e.srcElement === document.querySelector("body");
+    return e.srcElement === document.querySelector('body');
   };
 
   documentKeyDownHandler = async (e) => {
@@ -185,13 +183,11 @@ class Paper extends React.Component {
   };
 
   clearCanvas = () => {
-    confirm("Are you sure you want to clear the canvas?").then(
-      (shouldClear) => {
-        if (shouldClear) {
-          this.setState(getInitialState(this.props.isDarkMode));
-        }
+    confirm('Are you sure you want to clear the canvas?').then((shouldClear) => {
+      if (shouldClear) {
+        this.setState(getInitialState(this.props.isDarkMode));
       }
-    );
+    });
   };
 
   /**
@@ -358,8 +354,7 @@ class Paper extends React.Component {
               this.state.currentShape.points[
                 Math.max(0, this.state.currentShape.points.length - 1)
               ];
-            const angle =
-              (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+            const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
             const direction = {
               up: angle > -135 && angle < -45,
               down: angle < 135 && angle > 45,
@@ -372,20 +367,11 @@ class Paper extends React.Component {
             if (!e.shiftKey) {
               newState.fixedCursorX = null;
               newState.fixedCursorY = null;
-            } else if (
-              this.state.fixedCursorX === null &&
-              this.state.fixedCursorY === null
-            ) {
-              if (
-                this.state.fixedCursorY === null &&
-                (direction.up || direction.down)
-              ) {
+            } else if (this.state.fixedCursorX === null && this.state.fixedCursorY === null) {
+              if (this.state.fixedCursorY === null && (direction.up || direction.down)) {
                 newState.fixedCursorX = cursorX;
                 newState.fixedCursorY = null;
-              } else if (
-                this.state.fixedCursorX === null &&
-                (direction.left || direction.right)
-              ) {
+              } else if (this.state.fixedCursorX === null && (direction.left || direction.right)) {
                 newState.fixedCursorX = null;
                 newState.fixedCursorY = cursorY;
               }
@@ -393,14 +379,8 @@ class Paper extends React.Component {
 
             // If the user is drawing while holding shift then we want to draw a
             // straight line.
-            const x =
-              this.state.fixedCursorX !== null
-                ? this.state.fixedCursorX
-                : cursorX;
-            const y =
-              this.state.fixedCursorY !== null
-                ? this.state.fixedCursorY
-                : cursorY;
+            const x = this.state.fixedCursorX !== null ? this.state.fixedCursorX : cursorX;
+            const y = this.state.fixedCursorY !== null ? this.state.fixedCursorY : cursorY;
 
             newState.currentShape.points = [
               ...newState.currentShape.points,
@@ -427,9 +407,7 @@ class Paper extends React.Component {
   };
 
   isDrawMode = () => {
-    return [MODE.FREEHAND, MODE.ELLIPSE, MODE.RECTANGLE, MODE.ARROW].includes(
-      this.state.mode
-    );
+    return [MODE.FREEHAND, MODE.ELLIPSE, MODE.RECTANGLE, MODE.ARROW].includes(this.state.mode);
   };
 
   isDrawing = () => {
@@ -497,11 +475,7 @@ class Paper extends React.Component {
         ? CANVAS_BACKGROUND_COLOR_DARK
         : CANVAS_BACKGROUND_COLOR_LIGHT;
     } else {
-      if (
-        [DEFAULT_STROKE_COLOR_DARK, DEFAULT_STROKE_COLOR_LIGHT].includes(
-          strokeColor
-        )
-      ) {
+      if ([DEFAULT_STROKE_COLOR_DARK, DEFAULT_STROKE_COLOR_LIGHT].includes(strokeColor)) {
         strokeColor = this.props.isDarkMode
           ? DEFAULT_STROKE_COLOR_DARK
           : DEFAULT_STROKE_COLOR_LIGHT;
@@ -568,14 +542,8 @@ class Paper extends React.Component {
       }
 
       case MODE.RECTANGLE: {
-        const x =
-          shape.x2 < shape.x1 && !shape.preserveAspectRatio
-            ? shape.x2
-            : shape.x1;
-        const y =
-          shape.y2 < shape.y1 && !shape.preserveAspectRatio
-            ? shape.y2
-            : shape.y1;
+        const x = shape.x2 < shape.x1 && !shape.preserveAspectRatio ? shape.x2 : shape.x1;
+        const y = shape.y2 < shape.y1 && !shape.preserveAspectRatio ? shape.y2 : shape.y1;
         const width = Math.abs(shape.x2 - shape.x1);
         const height = Math.abs(shape.y2 - shape.y1);
         const size = Math.min(width, height);
@@ -597,10 +565,7 @@ class Paper extends React.Component {
         // middle line. We add 45 (degrees) at the end, in order to make angle
         // 45 degrees between the middle line and the arrow head line.
         const angle =
-          ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) /
-            Math.PI) *
-            -1 +
-          45;
+          ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
 
         // The length of the lines of the arrow head.
         const arrowHeadLength = 30 + shape.linewidth;
@@ -610,14 +575,14 @@ class Paper extends React.Component {
           shape.y2,
           shape.x2,
           shape.y2 - arrowHeadLength,
-          angle
+          angle,
         );
         const [arrowHeadRightX, arrowHeadRightY] = rotateAroundPoint(
           shape.x2,
           shape.y2,
           shape.x2 - arrowHeadLength,
           shape.y2,
-          angle
+          angle,
         );
         const middleLine = `M ${shape.x1} ${shape.y1}, ${shape.x2} ${shape.y2}`;
         const arrowHeadLeft = `M ${shape.x2} ${shape.y2}, ${arrowHeadLeftX}, ${arrowHeadLeftY}`;
@@ -636,7 +601,7 @@ class Paper extends React.Component {
       }
 
       default:
-        console.error("Unknown shape", shape);
+        console.error('Unknown shape', shape);
         break;
     }
   }
@@ -664,7 +629,7 @@ class Paper extends React.Component {
     const bbox = this.svg.current.getBBox();
 
     let scale;
-    if (typeof preferredScale !== "undefined") {
+    if (typeof preferredScale !== 'undefined') {
       scale = preferredScale / this.state.scale;
     } else {
       const xScale = maxWidth / bbox.width;
@@ -674,10 +639,8 @@ class Paper extends React.Component {
 
     const xOffset = (maxWidth - bbox.width * scale) / 2;
     const yOffset = (maxHeight - bbox.height * scale) / 2;
-    const translateX =
-      this.state.translateX * scale - bbox.x * scale + xOffset + margin;
-    const translateY =
-      this.state.translateY * scale - bbox.y * scale + yOffset + margin;
+    const translateX = this.state.translateX * scale - bbox.x * scale + xOffset + margin;
+    const translateY = this.state.translateY * scale - bbox.y * scale + yOffset + margin;
 
     this.setState({
       translateX,
@@ -723,7 +686,7 @@ class Paper extends React.Component {
     if (this.props.readonly && this.svg.current) {
       const bbox = this.svg.current.getBBox();
       attrs.viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
-      attrs.preserveAspectRatio = "xMidYMid meet";
+      attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
       attrs.onMouseUp = this.canvasMouseUpHandler;
       attrs.onMouseDown = this.canvasMouseDownHandler;
@@ -740,8 +703,8 @@ class Paper extends React.Component {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         ref={this.svg}
-        className={classNames(styles["canvas__element"], {
-          [styles["canvas__element-readonly"]]: this.props.readonly,
+        className={classNames(styles['canvas__element'], {
+          [styles['canvas__element-readonly']]: this.props.readonly,
         })}
         {...attrs}
       >
@@ -768,18 +731,15 @@ class Paper extends React.Component {
 
     return (
       <div
-        className={classNames(styles["canvas__container"], {
-          [styles["canvas__is-draw-mode"]]: this.isDrawMode(),
-          [styles["canvas__is-erase-mode"]]: this.isEraseMode(),
-          [styles["canvas__is-pan-mode"]]: this.isPanMode(),
-          [styles["canvas__is-panning"]]: this.isPanning(),
+        className={classNames(styles['canvas__container'], {
+          [styles['canvas__is-draw-mode']]: this.isDrawMode(),
+          [styles['canvas__is-erase-mode']]: this.isEraseMode(),
+          [styles['canvas__is-pan-mode']]: this.isPanMode(),
+          [styles['canvas__is-panning']]: this.isPanning(),
         })}
       >
         {this.renderCanvas()}
-        <Palette
-          onSelectColor={this.selectColorHandler}
-          selectedColor={this.state.selectedColor}
-        />
+        <Palette onSelectColor={this.selectColorHandler} selectedColor={this.state.selectedColor} />
         <Toolbar
           mode={this.state.mode}
           linewidth={this.state.linewidth}

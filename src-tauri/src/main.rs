@@ -1,5 +1,4 @@
-use tauri::Manager;
-use tauri::AppHandle;
+use tauri::{Manager, AppHandle, Menu, Submenu, MenuItem, CustomMenuItem};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -28,7 +27,15 @@ fn save_library(app: AppHandle, library_state: String) {
 }
 
 fn main() {
+    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+    let close = CustomMenuItem::new("close".to_string(), "Close");
+    let submenu = Submenu::new("File", Menu::new().add_item(quit).add_item(close));
+    let menu = Menu::new()
+        .add_native_item(MenuItem::Copy)
+        .add_submenu(submenu);
+
     tauri::Builder::default()
+        .menu(menu)
         .setup(|app| {
             let handle = app.handle();
             config::init(handle);

@@ -1,38 +1,37 @@
-import styles from "./styles.module.css";
-import classNames from "classnames";
-import { LINEWIDTH, MODE } from "./../../constants";
+import styles from './styles.module.css';
+import classNames from 'classnames';
+import { LINEWIDTH, MODE } from './../../constants';
 
-import { ReactComponent as PanIcon } from "./../../../../assets/icons/move.svg";
-import { ReactComponent as EraserIcon } from "./../../../../assets/icons/eraser.svg";
-import { ReactComponent as MaximizeIcon } from "./../../../../assets/icons/maximize.svg";
-import { ReactComponent as ZoomInIcon } from "./../../../../assets/icons/zoom-in.svg";
-import { ReactComponent as ZoomOutIcon } from "./../../../../assets/icons/zoom-out.svg";
-import { ReactComponent as UndoIcon } from "./../../../../assets/icons/undo.svg";
-import { ReactComponent as RedoIcon } from "./../../../../assets/icons/redo.svg";
-import { ReactComponent as HomeIcon } from "./../../../../assets/icons/home.svg";
-import { ReactComponent as TrashcanIcon } from "./../../../../assets/icons/trashcan.svg";
-import { ReactComponent as FreehandToolIcon } from "./../../../../assets/icons/tool-freehand.svg";
-import { ReactComponent as EllipseToolIcon } from "./../../../../assets/icons/tool-ellipse.svg";
-import { ReactComponent as RectangleToolIcon } from "./../../../../assets/icons/tool-rectangle.svg";
-import { ReactComponent as ArrowToolIcon } from "./../../../../assets/icons/tool-arrow.svg";
-import Tooltip from "rc-tooltip";
+import { ReactComponent as PanIcon } from './../../../../assets/icons/move.svg';
+import { ReactComponent as EraserIcon } from './../../../../assets/icons/eraser.svg';
+import { ReactComponent as MaximizeIcon } from './../../../../assets/icons/maximize.svg';
+import { ReactComponent as ZoomInIcon } from './../../../../assets/icons/zoom-in.svg';
+import { ReactComponent as ZoomOutIcon } from './../../../../assets/icons/zoom-out.svg';
+import { ReactComponent as UndoIcon } from './../../../../assets/icons/undo.svg';
+import { ReactComponent as RedoIcon } from './../../../../assets/icons/redo.svg';
+import { ReactComponent as HomeIcon } from './../../../../assets/icons/home.svg';
+import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
+import { ReactComponent as FreehandToolIcon } from './../../../../assets/icons/tool-freehand.svg';
+import { ReactComponent as EllipseToolIcon } from './../../../../assets/icons/tool-ellipse.svg';
+import { ReactComponent as RectangleToolIcon } from './../../../../assets/icons/tool-rectangle.svg';
+import { ReactComponent as ArrowToolIcon } from './../../../../assets/icons/tool-arrow.svg';
+import Tooltip from 'rc-tooltip';
 
 function Toolbar(props) {
   return (
     <>
-      <div className={classNames(styles["toolbar__container"])}>
+      <div className={classNames(styles['toolbar__container'])}>
         <Tooltip placement="top" overlay="small stroke width">
           <div
             onClick={() => props.onLinewidthChange(LINEWIDTH.SMALL)}
             className={classNames(
-              styles["toolbar__item"],
-              styles["toolbar__item__linewidth"],
-              styles["toolbar__item__linewidth-small"],
+              styles['toolbar__item'],
+              styles['toolbar__item__linewidth'],
+              styles['toolbar__item__linewidth-small'],
               {
-                [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-                [styles["toolbar__item-active"]]:
-                  props.linewidth === LINEWIDTH.SMALL,
-              }
+                [styles['toolbar__item-disabled']]: !props.isDrawMode,
+                [styles['toolbar__item-active']]: props.linewidth === LINEWIDTH.SMALL,
+              },
             )}
           />
         </Tooltip>
@@ -40,14 +39,13 @@ function Toolbar(props) {
           <div
             onClick={() => props.onLinewidthChange(LINEWIDTH.MEDIUM)}
             className={classNames(
-              styles["toolbar__item"],
-              styles["toolbar__item__linewidth"],
-              styles["toolbar__item__linewidth-medium"],
+              styles['toolbar__item'],
+              styles['toolbar__item__linewidth'],
+              styles['toolbar__item__linewidth-medium'],
               {
-                [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-                [styles["toolbar__item-active"]]:
-                  props.linewidth === LINEWIDTH.MEDIUM,
-              }
+                [styles['toolbar__item-disabled']]: !props.isDrawMode,
+                [styles['toolbar__item-active']]: props.linewidth === LINEWIDTH.MEDIUM,
+              },
             )}
           />
         </Tooltip>
@@ -55,18 +53,17 @@ function Toolbar(props) {
           <div
             onClick={() => props.onLinewidthChange(LINEWIDTH.LARGE)}
             className={classNames(
-              styles["toolbar__item"],
-              styles["toolbar__item__linewidth"],
-              styles["toolbar__item__linewidth-large"],
+              styles['toolbar__item'],
+              styles['toolbar__item__linewidth'],
+              styles['toolbar__item__linewidth-large'],
               {
-                [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-                [styles["toolbar__item-active"]]:
-                  props.linewidth === LINEWIDTH.LARGE,
-              }
+                [styles['toolbar__item-disabled']]: !props.isDrawMode,
+                [styles['toolbar__item-active']]: props.linewidth === LINEWIDTH.LARGE,
+              },
             )}
           />
         </Tooltip>
-        <div className={styles["toolbar__item-separator"]} />
+        <div className={styles['toolbar__item-separator']} />
         <Tooltip
           placement="top"
           overlay={
@@ -80,9 +77,9 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickFreehandTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-              [styles["toolbar__item-active"]]: props.mode === MODE.FREEHAND,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.isDrawMode,
+              [styles['toolbar__item-active']]: props.mode === MODE.FREEHAND,
             })}
           >
             <FreehandToolIcon />
@@ -101,9 +98,9 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickEllipseTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-              [styles["toolbar__item-active"]]: props.mode === MODE.ELLIPSE,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.isDrawMode,
+              [styles['toolbar__item-active']]: props.mode === MODE.ELLIPSE,
             })}
           >
             <EllipseToolIcon />
@@ -122,9 +119,9 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickRectangleTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-              [styles["toolbar__item-active"]]: props.mode === MODE.RECTANGLE,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.isDrawMode,
+              [styles['toolbar__item-active']]: props.mode === MODE.RECTANGLE,
             })}
           >
             <RectangleToolIcon />
@@ -143,15 +140,15 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickArrowTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.isDrawMode,
-              [styles["toolbar__item-active"]]: props.mode === MODE.ARROW,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.isDrawMode,
+              [styles['toolbar__item-active']]: props.mode === MODE.ARROW,
             })}
           >
             <ArrowToolIcon />
           </div>
         </Tooltip>
-        <div className={styles["toolbar__item-separator"]} />
+        <div className={styles['toolbar__item-separator']} />
         <Tooltip
           placement="top"
           overlay={
@@ -165,10 +162,9 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickEraseTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]:
-                !props.isEraseMode && !props.isDrawMode,
-              [styles["toolbar__item-active"]]: props.isEraseMode,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.isEraseMode && !props.isDrawMode,
+              [styles['toolbar__item-active']]: props.isEraseMode,
             })}
           >
             <EraserIcon />
@@ -187,9 +183,9 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickPanTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: props.isEraseMode,
-              [styles["toolbar__item-active"]]: props.isPanMode,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: props.isEraseMode,
+              [styles['toolbar__item-active']]: props.isPanMode,
             })}
           >
             <PanIcon />
@@ -198,14 +194,14 @@ function Toolbar(props) {
         <Tooltip placement="top" overlay="zoom to fit">
           <div
             onClick={props.onClickZoomToFit}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: props.canvasIsEmpty,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: props.canvasIsEmpty,
             })}
           >
             <MaximizeIcon />
           </div>
         </Tooltip>
-        <div className={styles["toolbar__item-separator"]} />
+        <div className={styles['toolbar__item-separator']} />
         <Tooltip
           placement="top"
           overlay={
@@ -219,8 +215,8 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickUndoTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.canUndo,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.canUndo,
             })}
           >
             <UndoIcon />
@@ -239,21 +235,21 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onClickRedoTool}
-            className={classNames(styles["toolbar__item"], {
-              [styles["toolbar__item-disabled"]]: !props.canRedo,
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-disabled']]: !props.canRedo,
             })}
           >
             <RedoIcon />
           </div>
         </Tooltip>
       </div>
-      <div className={styles["toolbar-right__container"]}>
+      <div className={styles['toolbar-right__container']}>
         <Tooltip placement="left" overlay="reset zoom level">
           <div
             onClick={props.onClickResetZoom}
-            className={classNames(styles["toolbar-right__button"], {
+            className={classNames(styles['toolbar-right__button'], {
               hidden: props.canResetZoom,
-              [styles["toolbar__item-disabled"]]: props.canResetZoom,
+              [styles['toolbar__item-disabled']]: props.canResetZoom,
             })}
           >
             <HomeIcon />
@@ -272,8 +268,8 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onZoomIn}
-            className={classNames(styles["toolbar-right__button"], {
-              [styles["toolbar__item-disabled"]]: props.canvasIsEmpty,
+            className={classNames(styles['toolbar-right__button'], {
+              [styles['toolbar__item-disabled']]: props.canvasIsEmpty,
             })}
           >
             <ZoomInIcon />
@@ -292,8 +288,8 @@ function Toolbar(props) {
         >
           <div
             onClick={props.onZoomOut}
-            className={classNames(styles["toolbar-right__button"], {
-              [styles["toolbar__item-disabled"]]: props.canvasIsEmpty,
+            className={classNames(styles['toolbar-right__button'], {
+              [styles['toolbar__item-disabled']]: props.canvasIsEmpty,
             })}
           >
             <ZoomOutIcon />
@@ -313,11 +309,11 @@ function Toolbar(props) {
           <div
             onClick={props.onClearCanvas}
             className={classNames(
-              styles["toolbar-right__button"],
-              styles["toolbar-right__button-delete"],
+              styles['toolbar-right__button'],
+              styles['toolbar-right__button-delete'],
               {
-                [styles["toolbar__item-disabled"]]: props.canvasIsEmpty,
-              }
+                [styles['toolbar__item-disabled']]: props.canvasIsEmpty,
+              },
             )}
           >
             <TrashcanIcon />

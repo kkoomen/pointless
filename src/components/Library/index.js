@@ -1,21 +1,18 @@
-import React from "react";
-import { connect } from "react-redux";
-import styles from "./styles.module.css";
-import {
-  newPaperInFolder,
-  newFolder,
-} from "./../../reducers/library/librarySlice";
-import { setCurrentPaper } from "./../../reducers/paper/paperSlice";
-import { to } from "./../../reducers/router/routerSlice";
-import FolderListItem from "./components/FolderListItem";
-import classNames from "classnames";
-import PaperListItem from "./components/PaperListItem";
-import dayjs from "dayjs";
+import React from 'react';
+import { connect } from 'react-redux';
+import styles from './styles.module.css';
+import { newPaperInFolder, newFolder } from './../../reducers/library/librarySlice';
+import { setCurrentPaper } from './../../reducers/paper/paperSlice';
+import { to } from './../../reducers/router/routerSlice';
+import FolderListItem from './components/FolderListItem';
+import classNames from 'classnames';
+import PaperListItem from './components/PaperListItem';
+import dayjs from 'dayjs';
 
 class Library extends React.Component {
   state = {
     currentFolderId: null,
-    sortBy: "last-edit",
+    sortBy: 'last-edit',
   };
 
   newFolder = () => {
@@ -33,7 +30,7 @@ class Library extends React.Component {
     if (folders.length === 0) return null;
 
     return (
-      <div className={styles["folders-list__container"]}>
+      <div className={styles['folders-list__container']}>
         {folders.map((folder) => (
           <FolderListItem
             key={folder.id}
@@ -51,9 +48,9 @@ class Library extends React.Component {
     this.props.dispatch(setCurrentPaper(paperId));
     this.props.dispatch(
       to({
-        name: "paper",
+        name: 'paper',
         args: { paperId },
-      })
+      }),
     );
   };
 
@@ -67,16 +64,16 @@ class Library extends React.Component {
 
   renderPapers = () => {
     const folder = this.props.library.folders.find(
-      (folder) => folder.id === this.state.currentFolderId
+      (folder) => folder.id === this.state.currentFolderId,
     );
     if (!folder) return null;
 
     let papers = this.props.library.papers.filter(
-      (paper) => paper.folderId === this.state.currentFolderId
+      (paper) => paper.folderId === this.state.currentFolderId,
     );
 
     switch (this.state.sortBy) {
-      case "name-az":
+      case 'name-az':
         papers = papers.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
@@ -90,7 +87,7 @@ class Library extends React.Component {
         });
         break;
 
-      case "name-za":
+      case 'name-za':
         papers = papers.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
@@ -104,7 +101,7 @@ class Library extends React.Component {
         });
         break;
 
-      case "last-edit":
+      case 'last-edit':
       default:
         papers = papers.sort((a, b) => {
           if (dayjs(a.updatedAt).isBefore(dayjs(b.updatedAt))) {
@@ -119,17 +116,12 @@ class Library extends React.Component {
     }
 
     return (
-      <div className={styles["library__paper-list-view"]}>
-        <div className={styles["library__paper-list-view__header"]}>
-          <h1
-            className={classNames(
-              "ellipsis",
-              styles["library__paper-list-view__title"]
-            )}
-          >
+      <div className={styles['library__paper-list-view']}>
+        <div className={styles['library__paper-list-view__header']}>
+          <h1 className={classNames('ellipsis', styles['library__paper-list-view__title'])}>
             {folder.name}
           </h1>
-          <div className={styles["library__paper-list-view__filters"]}>
+          <div className={styles['library__paper-list-view__filters']}>
             <label htmlFor="paperSort">sort by</label>
             <select
               id="paperSort"
@@ -145,9 +137,9 @@ class Library extends React.Component {
         </div>
         <div className="row row-cols-sm-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4">
           <div className="col">
-            <div className={styles["library__new-paper__container"]}>
+            <div className={styles['library__new-paper__container']}>
               <div
-                className={styles["library__new-paper__inner-container"]}
+                className={styles['library__new-paper__inner-container']}
                 onClick={this.newPaperInFolder}
               >
                 new paper
@@ -157,10 +149,7 @@ class Library extends React.Component {
 
           {papers.map((paper) => (
             <div key={paper.id} className="col">
-              <PaperListItem
-                paper={paper}
-                onClick={() => this.openPaper(paper.id)}
-              />
+              <PaperListItem paper={paper} onClick={() => this.openPaper(paper.id)} />
             </div>
           ))}
         </div>
@@ -170,14 +159,11 @@ class Library extends React.Component {
 
   render() {
     return (
-      <div className={styles["library__container"]}>
-        <div className={styles["library__folders-container"]}>
-          <div className={styles["library__folders-heading"]}>
+      <div className={styles['library__container']}>
+        <div className={styles['library__folders-container']}>
+          <div className={styles['library__folders-heading']}>
             <h2>My folders</h2>
-            <button
-              className="btn btn-thin btn-primary"
-              onClick={this.newFolder}
-            >
+            <button className="btn btn-thin btn-primary" onClick={this.newFolder}>
               new folder
             </button>
           </div>
@@ -185,8 +171,8 @@ class Library extends React.Component {
         </div>
 
         <div
-          className={classNames(styles["library__papers-container"], {
-            [styles["no-folder-selected"]]: !this.state.currentFolderId,
+          className={classNames(styles['library__papers-container'], {
+            [styles['no-folder-selected']]: !this.state.currentFolderId,
           })}
         >
           {this.state.currentFolderId ? (

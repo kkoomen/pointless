@@ -1,14 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   current: {
-    name: "library",
+    name: 'library',
     args: {},
   },
 };
 
 const routerSlice = createSlice({
-  name: "router",
+  name: 'router',
   initialState,
   reducers: {
     to: (state, action) => {

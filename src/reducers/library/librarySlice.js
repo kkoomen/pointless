@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
+import { createSlice } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
   folders: [],
@@ -7,13 +7,13 @@ const initialState = {
 };
 
 const librarySlice = createSlice({
-  name: "library",
+  name: 'library',
   initialState,
   reducers: {
     newFolder: (state) => {
       state.folders.push({
         id: uuidv4(),
-        name: "Untitled",
+        name: 'Untitled',
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
@@ -22,7 +22,7 @@ const librarySlice = createSlice({
       const folderId = action.payload;
       state.papers.push({
         id: uuidv4(),
-        name: "Untitled",
+        name: 'Untitled',
         folderId: folderId,
         points: [],
         updatedAt: new Date().toISOString(),
@@ -66,9 +66,7 @@ const librarySlice = createSlice({
       state.folders = state.folders.filter((folder) => folder.id !== folderId);
 
       // Delete all the corresponding papers.
-      state.papers = state.papers.filter(
-        (paper) => paper.folderId !== folderId
-      );
+      state.papers = state.papers.filter((paper) => paper.folderId !== folderId);
     },
     deletePaper: (state, action) => {
       const id = action.payload;

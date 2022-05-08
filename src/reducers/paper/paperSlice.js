@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   paperId: null,
@@ -6,7 +6,7 @@ const initialState = {
 };
 
 const paperSlice = createSlice({
-  name: "paper",
+  name: 'paper',
   initialState,
   reducers: {
     setCurrentPaper: (state, action) => {
