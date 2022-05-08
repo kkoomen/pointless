@@ -23,9 +23,9 @@
       ],
       "resources": [],
       "externalBin": [],
-      "copyright": "",
+      "copyright": "Kim 金可明",
       "category": "DeveloperTool",
-      "shortDescription": "",
+      "shortDescription": "An endless drawing canvas.",
       "longDescription": "",
       "deb": {
         "depends": []

@@ -687,6 +687,15 @@ class Paper extends React.Component {
 
     if (this.props.readonly && this.svg.current) {
       const bbox = this.svg.current.getBBox();
+
+      // This scenario happens in readonly modes where the canvasElements are
+      // being drawn and then the next render ends up with a zero width/height,
+      // because the canvasElements will be drawn after this block of code.
+      // In order to fix this, we need to force another update.
+      if (bbox.width === 0 && bbox.height === 0) {
+        this.forceUpdate();
+      }
+
       attrs.viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
