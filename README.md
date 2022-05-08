@@ -45,4 +45,4 @@ Starting the development server can be done with `yarn run tauri dev`
 
 # Creating a build
 
-Creating a build can simply be done with: `yarn run tauri build`
+Creating a build can simply be done with `yarn run tauri build`
