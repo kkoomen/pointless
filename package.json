@@ -2,7 +2,7 @@
   "name": "pointless",
   "version": "0.1.0",
   "private": true,
-  "description": "An infinite drawing canvas.",
+  "description": "An endless drawing canvas.",
   "dependencies": {
     "@tauri-apps/api": "^1.0.0-rc.4",
     "@reduxjs/toolkit": "^1.8.1",

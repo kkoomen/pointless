@@ -8,12 +8,21 @@ import App from './components/App';
 import Menu from './components/Menu';
 import './index.css';
 import { loadLibrary } from './reducers/library/librarySlice';
+import { setDarkMode } from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 
 // Load the library state on load.
 invoke('load_library').then((libraryState) => {
   store.dispatch(loadLibrary(libraryState));
+});
+
+// Until the feature request hasn't been resolved, we temporarily will use the
+// backend to detect the system theme for macOS.
+// @see https://github.com/tauri-apps/tao/issues/387
+invoke('get_system_theme').then((theme) => {
+  const isDarkMode = theme === 'dark';
+  store.dispatch(setDarkMode(isDarkMode));
 });
 
 createRoot(document.getElementById('root')).render(
