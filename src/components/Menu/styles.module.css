@@ -79,11 +79,11 @@
   transform: translateY(-50%);
   height: 3rem;
   width: 3px;
-  background-color: #f5a123;
+  background-color: #f9bd3f;
 }
 
 .menu__menu-item-active {
-  color: #f5a123;
+  color: #f9bd3f;
   cursor: not-allowed;
   pointer-events: none;
 }
