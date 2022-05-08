@@ -1,4 +1,4 @@
-use tauri::{Manager, AppHandle};
+use tauri::Manager;
 mod config;
 mod menu;
 mod commands;
