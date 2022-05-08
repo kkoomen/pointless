@@ -177,7 +177,6 @@ kbd {
   background-image: none;
   -webkit-appearance: none;
   font-size: 1.4rem;
-  text-align: center;
 }
 
 .select:active,
