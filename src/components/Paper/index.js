@@ -26,8 +26,6 @@ import { setPaperPoints } from './../../reducers/library/librarySlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { to } from '../../reducers/router/routerSlice';
 
-const IS_DEV = process.env.NODE_ENV === 'development';
-
 const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT,
   linewidth: LINEWIDTH.SMALL,
@@ -116,11 +114,6 @@ class Paper extends React.Component {
   };
 
   documentKeyDownHandler = async (e) => {
-    // Allow inspector to be opened in dev mode.
-    if (IS_DEV && e.metaKey && e.altKey && e.which === KEY.I) {
-      return true;
-    }
-
     if (!this.isGlobalEvent(e)) {
       return true;
     }
@@ -280,7 +273,7 @@ class Paper extends React.Component {
     }
   };
 
-  canvasMouseUpHandler = (e) => {
+  canvasMouseUpHandler = () => {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
