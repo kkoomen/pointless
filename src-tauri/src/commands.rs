@@ -1,4 +1,4 @@
-use tauri::{Manager, AppHandle};
+use tauri::AppHandle;
 use std::path::Path;
 use crate::config;
 use crate::file::{compress, decompress};
