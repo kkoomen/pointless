@@ -19,7 +19,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "postinstall": "husky install",
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -73,13 +72,9 @@
     "@tauri-apps/cli": "^1.0.0-rc.9",
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
-    "concurrently": "^7.1.0",
-    "electron": "^18.0.3",
-    "electron-packager": "^15.4.0",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.4.1",
-    "prettier": "^2.6.2",
-    "wait-on": "^6.0.1"
+    "prettier": "^2.6.2"
   }
 }
