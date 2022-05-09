@@ -16,8 +16,8 @@
 Pointless is an endless drawing canvas that provides useful features when you're
 in need for a simple whiteboard/note app.
 
-Pointless is build using Tauri (Rust) and React with a pure SVG canvas and
-local files are saved with brotli compression to ensure small file sizes.
+It is build using Tauri (Rust) and React with a pure SVG canvas and local files
+are saved with brotli compression to ensure small file sizes.
 
 ❗️ Currently, this app can only be build locally. Anytime soon there will be
 public releases available with prebuild binaries for MacOS, Windows and Linux.
