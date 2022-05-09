@@ -22,6 +22,9 @@ are saved with brotli compression to ensure small file sizes.
 ❗️ Currently, this app can only be build locally. Anytime soon there will be
 public releases available with prebuild binaries for MacOS, Windows and Linux.
 
+📚 ✍️ Feel like contributing? Submit an issue with your ideas (or bugs) and
+we'll discuss it.
+
 # Features
 
 - [ ] Save as PNG
