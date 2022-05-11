@@ -12,9 +12,9 @@ jobs:
         # os: [macos-latest, ubuntu-latest, windows-latest]
         # os: [macos-latest]
         os: [ubuntu-latest]
-    runs-on : ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
+      runs-on : ${{ matrix.os }}
+      steps:
+        - uses: actions/checkout@v2
     - name: setup node
       uses: actions/setup-node@v1
       with:
@@ -35,8 +35,9 @@ jobs:
       uses: bruceadams/get-release@v1.2.2
       env:
         GITHUB_TOKEN: ${{ github.token }}
-    - uses: kkoomen/tauri-action@dev
-      run: yarn workspaces run build
+    - name: kkoomen/tauri-action@dev
+      working-directory: kkoomen/tauri-action@dev
+      build: yarn workspaces run build
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
