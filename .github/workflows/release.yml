@@ -39,6 +39,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        working-directory: kkoomen/tauri-action@dev
-        build: yarn workspaces run build
         releaseId: ${{ steps.get_release.outputs.id }}
