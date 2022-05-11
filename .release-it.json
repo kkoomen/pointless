@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "before:init": ["yarn lint", "yarn format"]
+  },
+  "git": {
+    "commitMessage": "chore(release): v${version} :tada:",
+    "tagAnnotation": "Release v${version}",
+    "tagName": "v${version}"
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "Release v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  }
+}
