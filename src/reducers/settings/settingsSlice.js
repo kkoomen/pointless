@@ -11,9 +11,12 @@ const settingsSlice = createSlice({
     setDarkMode: (state, action) => {
       state.isDarkMode = action.payload;
     },
+    setPlatform: (state, action) => {
+      state.platform = action.payload;
+    },
   },
 });
 
-export const { setDarkMode } = settingsSlice.actions;
+export const { setDarkMode, setPlatform } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

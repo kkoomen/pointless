@@ -1,3 +1,4 @@
+import { os } from '@tauri-apps/api';
 import { invoke } from '@tauri-apps/api/tauri';
 import 'rc-tooltip/assets/bootstrap_white.css';
 import React from 'react';
@@ -7,7 +8,7 @@ import './assets/vendor/bootstrap/bootstrap-grid.min.css';
 import App from './components/App';
 import './index.css';
 import { loadLibrary } from './reducers/library/librarySlice';
-import { setDarkMode } from './reducers/settings/settingsSlice';
+import { setDarkMode, setPlatform } from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 
@@ -22,6 +23,11 @@ invoke('load_library').then((libraryState) => {
 invoke('get_system_theme').then((theme) => {
   const isDarkMode = theme === 'dark';
   store.dispatch(setDarkMode(isDarkMode));
+});
+
+// Detect the users's platform.
+os.platform().then((platform) => {
+  store.dispatch(setPlatform(platform));
 });
 
 createRoot(document.getElementById('root')).render(

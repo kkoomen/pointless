@@ -109,20 +109,20 @@ class Paper extends React.Component {
     }
   }
 
-  isGlobalEvent = (e) => {
-    return e.srcElement === document.querySelector('body');
+  isGlobalEvent = (event) => {
+    return event.srcElement === document.querySelector('body');
   };
 
-  documentKeyDownHandler = async (e) => {
-    if (!this.isGlobalEvent(e)) {
+  documentKeyDownHandler = async (event) => {
+    if (!this.isGlobalEvent(event)) {
       return true;
     }
 
-    e.preventDefault();
+    event.preventDefault();
 
-    switch (e.which) {
+    switch (event.which) {
       case KEY.X:
-        if (e.metaKey) {
+        if (this.isCtrlOrMetaKey(event)) {
           this.clearCanvas();
         }
         break;
@@ -132,7 +132,7 @@ class Paper extends React.Component {
         break;
 
       case KEY.E:
-        if (e.metaKey) {
+        if (this.isCtrlOrMetaKey(event)) {
           this.setMode(this.isEraseMode() ? this.state.prevMode : MODE.ERASE);
         } else {
           this.setMode(MODE.ELLIPSE);
@@ -148,9 +148,9 @@ class Paper extends React.Component {
         break;
 
       case KEY.Z:
-        if (e.metaKey && e.shiftKey) {
+        if (this.isCtrlOrMetaKey(event) && event.shiftKey) {
           this.redo();
-        } else if (e.metaKey) {
+        } else if (this.isCtrlOrMetaKey(event)) {
           this.undo();
         }
         break;
@@ -212,26 +212,26 @@ class Paper extends React.Component {
     }
   };
 
-  documentKeyUpHandler = (e) => {
-    if (!this.isGlobalEvent(e)) {
+  documentKeyUpHandler = (event) => {
+    if (!this.isGlobalEvent(event)) {
       return true;
     }
 
-    e.preventDefault();
+    event.preventDefault();
 
-    if (e.which === KEY.SPACEBAR) {
+    if (event.which === KEY.SPACEBAR) {
       this.setMode(this.state.prevMode);
     }
   };
 
-  canvasMouseDownHandler = (e) => {
+  canvasMouseDownHandler = (event) => {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: true });
     } else if (this.isDrawMode()) {
-      const cursorX = e.pageX;
-      const cursorY = e.pageY;
+      const cursorX = event.pageX;
+      const cursorY = event.pageY;
 
       const newState = {
         isDrawing: true,
@@ -293,9 +293,9 @@ class Paper extends React.Component {
     }
   };
 
-  canvasMouseMoveHandler = (e) => {
-    const cursorX = e.pageX;
-    const cursorY = e.pageY;
+  canvasMouseMoveHandler = (event) => {
+    const cursorX = event.pageX;
+    const cursorY = event.pageY;
 
     const newState = {
       prevCursorX: cursorX,
@@ -360,7 +360,7 @@ class Paper extends React.Component {
 
             // When the shift key is pressed we want to lock the X or Y based on the
             // direction the user is drawing in.
-            if (!e.shiftKey) {
+            if (!event.shiftKey) {
               newState.fixedCursorX = null;
               newState.fixedCursorY = null;
             } else if (this.state.fixedCursorX === null && this.state.fixedCursorY === null) {
@@ -388,7 +388,7 @@ class Paper extends React.Component {
           case MODE.ARROW:
           case MODE.ELLIPSE:
           case MODE.RECTANGLE:
-            newState.currentShape.preserveAspectRatio = e.shiftKey;
+            newState.currentShape.preserveAspectRatio = event.shiftKey;
             newState.currentShape.x2 = this.toTrueX(cursorX);
             newState.currentShape.y2 = this.toTrueY(cursorY);
             break;
@@ -447,6 +447,10 @@ class Paper extends React.Component {
       prevMode: this.state.mode,
       mode,
     });
+  };
+
+  isCtrlOrMetaKey = (event) => {
+    return this.props.platform === 'darwin' ? event.metaKey : event.ctrlKey;
   };
 
   drawCanvasElements = () => {
@@ -645,10 +649,10 @@ class Paper extends React.Component {
     });
   };
 
-  zoomHandler = (e) => {
+  zoomHandler = (event) => {
     if (this.state.points.length === 0) return false;
 
-    this.zoomBy(e.deltaY * SCALE_FACTOR, e.pageX, e.pageY);
+    this.zoomBy(event.deltaY * SCALE_FACTOR, event.pageX, event.pageY);
   };
 
   zoomBy = (amount, x = window.innerWidth / 2, y = window.innerHeight / 2) => {
@@ -802,6 +806,7 @@ function mapStateToProps(state, props) {
   return {
     paper: state.library.papers.find((paper) => paper.id === props.paperId),
     isDarkMode: state.settings.isDarkMode,
+    platform: state.settings.platform,
   };
 }
 

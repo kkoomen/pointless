@@ -16,8 +16,13 @@ import { ReactComponent as EllipseToolIcon } from './../../../../assets/icons/to
 import { ReactComponent as RectangleToolIcon } from './../../../../assets/icons/tool-rectangle.svg';
 import { ReactComponent as ArrowToolIcon } from './../../../../assets/icons/tool-arrow.svg';
 import Tooltip from 'rc-tooltip';
+import { useSelector } from 'react-redux';
 
 function Toolbar(props) {
+  const platform = useSelector((state) => state.settings.platform);
+  const metaKey = String.fromCharCode(8984);
+  const ctrlOrMeta = () => (platform === 'darwin' ? metaKey : 'CTRL');
+
   return (
     <>
       <div className={classNames(styles['toolbar__container'])}>
@@ -155,7 +160,7 @@ function Toolbar(props) {
             <>
               eraser
               <div className="kbd-shortcut">
-                <kbd>cmd</kbd> + <kbd>e</kbd>
+                <kbd>{ctrlOrMeta()}</kbd> + <kbd>e</kbd>
               </div>
             </>
           }
@@ -208,7 +213,7 @@ function Toolbar(props) {
             <>
               undo
               <div className="kbd-shortcut">
-                <kbd>cmd</kbd> + <kbd>z</kbd>
+                <kbd>{ctrlOrMeta()}</kbd> + <kbd>z</kbd>
               </div>
             </>
           }
@@ -228,7 +233,7 @@ function Toolbar(props) {
             <>
               redo
               <div className="kbd-shortcut">
-                <kbd>cmd</kbd> + <kbd>shift</kbd> + <kbd>z</kbd>
+                <kbd>{ctrlOrMeta()}</kbd> + <kbd>shift</kbd> + <kbd>z</kbd>
               </div>
             </>
           }
@@ -301,7 +306,7 @@ function Toolbar(props) {
             <>
               clear canvas
               <div className="kbd-shortcut">
-                <kbd>cmd</kbd> + <kbd>x</kbd>
+                <kbd>{ctrlOrMeta()}</kbd> + <kbd>x</kbd>
               </div>
             </>
           }
