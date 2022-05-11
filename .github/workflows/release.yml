@@ -36,6 +36,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
     - uses: kkoomen/tauri-action@dev
+      run: yarn workspaces run build
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
