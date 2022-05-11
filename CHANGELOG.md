@@ -1,3 +1,9 @@
+# [1.1.0-beta.9](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.8...v1.1.0-beta.9) (2022-05-11)
+
+### Bug Fixes
+
+- adjust version replacement for release-it ([821d27e](https://github.com/kkoomen/pointless/commit/821d27ea5d549ceb933cb01f0efa5a4f6e155467))
+
 # [1.1.0-beta.8](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.7...v1.1.0-beta.8) (2022-05-11)
 
 # [1.1.0-beta.7](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.6...v1.1.0-beta.7) (2022-05-11)
