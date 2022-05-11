@@ -2,7 +2,7 @@
   "hooks": {
     "before:init": ["yarn lint", "yarn format"],
     "after:bump": [
-      "sed -i '' -E 's#\"version\": \"[0-9]+\\.[0-9]+\\.[0-9]+\"#\"version\": \"${version}\"#g' ./src-tauri/tauri.conf.json && git add ./src-tauri/tauri.conf.json"
+      "sed -i '' -E 's#\"version\": \"[^\"]+\"#\"version\": \"${version}\"#g' ./src-tauri/tauri.conf.json && git add ./src-tauri/tauri.conf.json"
     ]
   },
   "git": {
