@@ -1,3 +1,5 @@
+# [1.1.0-beta.6](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.5...v1.1.0-beta.6) (2022-05-11)
+
 # [1.1.0-beta.5](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2022-05-11)
 
 # [1.1.0-beta.4](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2022-05-11)
