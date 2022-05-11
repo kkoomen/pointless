@@ -38,4 +38,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
+        prerelease: true
         releaseId: ${{ steps.get_release.outputs.id }}
