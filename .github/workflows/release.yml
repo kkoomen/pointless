@@ -5,12 +5,13 @@ on:
       - created
 
 jobs:
-  build:
+  build_assets:
     strategy:
       fail-fast: false
       matrix:
         # os: [macos-latest, ubuntu-latest, windows-latest]
-        os: [macos-latest]
+        # os: [macos-latest]
+        os: [ubuntu-latest]
     runs-on : ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -34,7 +35,7 @@ jobs:
       uses: bruceadams/get-release@v1.2.2
       env:
         GITHUB_TOKEN: ${{ github.token }}
-    - uses: tauri-apps/tauri-action@v0
+    - uses: kkoomen/tauri-action@dev
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
