@@ -29,15 +29,17 @@ jobs:
         sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
     - name: install app dependencies and build it
       run: yarn && yarn build
-    # - name: get release
-    #   id: get_release
-    #   uses: bruceadams/get-release@v1.2.2
-    #   env:
-    #     GITHUB_TOKEN: ${{ github.token }}
+    - name: get release
+      id: get_release
+      uses: bruceadams/get-release@v1.2.2
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
     - uses: kkoomen/tauri-action@dev
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        prerelease: true
-        # releaseId: ${{ steps.get_release.outputs.id }}
-        releaseId: 66621393
+        releaseName: Pointless ${{ steps.get_release.outputs.tag_name }}
+        tagName: ${{ steps.get_release.outputs.tag_name }}
+        releaseDraft: false
+        prerelease: false
+        releaseId: ${{ steps.get_release.outputs.id }}
