@@ -39,7 +39,7 @@ jobs:
       - name: Build and release
         uses: tauri-apps/tauri-action@dev
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
           releaseName: v__VERSION__
