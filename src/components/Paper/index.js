@@ -1,40 +1,36 @@
-import React from 'react';
-import classNames from 'classnames';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import styles from './styles.module.css';
-import { rotateAroundPoint } from './helpers';
-import Palette from './components/Palette';
-import Toolbar from './components/Toolbar';
-import Info from './components/Info';
 import { confirm } from '@tauri-apps/api/dialog';
-import {
-  DEFAULT_STROKE_COLOR_LIGHT,
-  DEFAULT_STROKE_COLOR_DARK,
-  LINEWIDTH,
-  MODE,
-  ERASER_CURSOR_COLOR,
-  ERASER_SIZE,
-  CANVAS_BACKGROUND_COLOR_LIGHT,
-  CANVAS_BACKGROUND_COLOR_DARK,
-  MIN_SCALE,
-  SCALE_FACTOR,
-  SCALE_BY,
-} from './constants';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { to } from '../../reducers/router/routerSlice';
+import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { KEY } from './../../constants';
 import { setPaperPoints } from './../../reducers/library/librarySlice';
-import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
-import { to } from '../../reducers/router/routerSlice';
+import Info from './components/Info';
+import Palette from './components/Palette';
+import Toolbar from './components/Toolbar';
+import {
+  CANVAS_BACKGROUND_COLOR_DARK,
+  CANVAS_BACKGROUND_COLOR_LIGHT,
+  DEFAULT_STROKE_COLOR_DARK,
+  DEFAULT_STROKE_COLOR_LIGHT,
+  ERASER_CURSOR_COLOR,
+  ERASER_SIZE,
+  LINEWIDTH,
+  MIN_SCALE,
+  MODE,
+  SCALE_BY,
+  SCALE_FACTOR,
+} from './constants';
+import { rotateAroundPoint } from './helpers';
+import styles from './styles.module.css';
 
 const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT,
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
   prevMode: null,
-  cursorX: 0,
-  cursorY: 0,
-  prevCursorX: 0,
-  prevCursorY: 0,
   fixedCursorX: null,
   fixedCursorY: null,
   isDrawing: false,
@@ -65,7 +61,8 @@ class Paper extends React.Component {
   constructor(props) {
     super();
     this.svg = React.createRef();
-    this.ctx = null;
+    this.coords = React.createRef();
+    this.coords.current = { cursorX: 0, cursorY: 0 };
     this.state = getInitialState(props.isDarkMode, {
       points: props.paper.points,
     });
@@ -232,11 +229,10 @@ class Paper extends React.Component {
     } else if (this.isDrawMode()) {
       const cursorX = event.pageX;
       const cursorY = event.pageY;
+      this.coords.current = { cursorX, cursorY };
 
       const newState = {
         isDrawing: true,
-        cursorX,
-        cursorY,
         undoPoints: [],
         currentShape: {
           type: this.state.mode,
@@ -296,16 +292,13 @@ class Paper extends React.Component {
   canvasMouseMoveHandler = (event) => {
     const cursorX = event.pageX;
     const cursorY = event.pageY;
+    const newState = {};
 
-    const newState = {
-      prevCursorX: cursorX,
-      prevCursorY: cursorY,
-      currentShape: { ...this.state.currentShape },
-    };
-
-    const translateX = cursorX - this.state.prevCursorX;
-    const translateY = cursorY - this.state.prevCursorY;
+    const translateX = cursorX - this.coords.current.cursorX;
+    const translateY = cursorY - this.coords.current.cursorY;
     const diff = Math.abs(translateX + translateY);
+
+    this.coords.current = { cursorX, cursorY };
 
     if (this.isPanning()) {
       this.setState({
@@ -378,19 +371,25 @@ class Paper extends React.Component {
             const x = this.state.fixedCursorX !== null ? this.state.fixedCursorX : cursorX;
             const y = this.state.fixedCursorY !== null ? this.state.fixedCursorY : cursorY;
 
-            newState.currentShape.points = [
-              ...newState.currentShape.points,
-              { x: this.toTrueX(x), y: this.toTrueY(y) },
-            ];
+            newState.currentShape = {
+              ...this.state.currentShape,
+              points: this.state.currentShape.points.concat({
+                x: this.toTrueX(x),
+                y: this.toTrueY(y),
+              }),
+            };
             break;
           }
 
           case MODE.ARROW:
           case MODE.ELLIPSE:
           case MODE.RECTANGLE:
-            newState.currentShape.preserveAspectRatio = event.shiftKey;
-            newState.currentShape.x2 = this.toTrueX(cursorX);
-            newState.currentShape.y2 = this.toTrueY(cursorY);
+            newState.currentShape = {
+              ...this.state.currentShape,
+              preserveAspectRatio: event.shiftKey,
+              x2: this.toTrueX(cursorX),
+              y2: this.toTrueY(cursorY),
+            };
             break;
 
           default:
@@ -399,7 +398,9 @@ class Paper extends React.Component {
       }
     }
 
-    this.setState(newState);
+    if (Object.keys(newState).length > 0) {
+      this.setState(newState);
+    }
   };
 
   isDrawMode = () => {
@@ -727,8 +728,8 @@ class Paper extends React.Component {
           {this.drawCurrentShape()}
           {this.isEraseMode() && (
             <circle
-              cx={this.toTrueX(this.state.prevCursorX)}
-              cy={this.toTrueY(this.state.prevCursorY)}
+              cx={this.toTrueX(this.coords.current.cursorX)}
+              cy={this.toTrueY(this.coords.current.cursorY)}
               r={ERASER_SIZE}
               fill={ERASER_CURSOR_COLOR}
             />
