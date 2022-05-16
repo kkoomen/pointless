@@ -1,7 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.module.css';
-import Paper from '../../../Paper';
+import Paper from '../../../Paper/Paper';
 import classNames from 'classnames';
 import { deletePaper } from './../../../../reducers/library/librarySlice';
 import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
