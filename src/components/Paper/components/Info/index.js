@@ -1,5 +1,5 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { updateFolderName, updatePaperName } from '../../../../reducers/library/librarySlice';
 import { store } from '../../../../store';
 import InlineEdit from '../../../InlineEdit';
@@ -7,78 +7,62 @@ import Modal from '../../../Modal';
 import { ReactComponent as InfoIcon } from './../../../../assets/icons/info.svg';
 import { formatDate } from './../../../../helpers';
 import styles from './styles.module.css';
+import { getCurrentPaper } from '../../../../selectors/paper/get-current-paper';
+import { getFolder } from '../../../../selectors/paper/get-folder';
 
-class Info extends React.Component {
-  state = {
-    open: false,
-  };
+const Info = () => {
+  const [open, setOpen] = useState(false);
+  const paper = useSelector(getCurrentPaper);
+  const folder = useSelector(getFolder);
 
-  toggleOpen = () => {
-    this.setState({ open: !this.state.open });
-  };
+  const toggleOpen = useCallback(() => {
+    setOpen((state) => !state);
+  }, [setOpen]);
 
-  updatePaperName = (name) => {
+  const onEditDonePaper = (name) => {
     store.dispatch(
       updatePaperName({
-        id: this.props.paper.id,
+        id: paper.id,
         name,
       }),
     );
   };
 
-  updateFolderName = (name) => {
+  const OnEditDoneFolder = (name) => {
     store.dispatch(
       updateFolderName({
-        id: this.props.folder.id,
+        id: folder.id,
         name,
       }),
     );
   };
-
-  render() {
-    return (
-      <>
-        <InfoIcon
-          className={styles['info-icon']}
-          width="2rem"
-          height="2rem"
-          onClick={this.toggleOpen}
-        />
-        <Modal open={this.state.open} title="Paper information" onClose={this.toggleOpen}>
-          <div className="form-group">
-            <div className="form-label">Name</div>
-            <div className="display-flex">
-              <InlineEdit defaultValue={this.props.paper.name} onEditDone={this.updatePaperName} />
-            </div>
+  if (!paper) return null;
+  return (
+    <>
+      <InfoIcon className={styles['info-icon']} width="2rem" height="2rem" onClick={toggleOpen} />
+      <Modal open={open} title="Paper information" onClose={toggleOpen}>
+        <div className="form-group">
+          <div className="form-label">Name</div>
+          <div className="display-flex">
+            <InlineEdit defaultValue={paper.name} onEditDone={onEditDonePaper} />
           </div>
-          <div className="form-group">
-            <div className="form-label">Folder</div>
-            <div className="display-flex">
-              <InlineEdit
-                defaultValue={this.props.folder.name}
-                onEditDone={this.updateFolderName}
-              />
-            </div>
+        </div>
+        <div className="form-group">
+          <div className="form-label">Folder</div>
+          <div className="display-flex">
+            <InlineEdit defaultValue={folder.name} onEditDone={OnEditDoneFolder} />
           </div>
-          <div className="form-group">
-            <div className="form-label">Last edit</div>
-            <div>{formatDate(this.props.paper.updatedAt)}</div>
-          </div>
-          <div className="form-group">
-            <div className="form-label">Created at</div>
-            <div>{formatDate(this.props.paper.createdAt)}</div>
-          </div>
-        </Modal>
-      </>
-    );
-  }
-}
-
-function mapStateToProps(state) {
-  const { paperId } = state.paper;
-  const paper = state.library.papers.find((paper) => paper.id === paperId);
-  const folder = state.library.folders.find((folder) => folder.id === paper.folderId);
-  return { paper, folder };
-}
-
-export default connect(mapStateToProps)(Info);
+        </div>
+        <div className="form-group">
+          <div className="form-label">Last edit</div>
+          <div>{formatDate(paper.updatedAt)}</div>
+        </div>
+        <div className="form-group">
+          <div className="form-label">Created at</div>
+          <div>{formatDate(paper.createdAt)}</div>
+        </div>
+      </Modal>
+    </>
+  );
+};
+export default Info;
