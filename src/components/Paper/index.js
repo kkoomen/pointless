@@ -742,6 +742,22 @@ class Paper extends React.Component {
     this.props.dispatch(to({ name: 'library' }));
   };
 
+  // In order to memoize sub-components we need to define the
+  // callbacks outside of the render function.
+  onClickFreehandTool = () => this.setMode(MODE.FREEHAND);
+  onClickEllipseTool = () => this.setMode(MODE.ELLIPSE);
+  onClickRectangleTool = () => this.setMode(MODE.RECTANGLE);
+  onClickArrowTool = () => this.setMode(MODE.ARROW);
+  onClickEraseTool = () => this.toggleEraseMode();
+  onClickPanTool = () => this.togglePanMode();
+  onClickZoomToFit = () => this.zoomToFit();
+  onClickUndoTool = () => this.undo();
+  onClickRedoTool = () => this.redo();
+  onClearCanvas = () => this.clearCanvas();
+  onZoomIn = () => this.zoomBy(SCALE_BY);
+  onZoomOut = () => this.zoomBy(-SCALE_BY);
+  onClickResetZoom = () => this.resetZoom();
+
   render() {
     if (this.props.readonly) {
       return this.renderCanvas();
@@ -765,21 +781,21 @@ class Paper extends React.Component {
           isPanMode={this.isPanMode()}
           isEraseMode={this.isEraseMode()}
           onLinewidthChange={this.changeLinewidth}
-          onClickFreehandTool={() => this.setMode(MODE.FREEHAND)}
-          onClickEllipseTool={() => this.setMode(MODE.ELLIPSE)}
-          onClickRectangleTool={() => this.setMode(MODE.RECTANGLE)}
-          onClickArrowTool={() => this.setMode(MODE.ARROW)}
-          onClickEraseTool={() => this.toggleEraseMode()}
-          onClickPanTool={() => this.togglePanMode()}
-          onClickZoomToFit={() => this.zoomToFit()}
-          onClickUndoTool={() => this.undo()}
-          onClickRedoTool={() => this.redo()}
-          onClearCanvas={() => this.clearCanvas()}
-          onZoomIn={() => this.zoomBy(SCALE_BY)}
-          onZoomOut={() => this.zoomBy(-SCALE_BY)}
+          onClickFreehandTool={this.onClickFreehandTool}
+          onClickEllipseTool={this.onClickEllipseTool}
+          onClickRectangleTool={this.onClickRectangleTool}
+          onClickArrowTool={this.onClickArrowTool}
+          onClickEraseTool={this.onClickEraseTool}
+          onClickPanTool={this.onClickPanTool}
+          onClickZoomToFit={this.onClickZoomToFit}
+          onClickUndoTool={this.onClickUndoTool}
+          onClickRedoTool={this.onClickRedoTool}
+          onClearCanvas={this.onClearCanvas}
+          onClickResetZoom={this.onClickResetZoom}
+          onZoomIn={this.onZoomIn}
+          onZoomOut={this.onZoomOut}
           canUndo={this.state.points.length > 0}
           canRedo={this.state.undoPoints.length > 0}
-          onClickResetZoom={() => this.resetZoom()}
           canResetZoom={this.state.scale === 1}
           canvasIsEmpty={this.state.points.length === 0}
         />

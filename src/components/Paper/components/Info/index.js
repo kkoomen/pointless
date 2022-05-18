@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { updateFolderName, updatePaperName } from '../../../../reducers/library/librarySlice';
 import { store } from '../../../../store';
@@ -81,4 +81,4 @@ function mapStateToProps(state) {
   return { paper, folder };
 }
 
-export default connect(mapStateToProps)(Info);
+export default connect(mapStateToProps)(memo(Info));
