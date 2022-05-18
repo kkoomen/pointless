@@ -2,6 +2,7 @@ import styles from './styles.module.css';
 import classNames from 'classnames';
 import { PALETTE_DARK, PALETTE_LIGHT } from './../../constants';
 import { useSelector } from 'react-redux';
+import { memo } from 'react';
 
 function Palette(props) {
   const isDarkMode = useSelector((state) => state.settings.isDarkMode);
@@ -22,4 +23,4 @@ function Palette(props) {
   );
 }
 
-export default Palette;
+export default memo(Palette);
