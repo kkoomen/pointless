@@ -61,6 +61,7 @@ class Paper extends React.Component {
     this.svg = React.createRef();
     this.coords = React.createRef();
     this.coords.current = { cursorX: 0, cursorY: 0 };
+    this.eraseCircleRef = React.createRef();
     this.state = getInitialState(props.isDarkMode, {
       points: props.paper.points,
     });
@@ -297,6 +298,11 @@ class Paper extends React.Component {
     const diff = Math.abs(translateX + translateY);
 
     this.coords.current = { cursorX, cursorY };
+
+    if (this.eraseCircleRef.current && this.isEraseMode()) {
+      this.eraseCircleRef.current.setAttribute('cx', this.toTrueX(cursorX));
+      this.eraseCircleRef.current.setAttribute('cy', this.toTrueX(cursorY));
+    }
 
     if (this.isPanning()) {
       this.setState({
@@ -726,6 +732,7 @@ class Paper extends React.Component {
           {this.drawCurrentShape()}
           {this.isEraseMode() && (
             <circle
+              ref={this.eraseCircleRef}
               cx={this.toTrueX(this.coords.current.cursorX)}
               cy={this.toTrueY(this.coords.current.cursorY)}
               r={ERASER_SIZE}
