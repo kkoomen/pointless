@@ -4,7 +4,7 @@ use crate::config;
 use crate::file::{compress, decompress};
 
 #[tauri::command]
-pub async fn load_library(app: AppHandle) -> Option<serde_json::Value> {
+async fn load_library(app: AppHandle) -> Option<serde_json::Value> {
     let library_config_file = config::get_library_path(app);
 
     if Path::new(&library_config_file).exists() {
@@ -17,13 +17,13 @@ pub async fn load_library(app: AppHandle) -> Option<serde_json::Value> {
 }
 
 #[tauri::command]
-pub async fn save_library(app: AppHandle, library_state: String) {
+async fn save_library(app: AppHandle, library_state: String) {
     let library_config_file = config::get_library_path(app);
     compress(&library_config_file, &library_state);
 }
 
 #[tauri::command]
-pub async fn get_system_theme() -> String {
+async fn get_system_theme() -> String {
     let mode = dark_light::detect();
     match mode {
         dark_light::Mode::Dark => {
