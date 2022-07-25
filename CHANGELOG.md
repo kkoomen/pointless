@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.16...v1.1.0) (2022-07-25)
+
+### Bug Fixes
+
+- adjust eraser bg color to match body bg color (fixes [#8](https://github.com/kkoomen/pointless/issues/8)) ([d321023](https://github.com/kkoomen/pointless/commit/d3210230fdc7e094426e140e09ee3d7080e06bb8))
+- revert [#5](https://github.com/kkoomen/pointless/issues/5) and use memoization (fixes [#6](https://github.com/kkoomen/pointless/issues/6)) ([80e5748](https://github.com/kkoomen/pointless/commit/80e5748f845011e0d4d258397cb327212f4ceae5))
+
+### Features
+
+- add cross-platform support ([36db9bb](https://github.com/kkoomen/pointless/commit/36db9bb342d561f7ebca6262c1f507bb1c25b544))
+- **PaperListItem:** adjust delete button styling ([ccc2efb](https://github.com/kkoomen/pointless/commit/ccc2efb7a8e7d0502eff55a14b43b24b4b793a3a))
+
 # [1.1.0-beta.16](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.15...v1.1.0-beta.16) (2022-05-12)
 
 # [1.1.0-beta.15](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.14...v1.1.0-beta.15) (2022-05-12)
