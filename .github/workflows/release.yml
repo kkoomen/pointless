@@ -34,7 +34,7 @@ jobs:
       uses: bruceadams/get-release@v1.2.2
       env:
         GITHUB_TOKEN: ${{ github.token }}
-    - uses: kkoomen/tauri-action@dev
+    - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
