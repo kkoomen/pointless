@@ -38,7 +38,7 @@
 .paper-list-item__delete-btn {
   opacity: 0;
   position: absolute;
-  top: 5px;
+  bottom: -1px;
   right: 5px;
 }
 

@@ -37,7 +37,7 @@ export const ERASER_CURSOR_COLOR = '#888';
 export const ERASER_SIZE = 20;
 export const DEFAULT_STROKE_COLOR_LIGHT = '#000000';
 export const DEFAULT_STROKE_COLOR_DARK = '#ffffff';
-export const CANVAS_BACKGROUND_COLOR_LIGHT = '#ffffff';
+export const CANVAS_BACKGROUND_COLOR_LIGHT = '#f8f8f8';
 export const CANVAS_BACKGROUND_COLOR_DARK = '#252525';
 
 export const MIN_SCALE = 0.2;

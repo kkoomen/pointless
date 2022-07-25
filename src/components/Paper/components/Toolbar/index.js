@@ -17,8 +17,10 @@ import { ReactComponent as RectangleToolIcon } from './../../../../assets/icons/
 import { ReactComponent as ArrowToolIcon } from './../../../../assets/icons/tool-arrow.svg';
 import Tooltip from 'rc-tooltip';
 import { useSelector } from 'react-redux';
+import { memo } from 'react';
 
 function Toolbar(props) {
+  console.log('render Toolbar', props);
   const platform = useSelector((state) => state.settings.platform);
   const metaKey = String.fromCharCode(8984);
   const ctrlOrMeta = () => (platform === 'darwin' ? metaKey : 'CTRL');
@@ -329,4 +331,4 @@ function Toolbar(props) {
   );
 }
 
-export default Toolbar;
+export default memo(Toolbar);
