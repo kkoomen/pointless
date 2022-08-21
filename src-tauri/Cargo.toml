@@ -1,6 +1,6 @@
 [package]
 name = "pointless"
-version = "0.1.0"
+version = "1.1.0"
 description = "An endless drawing canvas."
 authors = ["Kim 金可明 <koomen@pm.me>"]
 license = "MIT"
