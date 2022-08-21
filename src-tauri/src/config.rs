@@ -5,12 +5,14 @@ use std::fs;
 pub fn get_root(app: AppHandle) -> String {
     let home = env::var("HOME").unwrap();
     let product_name = app.config().package.product_name.as_ref().unwrap().clone();
-    return format!("{}/.config/{}", home, product_name);
+
+    format!("{}/.config/{}", home, product_name)
 }
 
 pub fn get_library_path(app: AppHandle) -> String {
     let config_dir = get_root(app);
-    return format!("{}/library.dat", config_dir);
+
+    format!("{}/library.dat", config_dir)
 }
 
 pub fn init(app: AppHandle) {

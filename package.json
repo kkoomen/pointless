@@ -4,8 +4,8 @@
   "private": true,
   "description": "An endless drawing canvas.",
   "dependencies": {
-    "@tauri-apps/api": "^1.0.0-rc.5",
     "@reduxjs/toolkit": "^1.8.1",
+    "@tauri-apps/api": "^1.0.2",
     "classnames": "^2.3.1",
     "dayjs": "^1.11.2",
     "prop-types": "^15.8.1",
@@ -18,7 +18,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "BROWSER=none react-scripts start",
+    "start": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -68,9 +68,10 @@
     ]
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.0.0-rc.10",
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
+    "@tauri-apps/cli": "^1.0.5",
+    "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.1",
     "lint-staged": "^12.4.1",
