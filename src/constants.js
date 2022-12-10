@@ -7,6 +7,7 @@ export const KEY = {
   A: 65,
   Z: 90,
   X: 88,
+  Q: 81,
   ENTER: 13,
   PLUS: 187,
   MINUS: 189,
