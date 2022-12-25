@@ -72,6 +72,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.2.0",
     "@commitlint/config-conventional": "^17.2.0",
+    "@release-it/conventional-changelog": "^5.1.1",
     "@tauri-apps/cli": "^1.1.1",
     "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.5.0",
