@@ -1,3 +1,12 @@
+
+
+## [1.1.1](https://github.com/kkoomen/pointless/compare/v1.1.0...v1.1.1) (2022-12-25)
+
+
+### Bug Fixes
+
+* **paper:** allow cmd+q key sequence ([fd85066](https://github.com/kkoomen/pointless/commit/fd8506657dfc72f06de6d6a16a0ded9dc3aeb580))
+
 # [1.1.0](https://github.com/kkoomen/pointless/compare/v1.1.0-beta.16...v1.1.0) (2022-07-25)
 
 ### Bug Fixes
