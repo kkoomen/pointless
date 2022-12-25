@@ -113,8 +113,12 @@ class Paper extends React.Component {
     return event.srcElement === document.querySelector('body');
   };
 
+  isQuitKeySequence = (event) => {
+    return event.which === KEY.Q && this.isCtrlOrMetaKey(event);
+  };
+
   documentKeyDownHandler = async (event) => {
-    if (!this.isGlobalEvent(event)) {
+    if (!this.isGlobalEvent(event) || this.isQuitKeySequence(event)) {
       return true;
     }
 

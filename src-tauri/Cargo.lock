@@ -2276,7 +2276,7 @@ dependencies = [
 
 [[package]]
 name = "pointless"
-version = "0.1.0"
+version = "1.1.0"
 dependencies = [
  "brotli",
  "dark-light",
@@ -3103,9 +3103,9 @@ dependencies = [
 
 [[package]]
 name = "tauri"
-version = "1.0.5"
+version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1a56a8b125069c2682bd31610109b4436c050c74447bee1078217a0325c1add"
+checksum = "b63a5d3a76d114e252eeebda97e2affba0943b6e1fa7e49a88ebb520aefcb21b"
 dependencies = [
  "anyhow",
  "attohttpc",

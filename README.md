@@ -45,6 +45,12 @@ we'll discuss it.
 - [x] Save/load state from file
 - [x] Light/dark theme
 
+# Prerequisites
+
+- [NodeJS](https://nodejs.org)
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+- [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+
 # Installation
 
 ```
