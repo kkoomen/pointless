@@ -20,7 +20,6 @@ import { useSelector } from 'react-redux';
 import { memo } from 'react';
 
 function Toolbar(props) {
-  console.log('render Toolbar', props);
   const platform = useSelector((state) => state.settings.platform);
   const metaKey = String.fromCharCode(8984);
   const ctrlOrMeta = () => (platform === 'darwin' ? metaKey : 'CTRL');

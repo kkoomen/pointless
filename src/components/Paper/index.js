@@ -15,8 +15,6 @@ import {
   MODE,
   ERASER_CURSOR_COLOR,
   ERASER_SIZE,
-  CANVAS_BACKGROUND_COLOR_LIGHT,
-  CANVAS_BACKGROUND_COLOR_DARK,
   MIN_SCALE,
   SCALE_FACTOR,
   SCALE_BY,
@@ -30,6 +28,7 @@ const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT,
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
+  eraserSize: ERASER_SIZE,
   prevMode: null,
   cursorX: 0,
   cursorY: 0,
@@ -89,7 +88,12 @@ class Paper extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     // Only redraw the elements when the amount of points have been updated.
-    if (prevState.points.length !== this.state.points.length) {
+    const totalPoints = this.state.points.reduce((total, shape) => total + shape.points.length, 0);
+    const prevTotalPoints = prevState.points.reduce(
+      (total, shape) => total + shape.points.length,
+      0,
+    );
+    if (prevTotalPoints !== totalPoints) {
       this.drawCanvasElements();
       this.props.dispatch(
         setPaperPoints({
@@ -251,7 +255,6 @@ class Paper extends React.Component {
 
       switch (this.state.mode) {
         case MODE.FREEHAND:
-        case MODE.ERASE:
           newState.currentShape.points = [
             {
               x: this.toTrueX(cursorX),
@@ -281,11 +284,7 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
-      this.setState({
-        isErasing: false,
-        currentShape: {},
-        points: this.state.points.concat(this.state.currentShape),
-      });
+      this.setState({ isErasing: false });
     } else if (this.isDrawMode()) {
       this.setState({
         isDrawing: false,
@@ -301,7 +300,7 @@ class Paper extends React.Component {
     const cursorX = event.pageX;
     const cursorY = event.pageY;
 
-    const newState = {
+    let newState = {
       prevCursorX: cursorX,
       prevCursorY: cursorY,
       currentShape: { ...this.state.currentShape },
@@ -321,24 +320,50 @@ class Paper extends React.Component {
     }
 
     // Check the difference in X and Y values compared to the previous X and Y
-    // and if this is > 0 only then we'll do an action. This prevents us from
+    // and if this is > 0 only then we'll do an action, as this indicates the
+    // user is moving while the mouse is pressed. This prevents us from
     // doing unnecessary actions and certain duplicate entries being made.
     if (diff > 0) {
-      // For now, we'll just let the eraser be a line with a the same color as
-      // the canvas background.
       if (this.isErasing()) {
-        this.setState({
-          ...newState,
-          currentShape: {
-            type: MODE.ERASE,
-            linewidth: ERASER_SIZE * 2,
-            points: [
-              ...(this.state.currentShape.points || []),
-              { x: this.toTrueX(cursorX), y: this.toTrueY(cursorY) },
-            ],
-          },
-        });
-        return;
+        const cx = this.toTrueX(cursorX);
+        const cy = this.toTrueY(cursorY);
+
+        newState.points = [];
+
+        // Loop through each shape and remove all the points that are inside the
+        // eraser radius. The points to be removed will be set to null. If there
+        // exists a gap after erasing inside a shape, then the current shape
+        // will be shortened until the erased point, then a second shape will be
+        // created from the leftover points below the erased point.
+        let shapes = [...this.state.points];
+        while (shapes.length > 0) {
+          const shape = shapes.shift();
+          const newShape = { ...shape };
+
+          let points = [...shape.points];
+          for (let i = 0; i < points.length; i++) {
+            let currPoint = points[i];
+            const prevPoint = i > 0 ? points[i - 1] : currPoint;
+
+            const { x, y } = currPoint;
+            const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
+            const currentPointInsideEraserShape = distance <= this.state.eraserSize;
+            if (currentPointInsideEraserShape) {
+              points[i] = null;
+              currPoint = null;
+            }
+
+            if (prevPoint !== null && currPoint === null) {
+              newShape.points = points.slice(0, i);
+            } else if (prevPoint === null && currPoint !== null) {
+              const secondShape = { ...shape, points: points.slice(i) };
+              newState.points.push(secondShape);
+              break;
+            }
+          }
+
+          newState.points.push(newShape);
+        }
       }
 
       if (this.isDrawing()) {
@@ -474,20 +499,11 @@ class Paper extends React.Component {
 
   createShapeElement(shape) {
     let strokeColor = shape.color;
-    if (shape.type === MODE.ERASE) {
-      strokeColor = this.props.isDarkMode
-        ? CANVAS_BACKGROUND_COLOR_DARK
-        : CANVAS_BACKGROUND_COLOR_LIGHT;
-    } else {
-      if ([DEFAULT_STROKE_COLOR_DARK, DEFAULT_STROKE_COLOR_LIGHT].includes(strokeColor)) {
-        strokeColor = this.props.isDarkMode
-          ? DEFAULT_STROKE_COLOR_DARK
-          : DEFAULT_STROKE_COLOR_LIGHT;
-      }
+    if ([DEFAULT_STROKE_COLOR_DARK, DEFAULT_STROKE_COLOR_LIGHT].includes(strokeColor)) {
+      strokeColor = this.props.isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT;
     }
 
     switch (shape.type) {
-      case MODE.ERASE:
       case MODE.FREEHAND: {
         if (!Array.isArray(shape.points) || shape.points.length < 1) return;
 
@@ -498,10 +514,10 @@ class Paper extends React.Component {
         for (let j = 0; j < shape.points.length; j++) {
           const nextTwoPoints = shape.points.slice(j, j + 2);
 
-          // We need 3 coordinates for the bezier curve, but when the user simply
-          // added a single dot, we still want to show it. In this situation there
-          // is no third coordinate, so we have to add it manually. We simply copy
-          // the 2nd point as the 3rd point.
+          // We need 3 coordinates for the bezier curve, but when the user
+          // simply added a single dot, we still want to show it. In this
+          // situation there is no third coordinate, so we have to add it
+          // manually. We simply copy the 2nd point as the 3rd point.
           if (nextTwoPoints.length === 1) {
             nextTwoPoints.push(nextTwoPoints[0]);
           }
@@ -733,7 +749,7 @@ class Paper extends React.Component {
             <circle
               cx={this.toTrueX(this.state.prevCursorX)}
               cy={this.toTrueY(this.state.prevCursorY)}
-              r={ERASER_SIZE}
+              r={this.state.eraserSize}
               fill={ERASER_CURSOR_COLOR}
             />
           )}
