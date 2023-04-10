@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import styles from './styles.module.css';
-import { rotateAroundPoint } from './helpers';
+import { rotateAroundPoint, createLine } from './helpers';
 import Palette from './components/Palette';
 import Toolbar from './components/Toolbar';
 import Info from './components/Info';
@@ -15,14 +15,18 @@ import {
   MODE,
   ERASER_CURSOR_COLOR,
   ERASER_SIZE,
+  ERASER_MIN_SIZE,
+  ERASER_MAX_SIZE,
   MIN_SCALE,
   SCALE_FACTOR,
   SCALE_BY,
+  ERASER_SCALE_FACTOR,
 } from './constants';
 import { KEY } from './../../constants';
 import { setPaperPoints } from './../../reducers/library/librarySlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { to } from '../../reducers/router/routerSlice';
+import { removeDuplicates } from '../../helpers';
 
 const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT,
@@ -181,6 +185,22 @@ class Paper extends React.Component {
         }
         break;
 
+      case KEY.LEFT_SQUARE_BRACKET:
+        if (this.isEraseMode()) {
+          this.setState({
+            eraserSize: Math.max(ERASER_MIN_SIZE, this.state.eraserSize - ERASER_SCALE_FACTOR),
+          });
+        }
+        break;
+
+      case KEY.RIGHT_SQUARE_BRACKET:
+        if (this.isEraseMode()) {
+          this.setState({
+            eraserSize: Math.min(ERASER_MAX_SIZE, this.state.eraserSize + ERASER_SCALE_FACTOR),
+          });
+        }
+        break;
+
       default:
         break;
     }
@@ -280,6 +300,131 @@ class Paper extends React.Component {
     }
   };
 
+  /**
+   * Convert a non-freehand shape containing x/y coordinates to a shape made out
+   * of points.
+   */
+  convertShape = (shape) => {
+    if (shape.type === MODE.FREEHAND) return shape;
+
+    const newShape = {
+      type: MODE.FREEHAND,
+      linewidth: shape.linewidth,
+      color: shape.color,
+      points: [],
+    }
+
+    const {x1, y1, x2, y2} = shape;
+
+    switch (shape.type) {
+      case MODE.ELLIPSE: {
+        // Calculate the center point of the circle
+        const cx = (x1 + x2) / 2;
+        const cy = (y1 + y2) / 2;
+
+        // Calculate the radius of the circle.
+        const width = Math.abs(x2 - x1);
+        const height = Math.abs(y2 - y1);
+        const radius = Math.round(Math.max(width, height) / 2);
+
+        // Do 361 degrees to make sure the 0-degrees and 360 degrees point are
+        // connected properly.
+        for (let angle = 0; angle < 361; angle++) {
+          // Convert the angle to radians.
+          const theta = angle * Math.PI / 180;
+
+          // Calculate the Cartesian coordinates of the point.
+          const x = cx + radius * Math.cos(theta);
+          const y = cy + radius * Math.sin(theta);
+
+          newShape.points.push({ x, y });
+        }
+
+        break;
+      }
+
+      case MODE.RECTANGLE: {
+        const height = Math.abs(y2 - y1);
+        const width = Math.abs(x2 - x1);
+
+        // convert the 4 sides to points
+
+        // top left to top right
+        const topBar = Array(width)
+          .fill(Math.min(x1, x2))
+          .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
+
+
+        // top right to right bottom
+        const rightBar = Array(height)
+          .fill(Math.min(y1, y2))
+          .map((value, index) => ({ x: Math.max(x1, x2), y: value + index }));
+
+        // right bottom to left bottom
+        const bottomBar = Array(width)
+          .fill(Math.max(x1, x2))
+          .map((value, index) => ({ x: value - index, y: Math.max(y1, y2) }));
+
+        // left bottom to left top
+        const leftBar = Array(height)
+          .fill(Math.max(y1, y2))
+          .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
+
+        newShape.points = removeDuplicates([
+          ...topBar,
+          ...rightBar,
+          ...bottomBar,
+          ...leftBar,
+        ]);
+
+        break;
+      }
+
+      case MODE.ARROW: {
+        // Calculate the angle for the arrow head based on the slope of the
+        // middle line. We add 45 (degrees) at the end, in order to make angle
+        // 45 degrees between the middle line and the arrow head line.
+        const angle =
+          ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
+
+        // The length of the lines of the arrow head.
+        const arrowHeadLength = 30 + shape.linewidth;
+
+        const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
+          shape.x2,
+          shape.y2,
+          shape.x2,
+          shape.y2 - arrowHeadLength,
+          angle,
+        );
+        const [arrowHeadRightX, arrowHeadRightY] = rotateAroundPoint(
+          shape.x2,
+          shape.y2,
+          shape.x2 - arrowHeadLength,
+          shape.y2,
+          angle,
+        );
+
+        const arrowHeadLeftLine = createLine([arrowHeadLeftX, arrowHeadLeftY], [x2, y2]);
+        const middleLine = (x1 === x2 && y1 === y2) ? [{ x: x1, y: y2 }] : createLine([x1, y1], [x2, y2]);
+        const arrowHeadRightLine = createLine([arrowHeadRightX, arrowHeadRightY], [x2, y2]);
+
+        newShape.points = [
+          ...arrowHeadLeftLine,
+          ...middleLine,
+          ...arrowHeadRightLine,
+        ]
+        break;
+      }
+
+      default:
+        console.error('Unknown shape:', shape);
+        break;
+    }
+
+    return newShape;
+  }
+
   canvasMouseUpHandler = () => {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
@@ -291,7 +436,7 @@ class Paper extends React.Component {
         currentShape: {},
         fixedCursorY: null,
         fixedCursorX: null,
-        points: this.state.points.concat(this.state.currentShape),
+        points: this.state.points.concat(this.convertShape(this.state.currentShape)),
       });
     }
   };
@@ -338,31 +483,33 @@ class Paper extends React.Component {
         let shapes = [...this.state.points];
         while (shapes.length > 0) {
           const shape = shapes.shift();
-          const newShape = { ...shape };
+            const newShape = { ...shape };
 
-          let points = [...shape.points];
-          for (let i = 0; i < points.length; i++) {
-            let currPoint = points[i];
-            const prevPoint = i > 0 ? points[i - 1] : currPoint;
+            let points = [...shape.points];
+            for (let i = 0; i < points.length; i++) {
+              let currPoint = points[i];
+              const prevPoint = i > 0 ? points[i - 1] : currPoint;
 
-            const { x, y } = currPoint;
-            const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
-            const currentPointInsideEraserShape = distance <= this.state.eraserSize;
-            if (currentPointInsideEraserShape) {
-              points[i] = null;
-              currPoint = null;
+              const { x, y } = currPoint;
+              const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
+              const currentPointInsideEraserShape = distance <= this.state.eraserSize;
+              if (currentPointInsideEraserShape) {
+                points[i] = null;
+                currPoint = null;
+              }
+
+              if (prevPoint !== null && currPoint === null) {
+                newShape.points = points.slice(0, i);
+              } else if (prevPoint === null && currPoint !== null) {
+                const secondShape = { ...shape, points: points.slice(i) };
+                newState.points.push(secondShape);
+                break;
+              }
             }
 
-            if (prevPoint !== null && currPoint === null) {
-              newShape.points = points.slice(0, i);
-            } else if (prevPoint === null && currPoint !== null) {
-              const secondShape = { ...shape, points: points.slice(i) };
-              newState.points.push(secondShape);
-              break;
-            }
+          if (newShape.points.length > 0) {
+            newState.points.push(newShape);
           }
-
-          newState.points.push(newShape);
         }
       }
 
@@ -503,127 +650,41 @@ class Paper extends React.Component {
       strokeColor = this.props.isDarkMode ? DEFAULT_STROKE_COLOR_DARK : DEFAULT_STROKE_COLOR_LIGHT;
     }
 
-    switch (shape.type) {
-      case MODE.FREEHAND: {
-        if (!Array.isArray(shape.points) || shape.points.length < 1) return;
+    if (!Array.isArray(shape.points) || shape.points.length < 1) return;
 
-        // Create the starting point.
-        let d = `M ${shape.points[0].x} ${shape.points[0].y} L ${shape.points[0].x} ${shape.points[0].y}`;
+    // Create the starting point.
+    let d = `M ${shape.points[0].x} ${shape.points[0].y} L ${shape.points[0].x} ${shape.points[0].y}`;
 
-        // Connect the remaining points.
-        for (let j = 0; j < shape.points.length; j++) {
-          const nextTwoPoints = shape.points.slice(j, j + 2);
+    // Connect the remaining points.
+    for (let j = 0; j < shape.points.length; j++) {
+      const nextTwoPoints = shape.points.slice(j, j + 2);
 
-          // We need 3 coordinates for the bezier curve, but when the user
-          // simply added a single dot, we still want to show it. In this
-          // situation there is no third coordinate, so we have to add it
-          // manually. We simply copy the 2nd point as the 3rd point.
-          if (nextTwoPoints.length === 1) {
-            nextTwoPoints.push(nextTwoPoints[0]);
-          }
-
-          const controlPoint = nextTwoPoints[0];
-          const endPoint = {
-            x: (controlPoint.x + nextTwoPoints[1].x) / 2,
-            y: (controlPoint.y + nextTwoPoints[1].y) / 2,
-          };
-          d += ` Q ${controlPoint.x} ${controlPoint.y} ${endPoint.x} ${endPoint.y}`;
-        }
-
-        return (
-          <path
-            d={d}
-            fill="transparent"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            stroke={strokeColor}
-            strokeWidth={shape.linewidth}
-          />
-        );
+      // We need 3 coordinates for the bezier curve, but when the user
+      // simply added a single dot, we still want to show it. In this
+      // situation there is no third coordinate, so we have to add it
+      // manually. We simply copy the 2nd point as the 3rd point.
+      if (nextTwoPoints.length === 1) {
+        nextTwoPoints.push(nextTwoPoints[0]);
       }
 
-      case MODE.ELLIPSE: {
-        const width = Math.abs(shape.x2 - shape.x1);
-        const height = Math.abs(shape.y2 - shape.y1);
-        const radius = Math.round(Math.max(width, height) / 2);
-        return (
-          <circle
-            cx={shape.x2 < shape.x1 ? shape.x2 : shape.x1}
-            cy={shape.y2 < shape.y1 ? shape.y2 : shape.y1}
-            r={radius}
-            fill="transparent"
-            stroke={strokeColor}
-            strokeWidth={shape.linewidth}
-            style={{
-              transform: `translate(${width / 2}px, ${height / 2}px)`,
-            }}
-          />
-        );
-      }
-
-      case MODE.RECTANGLE: {
-        const x = shape.x2 < shape.x1 && !shape.preserveAspectRatio ? shape.x2 : shape.x1;
-        const y = shape.y2 < shape.y1 && !shape.preserveAspectRatio ? shape.y2 : shape.y1;
-        const width = Math.abs(shape.x2 - shape.x1);
-        const height = Math.abs(shape.y2 - shape.y1);
-        const size = Math.min(width, height);
-        return (
-          <rect
-            x={x}
-            y={y}
-            width={shape.preserveAspectRatio ? size : width}
-            height={shape.preserveAspectRatio ? size : height}
-            fill="transparent"
-            stroke={strokeColor}
-            strokeWidth={shape.linewidth}
-          />
-        );
-      }
-
-      case MODE.ARROW: {
-        // Calculate the angle for the arrow head based on the slope of the
-        // middle line. We add 45 (degrees) at the end, in order to make angle
-        // 45 degrees between the middle line and the arrow head line.
-        const angle =
-          ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
-
-        // The length of the lines of the arrow head.
-        const arrowHeadLength = 30 + shape.linewidth;
-
-        const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
-          shape.x2,
-          shape.y2,
-          shape.x2,
-          shape.y2 - arrowHeadLength,
-          angle,
-        );
-        const [arrowHeadRightX, arrowHeadRightY] = rotateAroundPoint(
-          shape.x2,
-          shape.y2,
-          shape.x2 - arrowHeadLength,
-          shape.y2,
-          angle,
-        );
-        const middleLine = `M ${shape.x1} ${shape.y1}, ${shape.x2} ${shape.y2}`;
-        const arrowHeadLeft = `M ${shape.x2} ${shape.y2}, ${arrowHeadLeftX}, ${arrowHeadLeftY}`;
-        const arrowHeadRight = `M ${shape.x2} ${shape.y2}, ${arrowHeadRightX}, ${arrowHeadRightY}`;
-
-        return (
-          <path
-            strokeWidth={shape.linewidth}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="transparent"
-            stroke={strokeColor}
-            d={`${middleLine} ${arrowHeadLeft} ${arrowHeadRight}`}
-          />
-        );
-      }
-
-      default:
-        console.error('Unknown shape', shape);
-        break;
+      const controlPoint = nextTwoPoints[0];
+      const endPoint = {
+        x: (controlPoint.x + nextTwoPoints[1].x) / 2,
+        y: (controlPoint.y + nextTwoPoints[1].y) / 2,
+      };
+      d += ` Q ${controlPoint.x} ${controlPoint.y} ${endPoint.x} ${endPoint.y}`;
     }
+
+    return (
+      <path
+        d={d}
+        fill="transparent"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={strokeColor}
+        strokeWidth={shape.linewidth}
+      />
+    );
   }
 
   togglePanMode = () => {
@@ -697,7 +758,7 @@ class Paper extends React.Component {
   drawCurrentShape = () => {
     if (Object.keys(this.state.currentShape).length === 0) return null;
 
-    return this.createShapeElement(this.state.currentShape);
+    return this.createShapeElement(this.convertShape(this.state.currentShape));
   };
 
   renderCanvas = () => {

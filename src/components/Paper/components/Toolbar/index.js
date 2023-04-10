@@ -84,7 +84,6 @@ function Toolbar(props) {
           <div
             onClick={props.onClickFreehandTool}
             className={classNames(styles['toolbar__item'], {
-              [styles['toolbar__item-disabled']]: !props.isDrawMode,
               [styles['toolbar__item-active']]: props.mode === MODE.FREEHAND,
             })}
           >
@@ -105,7 +104,6 @@ function Toolbar(props) {
           <div
             onClick={props.onClickEllipseTool}
             className={classNames(styles['toolbar__item'], {
-              [styles['toolbar__item-disabled']]: !props.isDrawMode,
               [styles['toolbar__item-active']]: props.mode === MODE.ELLIPSE,
             })}
           >
@@ -126,7 +124,6 @@ function Toolbar(props) {
           <div
             onClick={props.onClickRectangleTool}
             className={classNames(styles['toolbar__item'], {
-              [styles['toolbar__item-disabled']]: !props.isDrawMode,
               [styles['toolbar__item-active']]: props.mode === MODE.RECTANGLE,
             })}
           >
@@ -147,7 +144,6 @@ function Toolbar(props) {
           <div
             onClick={props.onClickArrowTool}
             className={classNames(styles['toolbar__item'], {
-              [styles['toolbar__item-disabled']]: !props.isDrawMode,
               [styles['toolbar__item-active']]: props.mode === MODE.ARROW,
             })}
           >
@@ -169,7 +165,6 @@ function Toolbar(props) {
           <div
             onClick={props.onClickEraseTool}
             className={classNames(styles['toolbar__item'], {
-              [styles['toolbar__item-disabled']]: !props.isEraseMode && !props.isDrawMode,
               [styles['toolbar__item-active']]: props.isEraseMode,
             })}
           >

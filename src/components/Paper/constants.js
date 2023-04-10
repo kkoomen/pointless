@@ -35,6 +35,9 @@ export const PALETTE_DARK = [
 
 export const ERASER_CURSOR_COLOR = '#888';
 export const ERASER_SIZE = 20;
+export const ERASER_MIN_SIZE = 10;
+export const ERASER_MAX_SIZE = 200;
+export const ERASER_SCALE_FACTOR = 5;
 export const DEFAULT_STROKE_COLOR_LIGHT = '#000000';
 export const DEFAULT_STROKE_COLOR_DARK = '#ffffff';
 

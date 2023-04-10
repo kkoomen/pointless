@@ -11,4 +11,6 @@ export const KEY = {
   ENTER: 13,
   PLUS: 187,
   MINUS: 189,
+  LEFT_SQUARE_BRACKET: 219,
+  RIGHT_SQUARE_BRACKET: 221,
 };
