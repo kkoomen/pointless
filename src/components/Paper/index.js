@@ -49,7 +49,8 @@ const getInitialState = (isDarkMode, args) => ({
   scale: 1,
   canvasElements: [],
   masks: [],
-  undoPoints: [],
+  history: [],
+  undoHistory: [],
 
   /**
    * Structure:
@@ -214,29 +215,59 @@ class Paper extends React.Component {
     });
   };
 
-  /**
-   * Remove last drawn line.
-   */
   undo = () => {
-    const point = this.state.points.slice(-1).shift();
-    if (point) {
-      this.setState({
-        points: this.state.points.slice(0, -1),
-        undoPoints: this.state.undoPoints.concat(point),
-      });
+    const entry = this.state.history.slice(-1).shift();
+    if (entry) {
+      const newState = {
+        history: this.state.history.slice(0, -1),
+        undoHistory: this.state.undoHistory.concat(entry),
+        points: [...this.state.points],
+      };
+
+      switch (entry.type) {
+        case 'draw':
+          newState.points.splice(-1);
+          break;
+
+        case 'erase':
+          Object.keys(entry.shapes).forEach((index) => {
+            newState.points.splice(index, 0, entry.shapes[index]);
+          });
+          break;
+
+        default: break;
+      }
+
+      this.setState(newState);
     }
   };
 
-  /**
-   * Revert removal of last drawn line.
-   */
   redo = () => {
-    const undoPoint = this.state.undoPoints.slice(-1).shift();
-    if (undoPoint) {
-      this.setState({
-        points: this.state.points.concat(undoPoint),
-        undoPoints: this.state.undoPoints.slice(0, -1),
-      });
+    const entry = this.state.undoHistory.slice(-1).shift();
+    if (entry) {
+      const newState = {
+        undoHistory: this.state.undoHistory.slice(0, -1),
+        history: this.state.history.concat(entry),
+        points: [...this.state.points],
+      }
+
+      switch (entry.type) {
+        case 'draw':
+          newState.points.push(entry.shape);
+          break;
+
+        case 'erase':
+          // Remove the shapes again but start from the end of the shapes array.
+          const indexes = Object.keys(entry.shapes);
+          for (let i = indexes.length - 1; i >= 0; i--) {
+            newState.points.splice(indexes[i], 1);
+          }
+          break;
+
+        default: break;
+      }
+
+      this.setState(newState);
     }
   };
 
@@ -256,7 +287,16 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
-      this.setState({ isErasing: true });
+      this.setState({
+        isErasing: true,
+        history: [
+          ...this.state.history,
+          {
+            type: 'erase',
+            shapes: {},
+          },
+        ],
+      });
     } else if (this.isDrawMode()) {
       const cursorX = event.pageX;
       const cursorY = event.pageY;
@@ -265,7 +305,7 @@ class Paper extends React.Component {
         isDrawing: true,
         cursorX,
         cursorY,
-        undoPoints: [],
+        undoHistory: [],
         currentShape: {
           type: this.state.mode,
           linewidth: this.state.linewidth,
@@ -431,12 +471,20 @@ class Paper extends React.Component {
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
     } else if (this.isDrawMode()) {
+      const currentShape = this.convertShape(this.state.currentShape);
       this.setState({
         isDrawing: false,
         currentShape: {},
         fixedCursorY: null,
         fixedCursorX: null,
-        points: this.state.points.concat(this.convertShape(this.state.currentShape)),
+        points: this.state.points.concat(currentShape),
+        history: [
+          ...this.state.history,
+          {
+            type: 'draw',
+            shape: currentShape,
+          },
+        ],
       });
     }
   };
@@ -449,6 +497,7 @@ class Paper extends React.Component {
       prevCursorX: cursorX,
       prevCursorY: cursorY,
       currentShape: { ...this.state.currentShape },
+      history:  [...this.state.history],
     };
 
     const translateX = cursorX - this.state.prevCursorX;
@@ -469,48 +518,25 @@ class Paper extends React.Component {
     // user is moving while the mouse is pressed. This prevents us from
     // doing unnecessary actions and certain duplicate entries being made.
     if (diff > 0) {
+
+      // Go through each shape and if any of its points is inside the eraser,
+      // then we'll remove the whole shape.
       if (this.isErasing()) {
         const cx = this.toTrueX(cursorX);
         const cy = this.toTrueY(cursorY);
-
-        newState.points = [];
-
-        // Loop through each shape and remove all the points that are inside the
-        // eraser radius. The points to be removed will be set to null. If there
-        // exists a gap after erasing inside a shape, then the current shape
-        // will be shortened until the erased point, then a second shape will be
-        // created from the leftover points below the erased point.
-        let shapes = [...this.state.points];
-        while (shapes.length > 0) {
-          const shape = shapes.shift();
-            const newShape = { ...shape };
-
-            let points = [...shape.points];
-            for (let i = 0; i < points.length; i++) {
-              let currPoint = points[i];
-              const prevPoint = i > 0 ? points[i - 1] : currPoint;
-
-              const { x, y } = currPoint;
-              const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
-              const currentPointInsideEraserShape = distance <= this.state.eraserSize;
-              if (currentPointInsideEraserShape) {
-                points[i] = null;
-                currPoint = null;
-              }
-
-              if (prevPoint !== null && currPoint === null) {
-                newShape.points = points.slice(0, i);
-              } else if (prevPoint === null && currPoint !== null) {
-                const secondShape = { ...shape, points: points.slice(i) };
-                newState.points.push(secondShape);
-                break;
-              }
+        newState.points = this.state.points.filter((shape, index) => {
+          for (let i = 0; i < shape.points.length; i++) {
+            const point = shape.points[i];
+            const { x, y } = point;
+            const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
+            const insideEraser = distance <= this.state.eraserSize;
+            if (insideEraser) {
+              newState.history[newState.history.length - 1].shapes[index] = shape;
+              return false;
             }
-
-          if (newShape.points.length > 0) {
-            newState.points.push(newShape);
           }
-        }
+          return true;
+        });
       }
 
       if (this.isDrawing()) {
@@ -875,8 +901,8 @@ class Paper extends React.Component {
           onClickResetZoom={this.onClickResetZoom}
           onZoomIn={this.onZoomIn}
           onZoomOut={this.onZoomOut}
-          canUndo={this.state.points.length > 0}
-          canRedo={this.state.undoPoints.length > 0}
+          canUndo={this.state.history.length > 0}
+          canRedo={this.state.undoHistory.length > 0}
           canResetZoom={this.state.scale === 1}
           canvasIsEmpty={this.state.points.length === 0}
         />
