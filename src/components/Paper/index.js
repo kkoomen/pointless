@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import styles from './styles.module.css';
-import { rotateAroundPoint, createLine } from './helpers';
+import { getSmoothPath, rotateAroundPoint, createLine } from './helpers';
 import Palette from './components/Palette';
 import Toolbar from './components/Toolbar';
 import Info from './components/Info';
@@ -348,9 +348,7 @@ class Paper extends React.Component {
     if (shape.type === MODE.FREEHAND) return shape;
 
     const newShape = {
-      type: MODE.FREEHAND,
-      linewidth: shape.linewidth,
-      color: shape.color,
+      ...shape,
       points: [],
     }
 
@@ -678,32 +676,9 @@ class Paper extends React.Component {
 
     if (!Array.isArray(shape.points) || shape.points.length < 1) return;
 
-    // Create the starting point.
-    let d = `M ${shape.points[0].x} ${shape.points[0].y} L ${shape.points[0].x} ${shape.points[0].y}`;
-
-    // Connect the remaining points.
-    for (let j = 0; j < shape.points.length; j++) {
-      const nextTwoPoints = shape.points.slice(j, j + 2);
-
-      // We need 3 coordinates for the bezier curve, but when the user
-      // simply added a single dot, we still want to show it. In this
-      // situation there is no third coordinate, so we have to add it
-      // manually. We simply copy the 2nd point as the 3rd point.
-      if (nextTwoPoints.length === 1) {
-        nextTwoPoints.push(nextTwoPoints[0]);
-      }
-
-      const controlPoint = nextTwoPoints[0];
-      const endPoint = {
-        x: (controlPoint.x + nextTwoPoints[1].x) / 2,
-        y: (controlPoint.y + nextTwoPoints[1].y) / 2,
-      };
-      d += ` Q ${controlPoint.x} ${controlPoint.y} ${endPoint.x} ${endPoint.y}`;
-    }
-
     return (
       <path
-        d={d}
+        d={getSmoothPath(shape)}
         fill="transparent"
         strokeLinecap="round"
         strokeLinejoin="round"

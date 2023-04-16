@@ -13,8 +13,8 @@
 }
 
 .color-palette__color {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
   margin: 5px;
   border-radius: 50%;
   transform: scale(1);
