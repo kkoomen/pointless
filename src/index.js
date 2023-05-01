@@ -17,11 +17,9 @@ invoke('load_library').then((libraryState) => {
   store.dispatch(loadLibrary(libraryState));
 });
 
-// Until the feature request hasn't been resolved, we temporarily will use the
-// backend to detect the system theme for macOS.
-// @see https://github.com/tauri-apps/tao/issues/387
-invoke('get_system_theme').then((theme) => {
-  const isDarkMode = theme === 'dark';
+
+// Update the isDarkMode value when the user changes theme.
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ({matches: isDarkMode}) => {
   store.dispatch(setDarkMode(isDarkMode));
 });
 

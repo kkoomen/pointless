@@ -22,23 +22,9 @@ async fn save_library(app: AppHandle, library_state: String) {
     compress(&library_config_file, &library_state);
 }
 
-#[tauri::command]
-async fn get_system_theme() -> String {
-    let mode = dark_light::detect();
-    match mode {
-        dark_light::Mode::Dark => {
-            return "dark".into();
-        },
-        dark_light::Mode::Light => {
-            return "light".into();
-        },
-    }
-}
-
 pub fn get_handlers() -> Box<dyn Fn(tauri::Invoke<tauri::Wry>) + Send + Sync> {
     Box::new(tauri::generate_handler![
         load_library,
-        save_library,
-        get_system_theme
+        save_library
     ])
 }
