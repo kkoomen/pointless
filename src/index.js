@@ -22,8 +22,7 @@ import { Buffer } from 'buffer';
 
   // Load the saved library state.
   readTextFile(LIBRARY_PATH, { dir: BASE_DIR }).then(async (contents) => {
-    const buffer = new Uint8Array(contents.split(',').map((n) => parseInt(n)));
-    const decompressed = await decompress(buffer);
+    const decompressed = await decompress(contents);
     const decompressedString = Buffer.from(decompressed).toString();
     const libraryState = JSON.parse(decompressedString);
     store.dispatch(loadLibrary(libraryState));
