@@ -47,7 +47,16 @@
       "active": false
     },
     "allowlist": {
-      "all": true
+      "os": {
+        "all": true
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APP/*", "$APP/data/*"]
+      },
+      "path": {
+        "all": true
+      }
     },
     "windows": [
       {

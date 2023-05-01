@@ -1,3 +1,5 @@
+import {BaseDirectory} from "@tauri-apps/api/fs";
+
 export const KEY = {
   SPACEBAR: 32,
   I: 73,
@@ -14,3 +16,6 @@ export const KEY = {
   LEFT_SQUARE_BRACKET: 219,
   RIGHT_SQUARE_BRACKET: 221,
 };
+
+export const BASE_DIR = BaseDirectory.App;
+export const LIBRARY_PATH = 'data/library.dat';

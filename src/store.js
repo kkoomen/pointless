@@ -1,12 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { invoke } from '@tauri-apps/api/tauri';
 import thunkMiddleware from 'redux-thunk';
 import libraryReducer from './reducers/library/librarySlice';
 import paperReducer from './reducers/paper/paperSlice';
 import routerReducer from './reducers/router/routerSlice';
 import settingsReducer from './reducers/settings/settingsSlice';
+import { writeTextFile } from '@tauri-apps/api/fs';
+import { BASE_DIR, LIBRARY_PATH } from './constants';
+import { compress } from 'brotli-unicode'
+import { Buffer } from 'buffer';
 
-const saveStateMiddleware = (store) => (next) => (action) => {
+const saveStateMiddleware = (store) => (next) => async (action) => {
   const result = next(action);
 
   if (typeof action === 'object') {
@@ -16,7 +19,8 @@ const saveStateMiddleware = (store) => (next) => (action) => {
     // Auto-save the library for every library action.
     if (reducerName === 'library' && actionName !== 'load') {
       const state = store.getState();
-      invoke('save_library', { libraryState: JSON.stringify(state.library) });
+      const data = await compress(Buffer.from(JSON.stringify(state.library)));
+      await writeTextFile(LIBRARY_PATH, data.toString(), { dir: BASE_DIR });
     }
   }
 

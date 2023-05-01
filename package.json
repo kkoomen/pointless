@@ -4,19 +4,21 @@
   "private": true,
   "description": "An endless drawing canvas.",
   "dependencies": {
-    "@reduxjs/toolkit": "^1.9.0",
-    "@tauri-apps/api": "^1.1.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@tauri-apps/api": "^1.2.0",
+    "brotli-unicode": "^1.0.2",
+    "buffer": "^6.0.3",
     "classnames": "^2.3.2",
     "d3-shape": "^3.2.0",
-    "dayjs": "^1.11.6",
+    "dayjs": "^1.11.7",
     "prop-types": "^15.8.1",
-    "rc-tooltip": "^5.2.2",
+    "rc-tooltip": "^6.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-scripts": "5.0.1",
     "uuid": "^9.0.0",
-    "web-vitals": "^3.0.4"
+    "web-vitals": "^3.3.1"
   },
   "scripts": {
     "start": "cross-env BROWSER=none react-scripts start",
@@ -69,13 +71,13 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.2.0",
-    "@commitlint/config-conventional": "^17.2.0",
-    "@tauri-apps/cli": "^1.1.1",
+    "@commitlint/cli": "^17.6.1",
+    "@commitlint/config-conventional": "^17.6.1",
+    "@tauri-apps/cli": "^1.2.3",
     "cross-env": "^7.0.3",
-    "eslint-config-prettier": "^8.5.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
-    "prettier": "^2.7.1"
+    "eslint-config-prettier": "^8.8.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8"
   }
 }
