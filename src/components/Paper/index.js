@@ -21,6 +21,7 @@ import {
   SCALE_FACTOR,
   SCALE_BY,
   ERASER_SCALE_FACTOR,
+  MAX_SCALE,
 } from './constants';
 import { KEY } from './../../constants';
 import { setPaperPoints } from './../../reducers/library/librarySlice';
@@ -740,7 +741,7 @@ class Paper extends React.Component {
   zoomBy = (amount, x = window.innerWidth / 2, y = window.innerHeight / 2) => {
     const cursorX = this.toTrueX(x);
     const cursorY = this.toTrueY(y);
-    const scale = Math.max(MIN_SCALE, this.state.scale + amount);
+    const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.state.scale + amount));
 
     const currX = cursorX * this.state.scale;
     const currY = cursorY * this.state.scale;
@@ -854,6 +855,13 @@ class Paper extends React.Component {
           [styles['canvas__is-panning']]: this.isPanning(),
         })}
       >
+        <div className={classNames(styles['zoom-percentage'], {
+            [styles['zoom-percentage--100']]: this.state.scale === 1,
+          })}
+        >
+          {parseInt(this.state.scale * 100)}%
+        </div>
+
         {this.renderCanvas()}
         <Palette onSelectColor={this.selectColorHandler} selectedColor={this.state.selectedColor} />
         <Toolbar

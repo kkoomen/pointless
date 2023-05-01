@@ -41,6 +41,7 @@ export const ERASER_SCALE_FACTOR = 5;
 export const DEFAULT_STROKE_COLOR_LIGHT = '#000000';
 export const DEFAULT_STROKE_COLOR_DARK = '#ffffff';
 
-export const MIN_SCALE = 0.2;
+export const MIN_SCALE = 0.05; // 5%
+export const MAX_SCALE = 10; // 1000%
 export const SCALE_FACTOR = 0.002;
 export const SCALE_BY = 0.5;

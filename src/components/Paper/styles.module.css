@@ -64,8 +64,37 @@
   left: -5px;
 }
 
+.zoom-percentage {
+  position: fixed;
+  display: inline-block;
+  bottom: 1rem;
+  left: 1rem;
+  padding: .8rem 1rem;
+  font-size: 1.2rem;
+  border-radius: 3px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.zoom-percentage:not(.zoom-percentage--100) {
+  color: #fd5865;
+}
+
 @media (prefers-color-scheme: dark) {
   .back-button__container svg {
     fill: #fff;
+  }
+
+  .zoom-percentage {
+    background: #323232;
+    color: #fff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .zoom-percentage {
+    background: #fff;
+    border: 1px solid #d1d1d1;
   }
 }

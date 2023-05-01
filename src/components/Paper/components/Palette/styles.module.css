@@ -9,7 +9,7 @@
   justify-content: center;
   padding: 5px;
   border-radius: 7px;
-  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
 }
 
 .color-palette__color {
