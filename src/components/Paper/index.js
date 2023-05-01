@@ -24,7 +24,7 @@ import {
   MAX_SCALE,
 } from './constants';
 import { KEY } from './../../constants';
-import { setPaperPoints } from './../../reducers/library/librarySlice';
+import { setPaperShapes } from './../../reducers/library/librarySlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { to } from '../../reducers/router/routerSlice';
 import { removeDuplicates } from '../../helpers';
@@ -62,7 +62,7 @@ const getInitialState = (isDarkMode, args) => ({
    * }
    */
   currentShape: {},
-  points: [],
+  shapes: [],
   ...args,
 });
 
@@ -72,7 +72,7 @@ class Paper extends React.Component {
     this.svg = React.createRef();
     this.ctx = null;
     this.state = getInitialState(props.isDarkMode, {
-      points: props.paper.points,
+      shapes: props.paper.shapes,
     });
   }
 
@@ -93,18 +93,18 @@ class Paper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // Only redraw the elements when the amount of points have been updated.
-    const totalPoints = this.state.points.reduce((total, shape) => total + shape.points.length, 0);
-    const prevTotalPoints = prevState.points.reduce(
+    // Only redraw the elements when the amount of shapes have been updated.
+    const totalShapes = this.state.shapes.reduce((total, shape) => total + shape.points.length, 0);
+    const prevTotalShapes = prevState.shapes.reduce(
       (total, shape) => total + shape.points.length,
       0,
     );
-    if (prevTotalPoints !== totalPoints) {
+    if (prevTotalShapes !== totalShapes) {
       this.drawCanvasElements();
       this.props.dispatch(
-        setPaperPoints({
+        setPaperShapes({
           id: this.props.paperId,
-          points: this.state.points,
+          shapes: this.state.shapes,
         }),
       );
     }
@@ -176,13 +176,13 @@ class Paper extends React.Component {
         break;
 
       case KEY.PLUS:
-        if (this.state.points.length > 0) {
+        if (this.state.shapes.length > 0) {
           this.zoomBy(SCALE_BY);
         }
         break;
 
       case KEY.MINUS:
-        if (this.state.points.length > 0) {
+        if (this.state.shapes.length > 0) {
           this.zoomBy(-SCALE_BY);
         }
         break;
@@ -222,17 +222,17 @@ class Paper extends React.Component {
       const newState = {
         history: this.state.history.slice(0, -1),
         undoHistory: this.state.undoHistory.concat(entry),
-        points: [...this.state.points],
+        shapes: [...this.state.shapes],
       };
 
       switch (entry.type) {
         case 'draw':
-          newState.points.splice(-1);
+          newState.shapes.splice(-1);
           break;
 
         case 'erase':
           Object.keys(entry.shapes).forEach((index) => {
-            newState.points.splice(index, 0, entry.shapes[index]);
+            newState.shapes.splice(index, 0, entry.shapes[index]);
           });
           break;
 
@@ -249,19 +249,19 @@ class Paper extends React.Component {
       const newState = {
         undoHistory: this.state.undoHistory.slice(0, -1),
         history: this.state.history.concat(entry),
-        points: [...this.state.points],
+        shapes: [...this.state.shapes],
       }
 
       switch (entry.type) {
         case 'draw':
-          newState.points.push(entry.shape);
+          newState.shapes.push(entry.shape);
           break;
 
         case 'erase':
           // Remove the shapes again but start from the end of the shapes array.
           const indexes = Object.keys(entry.shapes);
           for (let i = indexes.length - 1; i >= 0; i--) {
-            newState.points.splice(indexes[i], 1);
+            newState.shapes.splice(indexes[i], 1);
           }
           break;
 
@@ -343,7 +343,7 @@ class Paper extends React.Component {
 
   /**
    * Convert a non-freehand shape containing x/y coordinates to a shape made out
-   * of points.
+   * of shapes.
    */
   convertShape = (shape) => {
     if (shape.type === MODE.FREEHAND) return shape;
@@ -386,7 +386,7 @@ class Paper extends React.Component {
         const height = Math.abs(y2 - y1);
         const width = Math.abs(x2 - x1);
 
-        // convert the 4 sides to points
+        // convert the 4 sides to shapes
 
         // top left to top right
         const topBar = Array(width)
@@ -476,7 +476,7 @@ class Paper extends React.Component {
         currentShape: {},
         fixedCursorY: null,
         fixedCursorX: null,
-        points: this.state.points.concat(currentShape),
+        shapes: this.state.shapes.concat(currentShape),
         history: [
           ...this.state.history,
           {
@@ -518,19 +518,19 @@ class Paper extends React.Component {
     // doing unnecessary actions and certain duplicate entries being made.
     if (diff > 0) {
 
-      // Go through each shape and if any of its points is inside the eraser,
+      // Go through each shape and if any of its shapes is inside the eraser,
       // then we'll remove the whole shape.
       if (this.isErasing()) {
         const cx = this.toTrueX(cursorX);
         const cy = this.toTrueY(cursorY);
-        newState.points = this.state.points.filter((shape, index) => {
+        newState.shapes = this.state.shapes.filter((shape, index) => {
           for (let i = 0; i < shape.points.length; i++) {
             const point = shape.points[i];
             const { x, y } = point;
             const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
             const insideEraser = distance <= this.state.eraserSize;
             if (insideEraser) {
-              newState.history[newState.history.length - 1].shapes[index] = shape;
+              newState.history[newState.history.length - 1].shapes[index] = point;
               return false;
             }
           }
@@ -541,7 +541,7 @@ class Paper extends React.Component {
       if (this.isDrawing()) {
         switch (this.state.mode) {
           case MODE.FREEHAND: {
-            // Get the angle between the most recent points in order to know in which
+            // Get the angle between the most recent shapes in order to know in which
             // direction the user is drawing.
             const p1 =
               this.state.currentShape.points[
@@ -656,7 +656,7 @@ class Paper extends React.Component {
 
   drawCanvasElements = () => {
     this.setState({
-      canvasElements: this.state.points.map((shape, index) => {
+      canvasElements: this.state.shapes.map((shape, index) => {
         const element = this.createShapeElement(shape);
         if (React.isValidElement(element)) {
           return React.cloneElement(element, {
@@ -704,7 +704,7 @@ class Paper extends React.Component {
    * drawn content to the given scale and centers the content.
    */
   zoomToFit = (preferredScale) => {
-    if (this.state.points.length === 0) return;
+    if (this.state.shapes.length === 0) return;
 
     const margin = 100;
     const maxWidth = window.innerWidth - margin * 2;
@@ -733,7 +733,7 @@ class Paper extends React.Component {
   };
 
   zoomHandler = (event) => {
-    if (this.state.points.length === 0) return false;
+    if (this.state.shapes.length === 0) return false;
 
     this.zoomBy(event.deltaY * SCALE_FACTOR, event.pageX, event.pageY);
   };
@@ -776,7 +776,7 @@ class Paper extends React.Component {
       if (
         bbox.width === 0 &&
         bbox.height === 0 &&
-        this.state.points.length > 0 &&
+        this.state.shapes.length > 0 &&
         !this.state.forceUpdate
       ) {
         this.setState({ forceUpdate: true });
@@ -887,7 +887,7 @@ class Paper extends React.Component {
           canUndo={this.state.history.length > 0}
           canRedo={this.state.undoHistory.length > 0}
           canResetZoom={this.state.scale === 1}
-          canvasIsEmpty={this.state.points.length === 0}
+          canvasIsEmpty={this.state.shapes.length === 0}
         />
         <Info />
         <div className={styles['back-button__container']} onClick={this.onBackButtonClick}>

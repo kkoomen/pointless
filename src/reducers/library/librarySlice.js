@@ -24,7 +24,7 @@ const librarySlice = createSlice({
         id: uuidv4(),
         name: 'Untitled',
         folderId: folderId,
-        points: [],
+        shapes: [],
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
@@ -49,11 +49,11 @@ const librarySlice = createSlice({
         }
       }
     },
-    setPaperPoints: (state, action) => {
-      const { id, points } = action.payload;
+    setPaperShapes: (state, action) => {
+      const { id, shapes } = action.payload;
       for (let i = 0; i < state.papers.length; i++) {
         if (state.papers[i].id === id) {
-          state.papers[i].points = points;
+          state.papers[i].shapes = shapes;
           state.papers[i].updatedAt = new Date().toISOString();
           break;
         }
@@ -86,7 +86,7 @@ export const {
   newPaperInFolder,
   updateFolderName,
   updatePaperName,
-  setPaperPoints,
+  setPaperShapes,
   deleteFolder,
   deletePaper,
   loadLibrary,
