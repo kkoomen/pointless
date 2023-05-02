@@ -82,6 +82,7 @@ class Paper extends React.Component {
       document.addEventListener('keydown', this.documentKeyDownHandler);
       document.addEventListener('keyup', this.documentKeyUpHandler);
     }
+    this.drawCanvasElements();
   }
 
   componentWillUnmount() {
@@ -790,10 +791,10 @@ class Paper extends React.Component {
       attrs.onWheel = this.zoomHandler;
     }
 
-    const transform = `
-      translate(${this.state.translateX} ${this.state.translateY})
-      scale(${this.state.scale})
-    `;
+    let transform = [
+      `translate(${this.state.translateX} ${this.state.translateY})`,
+      `scale(${this.state.scale})`,
+    ].join(' ');
 
     return (
       <svg

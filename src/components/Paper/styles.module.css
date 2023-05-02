@@ -38,6 +38,10 @@
   z-index: 10;
 }
 
+.canvas__element-readonly {
+  height: calc(100% - 3.3rem);
+}
+
 .canvas--top-right-container > svg {
   margin-left: 2rem;
 }
