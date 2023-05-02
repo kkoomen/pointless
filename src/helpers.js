@@ -19,6 +19,5 @@ export function sanitizeFilename(filename) {
   // - | (vertical bar or pipe)
   // - ? (question mark)
   // - * (asterisk)
-  // - Any character with an ASCII code between 0 (null) and 31 (unit separator), inclusive.
-  return filename.replace(/[<>:"/\\|?*\\x00-\\x1F]/g, '').replace(/\s+/g, '_');
+  return filename.replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '_');
 }

@@ -10,6 +10,8 @@ import {ReactComponent as ExportIcon} from './../../../../assets/icons/export.sv
 import {sanitizeFilename} from './../../../../helpers';
 import styles from './styles.module.css';
 
+const ALLOWED_TYPES = ['jpeg', 'png', 'svg'];
+
 class ExportButton extends React.Component {
   constructor(props) {
     super();
@@ -17,16 +19,16 @@ class ExportButton extends React.Component {
     this.initialState = {
       open: false,
       theme: props.isDarkMode ? 'dark' : 'light',
-      exportType: 'jpg',
+      exportType: ALLOWED_TYPES[0],
       transparent: false,
       exporting: false,
       location: 'unknown',
-    }
+    };
 
     this.state = this.initialState;
 
     downloadDir().then((location) => {
-      this.setState({ location })
+      this.setState({ location });
     });
   }
 
@@ -37,38 +39,39 @@ class ExportButton extends React.Component {
   export = () => {
     if (this.state.exporting) return false;
 
-    store.dispatch(
-      exportPaper({
-        id: this.props.paper.id,
-        theme: this.state.theme,
-        exportType: this.state.exportType,
-        transparent: this.state.transparent,
-      })
-    ).then(() => {
-      this.setState({ open: false });
-    });
+    store
+      .dispatch(
+        exportPaper({
+          id: this.props.paper.id,
+          theme: this.state.theme,
+          exportType: this.state.exportType,
+          transparent: this.state.transparent,
+        }),
+      )
+      .then(() => {
+        this.setState({ open: false });
+      });
   };
 
-  updateType = (event) =>{
+  updateType = (event) => {
     const exportType = event.target.value;
-    const allowedTypes = ['jpg', 'jpeg', 'png', 'svg'];
 
-    if (!allowedTypes.includes(exportType)) {
+    if (!ALLOWED_TYPES.includes(exportType)) {
       return false;
     }
 
     this.setState({ exportType });
-  }
+  };
 
   setTransparentBackgroundValue = (transparent) => {
     this.setState({ transparent });
-  }
+  };
 
   updateTheme = (event) => {
     this.setState({
       theme: event.target.value,
     });
-  }
+  };
 
   render() {
     return (
@@ -82,13 +85,11 @@ class ExportButton extends React.Component {
         <Modal open={this.state.open} title="Export paper" onClose={this.toggleOpen}>
           <div className="form-group">
             <div className="form-label">Location</div>
-            <div className="display-flex">
-              {this.state.location}
-            </div>
+            <div className="display-flex ellipsis">{this.state.location}</div>
           </div>
           <div className="form-group">
             <div className="form-label">Name</div>
-            <div className="display-flex">
+            <div className="display-flex ellipsis">
               {sanitizeFilename(this.props.paper.name)}.{this.state.exportType}
             </div>
           </div>
@@ -105,7 +106,6 @@ class ExportButton extends React.Component {
             <div className="form-label">Type</div>
             <div className="display-flex">
               <FormSelect defaultValue={this.exportType} onChange={this.updateType}>
-                <option value="jpg">jpg</option>
                 <option value="jpeg">jpeg</option>
                 <option value="png">png</option>
                 <option value="svg">svg</option>
@@ -121,7 +121,9 @@ class ExportButton extends React.Component {
             </div>
           )}
           <div className="form-group text-align--right">
-            <button className="btn btn-primary" onClick={this.export}>Export</button>
+            <button className="btn btn-primary" onClick={this.export}>
+              Export
+            </button>
           </div>
         </Modal>
       </>
