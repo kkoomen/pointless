@@ -82,7 +82,6 @@ const librarySlice = createSlice({
       }
     },
     saveLibrary: (state, action) => {
-      console.log('saving library state');
       invoke('save_library', { libraryState: JSON.stringify(state.library) });
     },
     exportPaper: (state, action) => {
