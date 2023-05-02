@@ -27,10 +27,10 @@ class ToggleDarkMode extends React.PureComponent {
         })}
       >
         <div className={styles['toggle-dark-mode__icon-container']}>
-          <LightModeIcon width="2rem" height="2rem" />
+          <LightModeIcon width="20px" height="20px" />
         </div>
         <div className={styles['toggle-dark-mode__icon-container']}>
-          <DarkModeIcon width="2rem" height="2rem" fill="white" />
+          <DarkModeIcon width="20px" height="20px" fill="white" />
         </div>
       </div>
     );

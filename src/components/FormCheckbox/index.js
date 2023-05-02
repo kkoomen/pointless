@@ -16,9 +16,9 @@ export function FormCheckbox({ className, label, onChange = () => {}, ...otherPr
   return (
     <div className={classNames(styles['container'], className)} {...otherProps}>
       {checked ? (
-        <CheckedIcon width="2rem" height="2rem" />
+        <CheckedIcon width="20px" height="20px" />
       ) : (
-        <UncheckedIcon width="2rem" height="2rem" />
+        <UncheckedIcon width="20px" height="20px" />
       )}
       <label onClick={onLabelClick} className={styles['label']}>
         {label}

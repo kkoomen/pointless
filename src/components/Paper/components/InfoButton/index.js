@@ -40,8 +40,8 @@ class InfoButton extends React.Component {
       <>
         <InfoIcon
           className={styles['info-icon']}
-          width="2rem"
-          height="2rem"
+          width="20px"
+          height="20px"
           onClick={this.toggleOpen}
         />
         <Modal open={this.state.open} title="Paper information" onClose={this.toggleOpen}>

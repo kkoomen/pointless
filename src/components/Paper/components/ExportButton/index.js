@@ -78,8 +78,8 @@ class ExportButton extends React.Component {
       <>
         <ExportIcon
           className={styles['export-icon']}
-          width="2rem"
-          height="2rem"
+          width="20px"
+          height="20px"
           onClick={this.toggleOpen}
         />
         <Modal

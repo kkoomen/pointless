@@ -17,7 +17,7 @@ export default function HelpButton() {
 
   return (
     <>
-      <HelpIcon className={styles['help-icon']} width="2rem" height="2rem" onClick={toggleOpen} />
+      <HelpIcon className={styles['help-icon']} width="20px" height="20px" onClick={toggleOpen} />
       <Modal open={open} title="Help" onClose={toggleOpen} size="medium">
         <table className="table">
           <thead>
