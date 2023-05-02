@@ -666,7 +666,7 @@ class Paper extends React.Component {
     });
   };
 
-  createShapeElement(shape) {
+  createShapeElement(shape, simplifyPointsTolerance) {
     let strokeColor = shape.color;
     if ([DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE].includes(strokeColor)) {
       strokeColor = this.props.isDarkMode
@@ -678,7 +678,7 @@ class Paper extends React.Component {
 
     return (
       <path
-        d={getSmoothPath(shape)}
+        d={getSmoothPath(shape, simplifyPointsTolerance)}
         fill="transparent"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -759,7 +759,7 @@ class Paper extends React.Component {
   drawCurrentShape = () => {
     if (Object.keys(this.state.currentShape).length === 0) return null;
 
-    return this.createShapeElement(this.convertShape(this.state.currentShape));
+    return this.createShapeElement(this.convertShape(this.state.currentShape), 0.7);
   };
 
   renderCanvas = () => {

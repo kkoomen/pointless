@@ -51,8 +51,12 @@ export function createLine(p1, p2) {
  * @param {object} shape - The shape object.
  * @returns {string} An SVG d-string of points.
  */
-export function getSmoothPath(shape) {
-  const points = shape.type === 'freehand' ? simplifyPoints(shape.points) : shape.points;
+export function getSmoothPath(shape, simplifyPointsTolerance) {
+  simplifyPointsTolerance = simplifyPointsTolerance || 1.0;
+  const points =
+    shape.type === 'freehand'
+      ? simplifyPoints(shape.points, simplifyPointsTolerance)
+      : shape.points;
 
   let line = d3
     .line()
