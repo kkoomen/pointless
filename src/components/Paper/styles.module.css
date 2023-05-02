@@ -31,10 +31,15 @@
   cursor: none;
 }
 
-.canvas__info-container {
+.canvas--top-right-container {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: 2rem;
+  right: 2rem;
+  z-index: 10;
+}
+
+.canvas--top-right-container > svg {
+  margin-left: 2rem;
 }
 
 .back-button__container {

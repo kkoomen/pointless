@@ -58,7 +58,7 @@ export function getSmoothPath(shape) {
     .x(d => d.x)
     .y(d => d.y);
 
-  if (shape.type === 'freehand') {
+  if (shape.type === 'freehand' && shape.points.length > 1) {
     line = line.curve(d3.curveCatmullRom.alpha(0.5));
   }
 

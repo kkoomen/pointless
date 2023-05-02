@@ -1,36 +1,34 @@
-import React from 'react';
+import {confirm} from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import styles from './styles.module.css';
-import { getSmoothPath, rotateAroundPoint, createLine } from './helpers';
+import React from 'react';
+import {connect} from 'react-redux';
+import {removeDuplicates} from '../../helpers';
+import {to} from '../../reducers/router/routerSlice';
+import {ReactComponent as LeftArrowIcon} from './../../assets/icons/left-arrow.svg';
+import {KEY} from './../../constants';
+import {setPaperShapes} from './../../reducers/library/librarySlice';
+import ExportButton from './components/ExportButton';
+import InfoButton from './components/InfoButton';
 import Palette from './components/Palette';
 import Toolbar from './components/Toolbar';
-import Info from './components/Info';
-import { writeBinaryFile } from '@tauri-apps/api/fs';
-import { confirm } from '@tauri-apps/api/dialog';
 import {
-  DEFAULT_STROKE_COLOR_LIGHTMODE,
   DEFAULT_STROKE_COLOR_DARKMODE,
-  CANVAS_BACKGROUND_COLOR_DARKMODE,
-  CANVAS_BACKGROUND_COLOR_LIGHTMODE,
-  LINEWIDTH,
-  MODE,
+  DEFAULT_STROKE_COLOR_LIGHTMODE,
   ERASER_CURSOR_COLOR,
-  ERASER_SIZE,
-  ERASER_MIN_SIZE,
   ERASER_MAX_SIZE,
-  MIN_SCALE,
-  SCALE_FACTOR,
-  SCALE_BY,
+  ERASER_MIN_SIZE,
   ERASER_SCALE_FACTOR,
+  ERASER_SIZE,
+  LINEWIDTH,
   MAX_SCALE,
+  MIN_SCALE,
+  MODE,
+  SCALE_BY,
+  SCALE_FACTOR,
 } from './constants';
-import { EXPORTS_DIR, KEY } from './../../constants';
-import { setPaperShapes } from './../../reducers/library/librarySlice';
-import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
-import { to } from '../../reducers/router/routerSlice';
-import { removeDuplicates } from '../../helpers';
+import {createLine, getSmoothPath, rotateAroundPoint} from './helpers';
+import styles from './styles.module.css';
 
 const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE,
@@ -826,60 +824,6 @@ class Paper extends React.Component {
     this.props.dispatch(to({ name: 'library' }));
   };
 
-  onExportPNG = async () => {
-    const exportDarkMode = true;
-    const svg = this.svg.current;
-    const bbox = svg.getBBox();
-
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
-
-    // Space around each side.
-    const padding = 25;
-
-    canvas.width = bbox.width + padding * 2;
-    canvas.height = bbox.height + padding * 2;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = exportDarkMode ? CANVAS_BACKGROUND_COLOR_DARKMODE : CANVAS_BACKGROUND_COLOR_LIGHTMODE;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the shapes on the canvas.
-    this.state.shapes.forEach((shape) => {
-      ctx.lineWidth = shape.linewidth;
-      ctx.strokeStyle = shape.color;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      if ([DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE].includes(shape.color)) {
-        ctx.strokeStyle = exportDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE;
-      }
-
-      // Adjust the coordinates of each point based on the bounding box.
-      const adjustedPoints = shape.points.map(({x, y}) => ({
-        x: x - bbox.x + padding,
-        y: y - bbox.y + padding,
-      }));
-      const adjustedPath = getSmoothPath({...shape, points: adjustedPoints});
-
-      ctx.stroke(new Path2D(adjustedPath));
-    });
-
-    const mimeType = 'image/jpg';
-    canvas.toBlob(async (blob) => {
-      // Read the Blob data as a Uint8Array
-      const fileReader = new FileReader();
-      fileReader.readAsArrayBuffer(blob);
-      fileReader.onload = async () => {
-        const fileContents = new Uint8Array(fileReader.result);
-
-        // Write the binary file to disk
-        const fileName = 'myfile.jpg'; // or 'myfile.jpg'
-        await writeBinaryFile(fileName, fileContents, { dir: EXPORTS_DIR });
-      };
-    }, mimeType);
-  }
-
   // In order to memoize sub-components we need to define the
   // callbacks outside of the render function.
   onClickFreehandTool = () => this.setMode(MODE.FREEHAND);
@@ -937,7 +881,6 @@ class Paper extends React.Component {
           onClickRedoTool={this.onClickRedoTool}
           onClearCanvas={this.onClearCanvas}
           onClickResetZoom={this.onClickResetZoom}
-          onExportPNG={this.onExportPNG}
           onZoomIn={this.onZoomIn}
           onZoomOut={this.onZoomOut}
           canUndo={this.state.history.length > 0}
@@ -945,7 +888,11 @@ class Paper extends React.Component {
           canResetZoom={this.state.scale === 1}
           canvasIsEmpty={this.state.shapes.length === 0}
         />
-        <Info />
+        <div className={styles['canvas--top-right-container']}>
+          <ExportButton />
+          <InfoButton />
+        </div>
+
         <div className={styles['back-button__container']} onClick={this.onBackButtonClick}>
           <LeftArrowIcon />
           <span>Library</span>

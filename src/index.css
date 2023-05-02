@@ -123,6 +123,12 @@ kbd {
   font-weight: bold;
 }
 
+.btn[disabled] {
+  background-color: #d0d0d0;
+  color: #757575;
+  cursor: not-allowed;
+}
+
 .btn-icon {
   border-radius: 50%;
   min-width: 3rem;
@@ -188,6 +194,10 @@ kbd {
 .select:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
   cursor: pointer;
+}
+
+.text-align--right {
+  text-align: right;
 }
 
 @media (prefers-color-scheme: dark) {

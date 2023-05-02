@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  align-items: center;
+}
+
+.input-checkbox {
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.label {
+  margin-left: 5px;
+}

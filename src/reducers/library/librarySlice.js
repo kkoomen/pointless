@@ -1,5 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { v4 as uuidv4 } from 'uuid';
+import {createSlice} from '@reduxjs/toolkit';
+import {v4 as uuidv4} from 'uuid';
+import {sanitizeFilename} from '../../helpers';
+import {imageExport, svgExport} from '../../utils/paper-export';
 
 const initialState = {
   folders: [],
@@ -78,6 +80,20 @@ const librarySlice = createSlice({
         state.papers = action.payload.papers;
       }
     },
+    exportPaper: (state, action) => {
+      const { id, exportType } = action.payload;
+
+      const paper = state.papers.find((paper) => paper.id === id);
+      const filename = `${sanitizeFilename(paper.name)}.${exportType}`;
+
+      let fn = (exportType === 'svg') ? svgExport : imageExport;
+      fn(paper, filename, action.payload);
+    },
+
+    // TODO:
+    // exportFolder: (state, action) => {
+    //   const folderId = action.payload;
+    // }
   },
 });
 
@@ -90,6 +106,7 @@ export const {
   deleteFolder,
   deletePaper,
   loadLibrary,
+  exportPaper,
 } = librarySlice.actions;
 
 export default librarySlice.reducer;

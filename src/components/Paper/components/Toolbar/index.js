@@ -320,18 +320,6 @@ function Toolbar(props) {
             <TrashcanIcon />
           </div>
         </Tooltip>
-
-        <div
-          onClick={props.onExportPNG}
-          className={classNames(
-            styles['toolbar-right__button'],
-            {
-              [styles['toolbar__item-disabled']]: props.canvasIsEmpty,
-            },
-          )}
-        >
-          EXPORT
-        </div>
       </div>
     </>
   );

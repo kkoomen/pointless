@@ -1,0 +1,24 @@
+.select {
+  color: inherit;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 4px;
+  transition-property: box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+  background-image: none;
+  -webkit-appearance: none;
+  font-size: 1.4rem;
+  background: #fff;
+  border-color: #eaeaea;
+}
+
+.select:active,
+.select:focus {
+  outline: 0;
+}
+
+.select:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}

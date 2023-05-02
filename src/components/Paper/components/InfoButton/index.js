@@ -8,7 +8,7 @@ import { ReactComponent as InfoIcon } from './../../../../assets/icons/info.svg'
 import { formatDate } from './../../../../helpers';
 import styles from './styles.module.css';
 
-class Info extends React.Component {
+class InfoButton extends React.Component {
   state = {
     open: false,
   };
@@ -81,4 +81,4 @@ function mapStateToProps(state) {
   return { paper, folder };
 }
 
-export default connect(mapStateToProps)(memo(Info));
+export default connect(mapStateToProps)(memo(InfoButton));

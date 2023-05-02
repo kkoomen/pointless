@@ -1,0 +1,20 @@
+.export-icon:hover {
+  cursor: pointer;
+}
+
+.export-icon:focus,
+.export-icon:active {
+  opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .export-icon path {
+    fill: #fff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .export-icon path {
+    fill: #000;
+  }
+}
