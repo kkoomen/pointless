@@ -1,5 +1,6 @@
 import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -7,8 +8,9 @@ import { removeDuplicates } from '../../helpers';
 import { to } from '../../reducers/router/routerSlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { KEY } from './../../constants';
-import { setPaperShapes } from './../../reducers/library/librarySlice';
+import { saveLibrary, setPaperShapes } from './../../reducers/library/librarySlice';
 import ExportButton from './components/ExportButton';
+import HelpButton from './components/HelpButton';
 import InfoButton from './components/InfoButton';
 import Palette from './components/Palette';
 import Toolbar from './components/Toolbar';
@@ -29,9 +31,10 @@ import {
 } from './constants';
 import { createLine, getSmoothPath, rotateAroundPoint } from './helpers';
 import styles from './styles.module.css';
-import HelpButton from './components/HelpButton';
 
 const getInitialState = (isDarkMode, args) => ({
+  userLastActiveAt: new Date().toISOString(),
+  librarySynced: true,
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE,
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
@@ -84,12 +87,18 @@ class Paper extends React.Component {
       document.addEventListener('keyup', this.documentKeyUpHandler);
     }
     this.drawCanvasElements();
+
+    // Monitor user activity when the user opened a drawing canvas.
+    if (!this.props.readonly) {
+      this.userActivityIntervalId = setInterval(() => this.checkUserActivity(), 1000);
+    }
   }
 
   componentWillUnmount() {
     if (!this.props.readonly) {
       document.removeEventListener('keydown', this.documentKeyDownHandler);
       document.removeEventListener('keyup', this.documentKeyUpHandler);
+      clearInterval(this.userActivityIntervalId);
     }
   }
 
@@ -101,6 +110,10 @@ class Paper extends React.Component {
       0,
     );
     if (prevTotalShapes !== totalShapes) {
+      this.setState({
+        librarySynced: false,
+        userLastActiveAt: new Date().toISOString(),
+      });
       this.drawCanvasElements();
       this.props.dispatch(
         setPaperShapes({
@@ -119,6 +132,15 @@ class Paper extends React.Component {
       this.drawCanvasElements();
     }
   }
+
+  checkUserActivity = () => {
+    // Only save the library state when user is inactive for several seconds.
+    const secsAgoSinceLastDraw = dayjs().diff(dayjs(this.state.userLastActiveAt), 'seconds');
+    if (secsAgoSinceLastDraw >= 3 && !this.state.librarySynced) {
+      this.props.dispatch(saveLibrary());
+      this.setState({ librarySynced: true });
+    }
+  };
 
   isGlobalEvent = (event) => {
     return event.srcElement === document.querySelector('body');
@@ -468,21 +490,28 @@ class Paper extends React.Component {
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
     } else if (this.isDrawMode()) {
-      const currentShape = this.convertShape(this.state.currentShape);
-      this.setState({
+      let newState = {
         isDrawing: false,
         currentShape: {},
         fixedCursorY: null,
         fixedCursorX: null,
-        shapes: this.state.shapes.concat(currentShape),
-        history: [
+      };
+
+      // In case a user draws very fast or somewhat too small, make sure that we
+      // only insert shapes that have actually been drawn properly.
+      const currentShape = this.convertShape(this.state.currentShape);
+      if (currentShape.points.length > 0) {
+        newState.shapes = this.state.shapes.concat(currentShape);
+        newState.history = [
           ...this.state.history,
           {
             type: 'draw',
             shape: currentShape,
           },
-        ],
-      });
+        ];
+      }
+
+      this.setState(newState);
     }
   };
 
@@ -821,6 +850,7 @@ class Paper extends React.Component {
   };
 
   onBackButtonClick = () => {
+    this.props.dispatch(saveLibrary());
     this.props.dispatch(to({ name: 'library' }));
   };
 

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { invoke } from '@tauri-apps/api/tauri';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeFilename } from '../../helpers';
 import { imageExport, svgExport } from '../../utils/paper-export';
@@ -80,6 +81,10 @@ const librarySlice = createSlice({
         state.papers = action.payload.papers;
       }
     },
+    saveLibrary: (state, action) => {
+      console.log('saving library state');
+      invoke('save_library', { libraryState: JSON.stringify(state.library) });
+    },
     exportPaper: (state, action) => {
       const { id, exportType } = action.payload;
 
@@ -105,6 +110,7 @@ export const {
   setPaperShapes,
   deleteFolder,
   deletePaper,
+  saveLibrary,
   loadLibrary,
   exportPaper,
 } = librarySlice.actions;

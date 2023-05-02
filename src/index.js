@@ -1,33 +1,26 @@
 import { os } from '@tauri-apps/api';
-import { createDir, readTextFile } from '@tauri-apps/api/fs';
+import { createDir } from '@tauri-apps/api/fs';
+import { invoke } from '@tauri-apps/api/tauri';
 import 'rc-tooltip/assets/bootstrap_white.css';
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import './assets/vendor/bootstrap/bootstrap-grid.min.css';
 import App from './components/App';
+import { BASE_DIR } from './constants';
 import './index.css';
 import { loadLibrary } from './reducers/library/librarySlice';
 import { setDarkMode, setPlatform } from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
-import { BASE_DIR, LIBRARY_PATH } from './constants';
-import { decompress } from 'brotli-unicode';
-import { Buffer } from 'buffer';
 
 (async () => {
   // Always make sure the data dir exists.
   await createDir('data', { dir: BASE_DIR, recursive: true });
 
-  // Load the saved library state.
-  readTextFile(LIBRARY_PATH, { dir: BASE_DIR })
-    .then(async (contents) => {
-      const decompressed = await decompress(contents);
-      const decompressedString = Buffer.from(decompressed).toString();
-      const libraryState = JSON.parse(decompressedString);
-      store.dispatch(loadLibrary(libraryState));
-    })
-    .catch(() => {});
+  // Load the library state on load.
+  invoke('load_library').then((libraryState) => {
+    store.dispatch(loadLibrary(libraryState));
+  });
 
   // Update the isDarkMode value when the user changes theme.
   window
