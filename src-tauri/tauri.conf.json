@@ -52,10 +52,19 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APP/*", "$APP/data/*"]
+        "scope": [
+          "$APP/*",
+          "$APP/data/*",
+          "$DOWNLOAD/*"
+        ]
       },
       "path": {
         "all": true
+      },
+      "dialog": {
+        "all": true,
+        "open": true,
+        "save": true
       }
     },
     "windows": [

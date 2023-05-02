@@ -18,4 +18,5 @@ export const KEY = {
 };
 
 export const BASE_DIR = BaseDirectory.App;
-export const LIBRARY_PATH = 'data/library.dat';
+export const LIBRARY_PATH = 'data/library.data';
+export const EXPORTS_DIR = BaseDirectory.Download;

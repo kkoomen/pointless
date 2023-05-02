@@ -38,8 +38,10 @@ export const ERASER_SIZE = 20;
 export const ERASER_MIN_SIZE = 10;
 export const ERASER_MAX_SIZE = 200;
 export const ERASER_SCALE_FACTOR = 5;
-export const DEFAULT_STROKE_COLOR_LIGHT = '#000000';
-export const DEFAULT_STROKE_COLOR_DARK = '#ffffff';
+export const DEFAULT_STROKE_COLOR_LIGHTMODE = '#000000';
+export const DEFAULT_STROKE_COLOR_DARKMODE = '#ffffff';
+export const CANVAS_BACKGROUND_COLOR_LIGHTMODE = '#f8f8f8';
+export const CANVAS_BACKGROUND_COLOR_DARKMODE = '#252525';
 
 export const MIN_SCALE = 0.05; // 5%
 export const MAX_SCALE = 10; // 1000%
