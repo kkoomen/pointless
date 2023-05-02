@@ -1,13 +1,13 @@
-import {downloadDir} from '@tauri-apps/api/path';
-import React, {memo} from 'react';
-import {connect} from 'react-redux';
-import {exportPaper} from '../../../../reducers/library/librarySlice';
-import {store} from '../../../../store';
-import {FormCheckbox} from '../../../FormCheckbox';
-import {FormSelect} from '../../../FormSelect';
+import { downloadDir } from '@tauri-apps/api/path';
+import React, { memo } from 'react';
+import { connect } from 'react-redux';
+import { exportPaper } from '../../../../reducers/library/librarySlice';
+import { store } from '../../../../store';
+import { FormCheckbox } from '../../../FormCheckbox';
+import { FormSelect } from '../../../FormSelect';
 import Modal from '../../../Modal';
-import {ReactComponent as ExportIcon} from './../../../../assets/icons/export.svg';
-import {sanitizeFilename} from './../../../../helpers';
+import { ReactComponent as ExportIcon } from './../../../../assets/icons/export.svg';
+import { sanitizeFilename } from './../../../../helpers';
 import styles from './styles.module.css';
 
 const ALLOWED_TYPES = ['jpeg', 'png', 'svg'];
@@ -82,7 +82,16 @@ class ExportButton extends React.Component {
           height="2rem"
           onClick={this.toggleOpen}
         />
-        <Modal open={this.state.open} title="Export paper" onClose={this.toggleOpen}>
+        <Modal
+          open={this.state.open}
+          title="Export paper"
+          onClose={this.toggleOpen}
+          actions={
+            <button className="btn btn-primary" onClick={this.export}>
+              Export
+            </button>
+          }
+        >
           <div className="form-group">
             <div className="form-label">Location</div>
             <div className="display-flex ellipsis">{this.state.location}</div>
@@ -120,11 +129,6 @@ class ExportButton extends React.Component {
               />
             </div>
           )}
-          <div className="form-group text-align--right">
-            <button className="btn btn-primary" onClick={this.export}>
-              Export
-            </button>
-          </div>
         </Modal>
       </>
     );

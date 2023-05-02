@@ -1,13 +1,13 @@
-import {confirm} from '@tauri-apps/api/dialog';
+import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {connect} from 'react-redux';
-import {removeDuplicates} from '../../helpers';
-import {to} from '../../reducers/router/routerSlice';
-import {ReactComponent as LeftArrowIcon} from './../../assets/icons/left-arrow.svg';
-import {KEY} from './../../constants';
-import {setPaperShapes} from './../../reducers/library/librarySlice';
+import { connect } from 'react-redux';
+import { removeDuplicates } from '../../helpers';
+import { to } from '../../reducers/router/routerSlice';
+import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
+import { KEY } from './../../constants';
+import { setPaperShapes } from './../../reducers/library/librarySlice';
 import ExportButton from './components/ExportButton';
 import InfoButton from './components/InfoButton';
 import Palette from './components/Palette';
@@ -27,8 +27,9 @@ import {
   SCALE_BY,
   SCALE_FACTOR,
 } from './constants';
-import {createLine, getSmoothPath, rotateAroundPoint} from './helpers';
+import { createLine, getSmoothPath, rotateAroundPoint } from './helpers';
 import styles from './styles.module.css';
+import HelpButton from './components/HelpButton';
 
 const getInitialState = (isDarkMode, args) => ({
   selectedColor: isDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE,
@@ -53,6 +54,7 @@ const getInitialState = (isDarkMode, args) => ({
   masks: [],
   history: [],
   undoHistory: [],
+  shapes: [],
 
   /**
    * Structure:
@@ -63,7 +65,6 @@ const getInitialState = (isDarkMode, args) => ({
    * }
    */
   currentShape: {},
-  shapes: [],
   ...args,
 });
 
@@ -240,7 +241,8 @@ class Paper extends React.Component {
           });
           break;
 
-        default: break;
+        default:
+          break;
       }
 
       this.setState(newState);
@@ -254,7 +256,7 @@ class Paper extends React.Component {
         undoHistory: this.state.undoHistory.slice(0, -1),
         history: this.state.history.concat(entry),
         shapes: [...this.state.shapes],
-      }
+      };
 
       switch (entry.type) {
         case 'draw':
@@ -269,7 +271,8 @@ class Paper extends React.Component {
           }
           break;
 
-        default: break;
+        default:
+          break;
       }
 
       this.setState(newState);
@@ -355,9 +358,9 @@ class Paper extends React.Component {
     const newShape = {
       ...shape,
       points: [],
-    }
+    };
 
-    const {x1, y1, x2, y2} = shape;
+    const { x1, y1, x2, y2 } = shape;
 
     switch (shape.type) {
       case MODE.ELLIPSE: {
@@ -374,7 +377,7 @@ class Paper extends React.Component {
         // connected properly.
         for (let angle = 0; angle < 361; angle++) {
           // Convert the angle to radians.
-          const theta = angle * Math.PI / 180;
+          const theta = (angle * Math.PI) / 180;
 
           // Calculate the Cartesian coordinates of the point.
           const x = cx + radius * Math.cos(theta);
@@ -397,7 +400,6 @@ class Paper extends React.Component {
           .fill(Math.min(x1, x2))
           .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
 
-
         // top right to right bottom
         const rightBar = Array(height)
           .fill(Math.min(y1, y2))
@@ -413,12 +415,7 @@ class Paper extends React.Component {
           .fill(Math.max(y1, y2))
           .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
 
-        newShape.points = removeDuplicates([
-          ...topBar,
-          ...rightBar,
-          ...bottomBar,
-          ...leftBar,
-        ]);
+        newShape.points = removeDuplicates([...topBar, ...rightBar, ...bottomBar, ...leftBar]);
 
         break;
       }
@@ -449,14 +446,11 @@ class Paper extends React.Component {
         );
 
         const arrowHeadLeftLine = createLine([arrowHeadLeftX, arrowHeadLeftY], [x2, y2]);
-        const middleLine = (x1 === x2 && y1 === y2) ? [{ x: x1, y: y2 }] : createLine([x1, y1], [x2, y2]);
+        const middleLine =
+          x1 === x2 && y1 === y2 ? [{ x: x1, y: y2 }] : createLine([x1, y1], [x2, y2]);
         const arrowHeadRightLine = createLine([arrowHeadRightX, arrowHeadRightY], [x2, y2]);
 
-        newShape.points = [
-          ...arrowHeadLeftLine,
-          ...middleLine,
-          ...arrowHeadRightLine,
-        ]
+        newShape.points = [...arrowHeadLeftLine, ...middleLine, ...arrowHeadRightLine];
         break;
       }
 
@@ -466,7 +460,7 @@ class Paper extends React.Component {
     }
 
     return newShape;
-  }
+  };
 
   canvasMouseUpHandler = () => {
     if (this.isPanMode()) {
@@ -500,7 +494,7 @@ class Paper extends React.Component {
       prevCursorX: cursorX,
       prevCursorY: cursorY,
       currentShape: { ...this.state.currentShape },
-      history:  [...this.state.history],
+      history: [...this.state.history],
     };
 
     const translateX = cursorX - this.state.prevCursorX;
@@ -521,7 +515,6 @@ class Paper extends React.Component {
     // user is moving while the mouse is pressed. This prevents us from
     // doing unnecessary actions and certain duplicate entries being made.
     if (diff > 0) {
-
       // Go through each shape and if any of its shapes is inside the eraser,
       // then we'll remove the whole shape.
       if (this.isErasing()) {
@@ -676,7 +669,9 @@ class Paper extends React.Component {
   createShapeElement(shape) {
     let strokeColor = shape.color;
     if ([DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE].includes(strokeColor)) {
-      strokeColor = this.props.isDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE;
+      strokeColor = this.props.isDarkMode
+        ? DEFAULT_STROKE_COLOR_DARKMODE
+        : DEFAULT_STROKE_COLOR_LIGHTMODE;
     }
 
     if (!Array.isArray(shape.points) || shape.points.length < 1) return;
@@ -859,7 +854,8 @@ class Paper extends React.Component {
           [styles['canvas__is-panning']]: this.isPanning(),
         })}
       >
-        <div className={classNames(styles['zoom-percentage'], {
+        <div
+          className={classNames(styles['zoom-percentage'], {
             [styles['zoom-percentage--100']]: this.state.scale === 1,
           })}
         >
@@ -894,6 +890,7 @@ class Paper extends React.Component {
           canvasIsEmpty={this.state.shapes.length === 0}
         />
         <div className={styles['canvas--top-right-container']}>
+          <HelpButton />
           <ExportButton />
           <InfoButton />
         </div>

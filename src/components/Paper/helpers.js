@@ -54,9 +54,10 @@ export function createLine(p1, p2) {
 export function getSmoothPath(shape) {
   const points = shape.type === 'freehand' ? simplifyPoints(shape.points) : shape.points;
 
-  let line = d3.line()
-    .x(d => d.x)
-    .y(d => d.y);
+  let line = d3
+    .line()
+    .x((d) => d.x)
+    .y((d) => d.y);
 
   if (shape.type === 'freehand' && shape.points.length > 1) {
     line = line.curve(d3.curveCatmullRom.alpha(0.5));

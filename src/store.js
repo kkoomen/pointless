@@ -6,7 +6,7 @@ import routerReducer from './reducers/router/routerSlice';
 import settingsReducer from './reducers/settings/settingsSlice';
 import { writeTextFile } from '@tauri-apps/api/fs';
 import { BASE_DIR, LIBRARY_PATH } from './constants';
-import { compress } from 'brotli-unicode'
+import { compress } from 'brotli-unicode';
 import { Buffer } from 'buffer';
 
 const saveStateMiddleware = (store) => (next) => async (action) => {

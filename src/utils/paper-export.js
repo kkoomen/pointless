@@ -1,9 +1,14 @@
 // Helpers function for the paper exports, called by the libraryReducer.
 
-import {writeBinaryFile, writeTextFile} from "@tauri-apps/api/fs";
-import {CANVAS_BACKGROUND_COLOR_DARKMODE, CANVAS_BACKGROUND_COLOR_LIGHTMODE, DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE} from "../components/Paper/constants";
-import {getSmoothPath} from "../components/Paper/helpers";
-import {EXPORTS_DIR} from "../constants";
+import { writeBinaryFile, writeTextFile } from '@tauri-apps/api/fs';
+import {
+  CANVAS_BACKGROUND_COLOR_DARKMODE,
+  CANVAS_BACKGROUND_COLOR_LIGHTMODE,
+  DEFAULT_STROKE_COLOR_DARKMODE,
+  DEFAULT_STROKE_COLOR_LIGHTMODE,
+} from '../components/Paper/constants';
+import { getSmoothPath } from '../components/Paper/helpers';
+import { EXPORTS_DIR } from '../constants';
 
 // Space around each side inside the exports.
 const PADDING = 25;
@@ -24,7 +29,7 @@ function getShapesBBox(shapes) {
       });
       return acc;
     },
-    { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity }
+    { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity },
   );
   bbox.width = bbox.x2 - bbox.x1;
   bbox.height = bbox.y2 - bbox.y1;
@@ -34,7 +39,7 @@ function getShapesBBox(shapes) {
 function normalizeShapePoints(points, bbox) {
   // Move the origin to (0,0) by adjusting the coordinates of each point based
   // on the bounding box.
-  return points.map(({x, y}) => ({
+  return points.map(({ x, y }) => ({
     x: x - bbox.x1 + PADDING,
     y: y - bbox.y1 + PADDING,
   }));
@@ -66,7 +71,7 @@ export async function svgExport(paper, filename, payload) {
     const shapePoints = normalizeShapePoints(shape.points, bbox);
 
     const path = document.createElement('path');
-    path.setAttribute('d', getSmoothPath({...shape, points: shapePoints}));
+    path.setAttribute('d', getSmoothPath({ ...shape, points: shapePoints }));
     path.setAttribute('fill', 'transparent');
     path.setAttribute('stroke-linecap', 'round');
     path.setAttribute('stroke-linejoin', 'round');
@@ -82,12 +87,12 @@ export async function svgExport(paper, filename, payload) {
 export function imageExport(paper, filename, payload) {
   return new Promise((resolve) => {
     const { theme, exportType, transparent } = payload;
-    const exportDarkMode = (theme === 'dark');
-    const isTransparentPNG = (exportType === 'png' && transparent);
+    const exportDarkMode = theme === 'dark';
+    const isTransparentPNG = exportType === 'png' && transparent;
     const bbox = getShapesBBox(paper.shapes);
 
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
 
     canvas.width = bbox.width + PADDING * 2;
     canvas.height = bbox.height + PADDING * 2;
@@ -95,7 +100,9 @@ export function imageExport(paper, filename, payload) {
 
     // Always add a background, unless its transparent PNG or SVG.
     if (!isTransparentPNG && exportType !== 'svg') {
-      ctx.fillStyle = exportDarkMode ? CANVAS_BACKGROUND_COLOR_DARKMODE : CANVAS_BACKGROUND_COLOR_LIGHTMODE;
+      ctx.fillStyle = exportDarkMode
+        ? CANVAS_BACKGROUND_COLOR_DARKMODE
+        : CANVAS_BACKGROUND_COLOR_LIGHTMODE;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -106,10 +113,11 @@ export function imageExport(paper, filename, payload) {
         if (isTransparentPNG) {
           shapeColor = DEFAULT_STROKE_COLOR_LIGHTMODE;
         } else {
-          shapeColor = exportDarkMode ? DEFAULT_STROKE_COLOR_DARKMODE : DEFAULT_STROKE_COLOR_LIGHTMODE;
+          shapeColor = exportDarkMode
+            ? DEFAULT_STROKE_COLOR_DARKMODE
+            : DEFAULT_STROKE_COLOR_LIGHTMODE;
         }
       }
-
 
       const shapePoints = normalizeShapePoints(shape.points, bbox);
 
@@ -128,7 +136,7 @@ export function imageExport(paper, filename, payload) {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
-        const adjustedPath = getSmoothPath({...shape, points: shapePoints});
+        const adjustedPath = getSmoothPath({ ...shape, points: shapePoints });
         ctx.stroke(new Path2D(adjustedPath));
       }
     });

@@ -1,0 +1,20 @@
+.help-icon:hover {
+  cursor: pointer;
+}
+
+.help-icon:focus,
+.help-icon:active {
+  opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .help-icon path {
+    fill: #fff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .help-icon path {
+    fill: #000;
+  }
+}

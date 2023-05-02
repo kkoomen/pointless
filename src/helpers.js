@@ -21,3 +21,8 @@ export function sanitizeFilename(filename) {
   // - * (asterisk)
   return filename.replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, '_');
 }
+
+export function ctrlOrMetaChar(platform) {
+  const metaKey = String.fromCharCode(8984);
+  return platform === 'darwin' ? metaKey : 'CTRL';
+}

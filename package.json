@@ -21,6 +21,7 @@
     "web-vitals": "^3.3.1"
   },
   "scripts": {
+    "prepare": "husky install",
     "start": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

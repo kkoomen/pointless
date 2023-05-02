@@ -1,4 +1,4 @@
-import {BaseDirectory} from "@tauri-apps/api/fs";
+import { BaseDirectory } from '@tauri-apps/api/fs';
 
 export const KEY = {
   SPACEBAR: 32,

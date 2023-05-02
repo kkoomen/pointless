@@ -12,26 +12,29 @@ import { setDarkMode, setPlatform } from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 import { BASE_DIR, LIBRARY_PATH } from './constants';
-import { decompress } from 'brotli-unicode'
+import { decompress } from 'brotli-unicode';
 import { Buffer } from 'buffer';
 
 (async () => {
-
   // Always make sure the data dir exists.
   await createDir('data', { dir: BASE_DIR, recursive: true });
 
   // Load the saved library state.
-  readTextFile(LIBRARY_PATH, { dir: BASE_DIR }).then(async (contents) => {
-    const decompressed = await decompress(contents);
-    const decompressedString = Buffer.from(decompressed).toString();
-    const libraryState = JSON.parse(decompressedString);
-    store.dispatch(loadLibrary(libraryState));
-  }).catch(() => {});
+  readTextFile(LIBRARY_PATH, { dir: BASE_DIR })
+    .then(async (contents) => {
+      const decompressed = await decompress(contents);
+      const decompressedString = Buffer.from(decompressed).toString();
+      const libraryState = JSON.parse(decompressedString);
+      store.dispatch(loadLibrary(libraryState));
+    })
+    .catch(() => {});
 
   // Update the isDarkMode value when the user changes theme.
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ({matches: isDarkMode}) => {
-    store.dispatch(setDarkMode(isDarkMode));
-  });
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', ({ matches: isDarkMode }) => {
+      store.dispatch(setDarkMode(isDarkMode));
+    });
 
   // Detect the users's platform.
   os.platform().then((platform) => {
@@ -48,5 +51,4 @@ import { Buffer } from 'buffer';
   // to log results (for example: reportWebVitals(console.log))
   // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
   reportWebVitals();
-
-})()
+})();

@@ -36,6 +36,8 @@ kbd {
   display: inline-block;
   text-align: center;
   font-size: 2rem;
+  background: #fff;
+  box-shadow: 0 2px 0 0 #a1a1a1;
 }
 
 .container {
@@ -83,11 +85,6 @@ hr {
 
 .rc-tooltip-placement-left .rc-tooltip-arrow {
   border-left-color: #f9bd3f;
-}
-
-kbd {
-  background: #fff;
-  box-shadow: 0 2px 0 0 #a1a1a1;
 }
 
 .display-flex {
@@ -198,6 +195,25 @@ kbd {
 
 .text-align--right {
   text-align: right;
+}
+
+.table th {
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: 4px 1rem;
+}
+
+.table kbd {
+  background-color: #f8f8f8;
+  font-size: 1.4rem;
+  padding: 4px 0.8rem;
+}
+
+.table tr {
+  border-top: 1px solid #d1d1d1;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -10,6 +10,7 @@ class Modal extends React.Component {
       <div
         className={classNames(styles['modal__container'], {
           [styles['open']]: this.props.open,
+          [[styles['size-medium']]]: this.props.size === 'medium',
         })}
       >
         <div className={styles['modal__content']}>
@@ -30,8 +31,15 @@ class Modal extends React.Component {
 Modal.propTypes = {
   title: PropTypes.string,
   actions: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+  size: PropTypes.oneOf(['small', 'medium']),
   open: PropTypes.bool,
   onClose: PropTypes.func,
+};
+
+Modal.defaultProps = {
+  size: 'small',
+  open: false,
+  onClose: () => {},
 };
 
 export default Modal;
