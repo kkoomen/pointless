@@ -46,6 +46,7 @@ we'll discuss it.
 - [x] Create folders
 - [x] Save/load state from file
 - [x] Light/dark theme
+- [x] Touch support
 
 # Prerequisites
 

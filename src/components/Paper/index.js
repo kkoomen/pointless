@@ -313,6 +313,15 @@ class Paper extends React.Component {
     }
   };
 
+  getEventXY(event) {
+    // Check for touch events first
+    if (typeof event.changedTouches !== 'undefined') {
+      return [event.changedTouches[0].pageX, event.changedTouches[0].pageY];
+    }
+
+    return [event.pageX, event.pageY];
+  }
+
   canvasMouseDownHandler = (event) => {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
@@ -328,8 +337,7 @@ class Paper extends React.Component {
         ],
       });
     } else if (this.isDrawMode()) {
-      const cursorX = event.pageX;
-      const cursorY = event.pageY;
+      const [cursorX, cursorY] = this.getEventXY(event);
 
       const newState = {
         isDrawing: true,
@@ -516,8 +524,7 @@ class Paper extends React.Component {
   };
 
   canvasMouseMoveHandler = (event) => {
-    const cursorX = event.pageX;
-    const cursorY = event.pageY;
+    const [cursorX, cursorY] = this.getEventXY(event);
 
     let newState = {
       prevCursorX: cursorX,
@@ -813,6 +820,9 @@ class Paper extends React.Component {
       attrs.viewBox = `${bbox.x} ${bbox.y} ${Math.round(bbox.width)} ${Math.round(bbox.height)}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
+      attrs.onTouchStart = this.canvasMouseDownHandler;
+      attrs.onTouchMove = this.canvasMouseMoveHandler;
+      attrs.onTouchEnd = this.canvasMouseUpHandler;
       attrs.onMouseUp = this.canvasMouseUpHandler;
       attrs.onMouseDown = this.canvasMouseDownHandler;
       attrs.onMouseMove = this.canvasMouseMoveHandler;
