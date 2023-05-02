@@ -52,7 +52,7 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APP/*", "$APP/data/*", "$DOWNLOAD/*"]
+        "scope": ["$DOWNLOAD/*"]
       },
       "path": {
         "all": true
