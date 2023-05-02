@@ -132,8 +132,6 @@ class Paper extends React.Component {
       return true;
     }
 
-    event.preventDefault();
-
     switch (event.which) {
       case KEY.X:
         if (this.isCtrlOrMetaKey(event)) {
@@ -172,6 +170,12 @@ class Paper extends React.Component {
       case KEY.SPACEBAR:
         if (!this.isPanMode()) {
           this.setMode(MODE.PAN);
+        }
+        break;
+
+      case KEY.ZERO:
+        if (this.state.shapes.length > 0) {
+          this.zoomToFit(1);
         }
         break;
 
