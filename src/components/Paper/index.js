@@ -46,6 +46,7 @@ const getInitialState = (isDarkMode, args) => ({
   prevCursorY: 0,
   fixedCursorX: null,
   fixedCursorY: null,
+  prevPinchDist: 0,
   isDrawing: false,
   isPanning: false,
   isErasing: false,
@@ -322,62 +323,6 @@ class Paper extends React.Component {
     return [event.pageX, event.pageY];
   }
 
-  canvasMouseDownHandler = (event) => {
-    if (this.isPanMode()) {
-      this.setState({ isPanning: true });
-    } else if (this.isEraseMode()) {
-      this.setState({
-        isErasing: true,
-        history: [
-          ...this.state.history,
-          {
-            type: 'erase',
-            shapes: {},
-          },
-        ],
-      });
-    } else if (this.isDrawMode()) {
-      const [cursorX, cursorY] = this.getEventXY(event);
-
-      const newState = {
-        isDrawing: true,
-        cursorX,
-        cursorY,
-        undoHistory: [],
-        currentShape: {
-          type: this.state.mode,
-          linewidth: this.state.linewidth,
-          color: this.state.selectedColor,
-        },
-      };
-
-      switch (this.state.mode) {
-        case MODE.FREEHAND:
-          newState.currentShape.points = [
-            {
-              x: this.toTrueX(cursorX),
-              y: this.toTrueY(cursorY),
-            },
-          ];
-          break;
-
-        case MODE.ARROW:
-        case MODE.ELLIPSE:
-        case MODE.RECTANGLE:
-          newState.currentShape.x1 = this.toTrueX(cursorX);
-          newState.currentShape.y1 = this.toTrueY(cursorY);
-          newState.currentShape.x2 = this.toTrueX(cursorX);
-          newState.currentShape.y2 = this.toTrueY(cursorY);
-          break;
-
-        default:
-          break;
-      }
-
-      this.setState(newState);
-    }
-  };
-
   /**
    * Convert a non-freehand shape containing x/y coordinates to a shape made out
    * of shapes.
@@ -492,31 +437,56 @@ class Paper extends React.Component {
     return newShape;
   };
 
-  canvasMouseUpHandler = () => {
+  canvasMouseDownHandler = (event) => {
     if (this.isPanMode()) {
-      this.setState({ isPanning: false });
+      this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
-      this.setState({ isErasing: false });
-    } else if (this.isDrawMode()) {
-      let newState = {
-        isDrawing: false,
-        currentShape: {},
-        fixedCursorY: null,
-        fixedCursorX: null,
-      };
-
-      // In case a user draws very fast or somewhat too small, make sure that we
-      // only insert shapes that have actually been drawn properly.
-      const currentShape = this.convertShape(this.state.currentShape);
-      if (currentShape.points.length > 0) {
-        newState.shapes = this.state.shapes.concat(currentShape);
-        newState.history = [
+      this.setState({
+        isErasing: true,
+        history: [
           ...this.state.history,
           {
-            type: 'draw',
-            shape: currentShape,
+            type: 'erase',
+            shapes: {},
           },
-        ];
+        ],
+      });
+    } else if (this.isDrawMode()) {
+      const [cursorX, cursorY] = this.getEventXY(event);
+
+      const newState = {
+        isDrawing: true,
+        cursorX,
+        cursorY,
+        undoHistory: [],
+        currentShape: {
+          type: this.state.mode,
+          linewidth: this.state.linewidth,
+          color: this.state.selectedColor,
+        },
+      };
+
+      switch (this.state.mode) {
+        case MODE.FREEHAND:
+          newState.currentShape.points = [
+            {
+              x: this.toTrueX(cursorX),
+              y: this.toTrueY(cursorY),
+            },
+          ];
+          break;
+
+        case MODE.ARROW:
+        case MODE.ELLIPSE:
+        case MODE.RECTANGLE:
+          newState.currentShape.x1 = this.toTrueX(cursorX);
+          newState.currentShape.y1 = this.toTrueY(cursorY);
+          newState.currentShape.x2 = this.toTrueX(cursorX);
+          newState.currentShape.y2 = this.toTrueY(cursorY);
+          break;
+
+        default:
+          break;
       }
 
       this.setState(newState);
@@ -560,7 +530,7 @@ class Paper extends React.Component {
           for (let i = 0; i < shape.points.length; i++) {
             const point = shape.points[i];
             const { x, y } = point;
-            const distance = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
+            const distance = Math.hypot(cx - x, cy - y);
             const insideEraser = distance <= this.state.eraserSize;
             if (insideEraser) {
               newState.history[newState.history.length - 1].shapes[index] = point;
@@ -634,6 +604,37 @@ class Paper extends React.Component {
     }
 
     this.setState(newState);
+  };
+
+  canvasMouseUpHandler = () => {
+    if (this.isPanMode()) {
+      this.setState({ isPanning: false });
+    } else if (this.isEraseMode()) {
+      this.setState({ isErasing: false });
+    } else if (this.isDrawMode()) {
+      let newState = {
+        isDrawing: false,
+        currentShape: {},
+        fixedCursorY: null,
+        fixedCursorX: null,
+      };
+
+      // In case a user draws very fast or somewhat too small, make sure that we
+      // only insert shapes that have actually been drawn properly.
+      const currentShape = this.convertShape(this.state.currentShape);
+      if (currentShape.points.length > 0) {
+        newState.shapes = this.state.shapes.concat(currentShape);
+        newState.history = [
+          ...this.state.history,
+          {
+            type: 'draw',
+            shape: currentShape,
+          },
+        ];
+      }
+
+      this.setState(newState);
+    }
   };
 
   isDrawMode = () => {
@@ -767,12 +768,19 @@ class Paper extends React.Component {
     });
   };
 
-  zoomHandler = (event) => {
+  canvasOnWheelHandler = (event) => {
     if (this.state.shapes.length === 0) return false;
 
     this.zoomBy(event.deltaY * SCALE_FACTOR, event.pageX, event.pageY);
   };
 
+  /**
+   * Zoom by a given amount.
+   *
+   * @param {number} amount - The amount to zoom by.
+   * @param {number} [x] - x-origin
+   * @param {number} [y] - y-origin
+   */
   zoomBy = (amount, x = window.innerWidth / 2, y = window.innerHeight / 2) => {
     const cursorX = this.toTrueX(x);
     const cursorY = this.toTrueY(y);
@@ -788,6 +796,32 @@ class Paper extends React.Component {
     this.setState({ translateX, translateY, scale });
   };
 
+  canvasPinchStart = (event) => {
+    const distance = Math.hypot(
+      event.touches[0].pageX - event.touches[1].pageX,
+      event.touches[0].pageY - event.touches[1].pageY,
+    );
+
+    this.setState({ prevPinchDist: distance });
+  };
+
+  canvasPinchMove = (event) => {
+    const distance = Math.hypot(
+      event.touches[0].pageX - event.touches[1].pageX,
+      event.touches[0].pageY - event.touches[1].pageY,
+    );
+    const delta = distance - this.state.prevPinchDist;
+    const scaleFactor = delta * SCALE_FACTOR;
+    const originX = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+    const originY = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+    this.zoomBy(scaleFactor, originX, originY);
+    this.setState({ prevPinchDist: distance });
+  };
+
+  canvasPinchEnd = (event) => {
+    this.setState({ prevPinchDist: 0 });
+  };
+
   resetZoom = () => {
     this.zoomToFit(1);
   };
@@ -796,6 +830,30 @@ class Paper extends React.Component {
     if (Object.keys(this.state.currentShape).length === 0) return null;
 
     return this.createShapeElement(this.convertShape(this.state.currentShape), 0.7);
+  };
+
+  canvasTouchStartHandler = (event) => {
+    if (event.touches.length === 2) {
+      this.canvasPinchStart(event);
+    } else {
+      this.canvasMouseDownHandler(event);
+    }
+  };
+
+  canvasTouchMoveHandler = (event) => {
+    if (event.touches.length === 2) {
+      this.canvasPinchMove(event);
+    } else {
+      this.canvasMouseMoveHandler(event);
+    }
+  };
+
+  canvasTouchEndHandler = (event) => {
+    if (event.touches.length === 2) {
+      this.canvasPinchEnd(event);
+    } else {
+      this.canvasMouseUpHandler(event);
+    }
   };
 
   renderCanvas = () => {
@@ -820,13 +878,14 @@ class Paper extends React.Component {
       attrs.viewBox = `${bbox.x} ${bbox.y} ${Math.round(bbox.width)} ${Math.round(bbox.height)}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
-      attrs.onTouchStart = this.canvasMouseDownHandler;
-      attrs.onTouchMove = this.canvasMouseMoveHandler;
-      attrs.onTouchEnd = this.canvasMouseUpHandler;
-      attrs.onMouseUp = this.canvasMouseUpHandler;
+      attrs.onTouchStart = this.canvasTouchStartHandler;
+      attrs.onTouchMove = this.canvasTouchMoveHandler;
+      attrs.onTouchEnd = this.canvasTouchEndHandler;
+
       attrs.onMouseDown = this.canvasMouseDownHandler;
       attrs.onMouseMove = this.canvasMouseMoveHandler;
-      attrs.onWheel = this.zoomHandler;
+      attrs.onMouseUp = this.canvasMouseUpHandler;
+      attrs.onWheel = this.canvasOnWheelHandler;
     }
 
     let transform = [
