@@ -9,6 +9,7 @@ import Modal from '../../../Modal';
 import { ReactComponent as ExportIcon } from './../../../../assets/icons/export.svg';
 import { sanitizeFilename } from './../../../../helpers';
 import styles from './styles.module.css';
+import classNames from 'classnames';
 
 const ALLOWED_TYPES = ['jpeg', 'png', 'svg'];
 
@@ -21,7 +22,6 @@ class ExportButton extends React.Component {
       theme: props.isDarkMode ? 'dark' : 'light',
       exportType: ALLOWED_TYPES[0],
       transparent: false,
-      exporting: false,
       location: 'unknown',
     };
 
@@ -37,8 +37,6 @@ class ExportButton extends React.Component {
   };
 
   export = () => {
-    if (this.state.exporting) return false;
-
     store.dispatch(
       exportPaper({
         id: this.props.paper.id,
@@ -72,10 +70,13 @@ class ExportButton extends React.Component {
   };
 
   render() {
+    console.log('this.props.paper.shapes >>>>', this.props.paper.shapes);
     return (
       <>
         <ExportIcon
-          className={styles['export-icon']}
+          className={classNames(styles['export-icon'], {
+            [styles['disabled']]: this.props.paper.shapes.length === 0,
+          })}
           width="20px"
           height="20px"
           onClick={this.toggleOpen}
