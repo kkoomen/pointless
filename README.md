@@ -19,10 +19,10 @@ in need for a simple whiteboard/note app.
 It is build using Tauri (Rust) and React with a pure SVG canvas and local files
 are saved with brotli-unicode compression to ensure small file sizes.
 
-❗️ Currently, this app can only be build locally. Anytime soon there will be
-public releases available with prebuild binaries for MacOS, Windows and Linux.
+:package: If you want to use the app, grab yourself a prebuild binary
+[here](https://github.com/kkoomen/pointless/releases/latest) and enjoy!
 
-📚 ✍️ Feel like contributing? Submit an issue with your ideas (or bugs) and
+:handshake: Feel like contributing? Submit an issue with your ideas (or bugs) and
 we'll discuss it.
 
 # Features
