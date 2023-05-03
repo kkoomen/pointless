@@ -1,6 +1,14 @@
 ![logo](./screenshots/banner.jpg)
 ![app](./screenshots/app.png)
 
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/kkoomen/pointless/tests.yml" alt="tests build status" />
+  <img src="https://img.shields.io/github/v/tag/kkoomen/pointless?label=version" alt="Latest version" />
+  <a href="https://github.com/kkoomen/pointless/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/kkoomen/pointless.svg" alt="License" />
+  </a>
+</p>
+
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
