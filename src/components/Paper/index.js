@@ -31,6 +31,8 @@ import {
 } from './constants';
 import { createLine, getSmoothPath, rotateAroundPoint } from './helpers';
 import styles from './styles.module.css';
+import { Animate } from 'react-move';
+import { easePolyOut } from 'd3-ease';
 
 const getInitialState = (isDarkMode, args) => ({
   userLastActiveAt: new Date().toISOString(),
@@ -890,33 +892,41 @@ class Paper extends React.Component {
       attrs.onWheel = this.canvasOnWheelHandler;
     }
 
-    let transform = [
-      `translate(${this.state.translateX} ${this.state.translateY})`,
-      `scale(${this.state.scale})`,
-    ].join(' ');
-
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        ref={this.svg}
-        className={classNames(styles['canvas__element'], {
-          [styles['canvas__element-readonly']]: this.props.readonly,
-        })}
-        {...attrs}
+      <Animate
+        start={{ scale: 1, translateX: 0, translateY: 0 }}
+        update={{
+          scale: [this.state.scale],
+          translateX: [this.state.translateX],
+          translateY: [this.state.translateY],
+          timing: { duration: 500, ease: easePolyOut },
+        }}
       >
-        <g transform={transform}>
-          {this.state.canvasElements}
-          {this.drawCurrentShape()}
-          {this.isEraseMode() && (
-            <circle
-              cx={this.toTrueX(this.state.prevCursorX)}
-              cy={this.toTrueY(this.state.prevCursorY)}
-              r={this.state.eraserSize}
-              fill={ERASER_CURSOR_COLOR}
-            />
-          )}
-        </g>
-      </svg>
+        {({ scale, translateX, translateY }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={classNames(styles['canvas__element'], {
+              [styles['canvas__element-readonly']]: this.props.readonly,
+            })}
+            {...attrs}
+            ref={this.svg}
+          >
+            <g transform={`translate(${translateX} ${translateY}) scale(${scale})`}>
+              {this.state.canvasElements}
+              {this.drawCurrentShape()}
+              {this.isEraseMode() && (
+                <circle
+                  cx={this.toTrueX(this.state.prevCursorX)}
+                  cy={this.toTrueY(this.state.prevCursorY)}
+                  r={this.state.eraserSize}
+                  fill={ERASER_CURSOR_COLOR}
+                />
+              )}
+            </g>
+            )}
+          </svg>
+        )}
+      </Animate>
     );
   };
 
