@@ -200,7 +200,7 @@ class Paper extends React.Component {
         break;
 
       case KEY.ZERO:
-        if (this.state.shapes.length > 0) {
+        if (this.state.scale !== 1) {
           this.zoomToFit(1);
         }
         break;
@@ -758,17 +758,18 @@ class Paper extends React.Component {
       scale = Math.min(xScale, yScale);
     }
 
-    scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
-
     const xOffset = (maxWidth - bbox.width * scale) / 2;
     const yOffset = (maxHeight - bbox.height * scale) / 2;
     const translateX = this.state.translateX * scale - bbox.x * scale + xOffset + margin;
     const translateY = this.state.translateY * scale - bbox.y * scale + yOffset + margin;
 
+    // Limit the scale between the MIN_SCALE and MAX_SCALE boundaries.
+    scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, preferredScale || this.state.scale * scale));
+
     this.setState({
       translateX,
       translateY,
-      scale: preferredScale || this.state.scale * scale,
+      scale,
     });
   };
 
@@ -923,7 +924,6 @@ class Paper extends React.Component {
                 />
               )}
             </g>
-            )}
           </svg>
         )}
       </Animate>

@@ -245,7 +245,17 @@ function Toolbar(props) {
         </Tooltip>
       </div>
       <div className={styles['toolbar-right__container']}>
-        <Tooltip placement="left" overlay="reset zoom level">
+        <Tooltip
+          placement="left"
+          overlay={
+            <>
+              reset zoom level
+              <div className="kbd-shortcut">
+                <kbd>{ctrlOrMeta}</kbd> + <kbd>0</kbd>
+              </div>
+            </>
+          }
+        >
           <div
             onClick={props.onClickResetZoom}
             className={classNames(styles['toolbar-right__button'], {

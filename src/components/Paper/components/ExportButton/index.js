@@ -70,7 +70,6 @@ class ExportButton extends React.Component {
   };
 
   render() {
-    console.log('this.props.paper.shapes >>>>', this.props.paper.shapes);
     return (
       <>
         <ExportIcon
