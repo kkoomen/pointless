@@ -21,7 +21,6 @@ class ExportButton extends React.Component {
       theme: props.isDarkMode ? 'dark' : 'light',
       exportType: ALLOWED_TYPES[0],
       transparent: false,
-      exporting: false,
       location: 'unknown',
     };
 
@@ -37,8 +36,6 @@ class ExportButton extends React.Component {
   };
 
   export = () => {
-    if (this.state.exporting) return false;
-
     store.dispatch(
       exportPaper({
         id: this.props.paper.id,

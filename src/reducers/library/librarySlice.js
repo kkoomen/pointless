@@ -3,6 +3,8 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeFilename } from '../../helpers';
 import { imageExport, svgExport } from '../../utils/paper-export';
+import { exists } from '@tauri-apps/api/fs';
+import { EXPORTS_DIR } from '../../constants';
 
 const initialState = {
   folders: [],
@@ -84,15 +86,6 @@ const librarySlice = createSlice({
     saveLibrary: (state) => {
       invoke('save_library', { libraryState: JSON.stringify(state) });
     },
-    exportPaper: (state, action) => {
-      const { id, exportType } = action.payload;
-
-      const paper = state.papers.find((paper) => paper.id === id);
-      const filename = `${sanitizeFilename(paper.name)}.${exportType}`;
-
-      let fn = exportType === 'svg' ? svgExport : imageExport;
-      fn(paper, filename, action.payload);
-    },
 
     // TODO:
     // exportFolder: (state, action) => {
@@ -100,6 +93,23 @@ const librarySlice = createSlice({
     // }
   },
 });
+
+export const exportPaper = (payload) => async (dispatch, getState) => {
+  const state = getState();
+  const { id, exportType } = payload;
+
+  const paper = state.library.papers.find((paper) => paper.id === id);
+  const filename = `${sanitizeFilename(paper.name)}.${exportType}`;
+  const alreadyExists = await exists(`${filename}`, { dir: EXPORTS_DIR });
+
+  if (alreadyExists) {
+    const overwrite = await confirm(`${filename} already exists, overwrite?`);
+    if (!overwrite) return;
+  }
+
+  let fn = exportType === 'svg' ? svgExport : imageExport;
+  fn(paper, filename, payload);
+};
 
 export const {
   newFolder,
@@ -111,7 +121,6 @@ export const {
   deletePaper,
   saveLibrary,
   loadLibrary,
-  exportPaper,
 } = librarySlice.actions;
 
 export default librarySlice.reducer;
