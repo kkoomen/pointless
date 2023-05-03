@@ -1,12 +1,13 @@
-name: Tests
+name: Release
 on:
-  workflow_dispatch:
-  pull_request:
+  push:
     branches:
-      - '*'
+      - release
 
 jobs:
-  test-tauri:
+  publish-tauri:
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -31,10 +32,10 @@ jobs:
         with:
           targets: aarch64-apple-darwin
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
+      # - name: Rust cache
+      #   uses: swatinem/rust-cache@v2
+      #   with:
+      #     workspaces: './src-tauri -> target'
 
       - name: Sync node version and setup cache
         uses: actions/setup-node@v3
@@ -55,4 +56,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: 'Pointless v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: false
+          prerelease: false
           args: ${{ matrix.settings.args }}

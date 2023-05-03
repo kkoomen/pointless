@@ -756,6 +756,8 @@ class Paper extends React.Component {
       scale = Math.min(xScale, yScale);
     }
 
+    scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+
     const xOffset = (maxWidth - bbox.width * scale) / 2;
     const yOffset = (maxHeight - bbox.height * scale) / 2;
     const translateX = this.state.translateX * scale - bbox.x * scale + xOffset + margin;

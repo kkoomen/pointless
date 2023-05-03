@@ -81,8 +81,8 @@ const librarySlice = createSlice({
         state.papers = action.payload.papers;
       }
     },
-    saveLibrary: (state, action) => {
-      invoke('save_library', { libraryState: JSON.stringify(state.library) });
+    saveLibrary: (state) => {
+      invoke('save_library', { libraryState: JSON.stringify(state) });
     },
     exportPaper: (state, action) => {
       const { id, exportType } = action.payload;
