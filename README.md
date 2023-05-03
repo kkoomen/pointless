@@ -14,9 +14,11 @@
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Features](#features)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Development](#development)
 - [Creating a build](#creating-a-build)
+- [FAQ](#faq)
 - [License](#license)
 
 # Introduction
@@ -76,6 +78,12 @@ Starting the development server can be done with `yarn run tauri dev`
 # Creating a build
 
 Creating a build can simply be done with `yarn run tauri build`
+
+# FAQ
+
+- **Pointless.app is damaged and can't be opened:** This mac issue occurs
+  because non-signed apps are blocked. You can fix this by running
+  `xattr -cr /Applications/Pointless.app` and then open the app again.
 
 # License
 
