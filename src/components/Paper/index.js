@@ -454,9 +454,7 @@ class Paper extends React.Component {
         const height = Math.abs(y2 - y1);
         const radius = Math.round(Math.max(width, height) / 2);
 
-        // Do 361 degrees to make sure the 0-degrees and 360 degrees point are
-        // connected properly.
-        for (let angle = 0; angle < 361; angle++) {
+        for (let angle = 0; angle <= 360; angle++) {
           // Convert the angle to radians.
           const theta = (angle * Math.PI) / 180;
 
