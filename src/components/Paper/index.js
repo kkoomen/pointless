@@ -169,6 +169,12 @@ class Paper extends React.Component {
         this.setMode(MODE.FREEHAND);
         break;
 
+      case KEY.S:
+        if (this.isCtrlOrMetaKey(event)) {
+          this.setMode(this.isSelectMode() ? this.state.prevMode : MODE.SELECT);
+        }
+        break;
+
       case KEY.E:
         if (this.isCtrlOrMetaKey(event)) {
           this.setMode(this.isEraseMode() ? this.state.prevMode : MODE.ERASE);
@@ -316,14 +322,14 @@ class Paper extends React.Component {
     }
   };
 
-  getEventXY(event) {
+  getEventXY = (event) => {
     // Check for touch events first
     if (typeof event.changedTouches !== 'undefined') {
       return [event.changedTouches[0].pageX, event.changedTouches[0].pageY];
     }
 
     return [event.pageX, event.pageY];
-  }
+  };
 
   /**
    * Convert a non-freehand shape containing x/y coordinates to a shape made out
@@ -659,6 +665,10 @@ class Paper extends React.Component {
     return this.state.mode === MODE.PAN;
   };
 
+  isSelectMode = () => {
+    return this.state.mode === MODE.SELECT;
+  };
+
   isPanning = () => {
     return this.isPanMode() && this.state.isPanning;
   };
@@ -733,6 +743,10 @@ class Paper extends React.Component {
 
   toggleEraseMode = () => {
     this.setMode(this.isEraseMode() ? this.state.prevMode : MODE.ERASE);
+  };
+
+  toggleSelectMode = () => {
+    this.setMode(this.isSelectMode() ? this.state.prevMode : MODE.SELECT);
   };
 
   /**
@@ -823,7 +837,7 @@ class Paper extends React.Component {
     this.setState({ prevPinchDist: distance });
   };
 
-  canvasPinchEnd = (event) => {
+  canvasPinchEnd = (/* event */) => {
     this.setState({ prevPinchDist: 0 });
   };
 
@@ -942,6 +956,7 @@ class Paper extends React.Component {
   onClickRectangleTool = () => this.setMode(MODE.RECTANGLE);
   onClickArrowTool = () => this.setMode(MODE.ARROW);
   onClickEraseTool = () => this.toggleEraseMode();
+  onClickSelectTool = () => this.toggleSelectMode();
   onClickPanTool = () => this.togglePanMode();
   onClickZoomToFit = () => this.zoomToFit();
   onClickUndoTool = () => this.undo();
@@ -981,12 +996,14 @@ class Paper extends React.Component {
           isDrawMode={this.isDrawMode()}
           isPanMode={this.isPanMode()}
           isEraseMode={this.isEraseMode()}
+          isSelectMode={this.isSelectMode()}
           onLinewidthChange={this.changeLinewidth}
           onClickFreehandTool={this.onClickFreehandTool}
           onClickEllipseTool={this.onClickEllipseTool}
           onClickRectangleTool={this.onClickRectangleTool}
           onClickArrowTool={this.onClickArrowTool}
           onClickEraseTool={this.onClickEraseTool}
+          onClickSelectTool={this.onClickSelectTool}
           onClickPanTool={this.onClickPanTool}
           onClickZoomToFit={this.onClickZoomToFit}
           onClickUndoTool={this.onClickUndoTool}

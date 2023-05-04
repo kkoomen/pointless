@@ -4,6 +4,7 @@
   position: fixed;
   top: 0;
   left: 0;
+  cursor: cell;
 }
 
 .canvas__is-pan-mode {
@@ -21,10 +22,6 @@
 .canvas__element {
   width: 100%;
   height: 100%;
-}
-
-.canvas__is-draw-mode {
-  cursor: cell;
 }
 
 .canvas__is-erase-mode {

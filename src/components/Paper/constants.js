@@ -11,6 +11,7 @@ export const MODE = {
   ARROW: 'arrow',
   PAN: 'pan',
   ERASE: 'erase',
+  SELECT: 'select',
 };
 
 export const PALETTE_LIGHT = [
