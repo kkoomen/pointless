@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Animate } from 'react-move';
 import { connect } from 'react-redux';
-import { removeDuplicates } from '../../helpers';
 import { to } from '../../reducers/router/routerSlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { KEY } from './../../constants';
@@ -31,7 +30,16 @@ import {
   SCALE_BY,
   SCALE_FACTOR,
 } from './constants';
-import { createLine, getSmoothPath, isPointInsideShape, rotateAroundPoint } from './helpers';
+import {
+  createLine,
+  createRectangularShapePoints,
+  createSelectionAreaAroundShapes,
+  getSmoothPath,
+  isPointInsideShape,
+  rotateAroundPoint,
+  shiftPoints,
+  shiftShapePoints,
+} from './helpers';
 import styles from './styles.module.css';
 
 const getInitialState = (isDarkMode, args) => ({
@@ -41,7 +49,7 @@ const getInitialState = (isDarkMode, args) => ({
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
   eraserSize: ERASER_SIZE,
-  selectedShapeIndexes: [],
+  clipboard: [],
   prevMode: null,
   cursorX: 0,
   cursorY: 0,
@@ -55,6 +63,7 @@ const getInitialState = (isDarkMode, args) => ({
   isErasing: false,
   isSelecting: false,
   isMovingSelection: false,
+  selectedShapeIndexes: [],
   translateX: 0,
   translateY: 0,
   forceUpdate: false,
@@ -78,6 +87,13 @@ const getInitialState = (isDarkMode, args) => ({
 });
 
 class Paper extends React.Component {
+  // There are multiple places where we want to remove the selection area.
+  removeSelectionAreaState = {
+    currentShape: {},
+    selectedShapeIndexes: [],
+    isMovingSelection: false,
+  };
+
   constructor(props) {
     super();
     this.svg = React.createRef();
@@ -132,11 +148,7 @@ class Paper extends React.Component {
 
     // Remove the select shape when leaving select mode and reset all settings.
     if (!this.isSelectMode() && prevState.mode === MODE.SELECT) {
-      this.setState({
-        currentShape: {},
-        selectedShapeIndexes: [],
-        isMovingSelection: false,
-      });
+      this.setState(this.removeSelectionAreaState);
     }
 
     // Change the selected color if the user changes theme.
@@ -213,6 +225,57 @@ class Paper extends React.Component {
         }
         break;
 
+      case KEY.C:
+        if (this.isCtrlOrMetaKey(event)) {
+          // Copy selected shapes.
+          this.setState({
+            clipboard: this.getSelectedShapes(),
+          });
+        }
+        break;
+
+      case KEY.V:
+        // Make sure that the user can't do anything when they're drawing.
+        if (this.isDrawing() || this.isErasing() || this.isSelecting()) return;
+
+        if (this.isCtrlOrMetaKey(event)) {
+          // Paste selected shapes with a small offset.
+          const offset = 30 / this.state.scale;
+          const copiedShapes = this.state.clipboard.map((shape) => shiftShapePoints(shape, offset));
+          let currentShape = this.state.currentShape;
+
+          // The new indexes are simply the last indexes that we're appending.
+          const selectedShapeIndexes = [];
+          for (let i = 1; i <= copiedShapes.length; i++) {
+            selectedShapeIndexes.push(this.state.shapes.length - 1 + i);
+          }
+
+          // Create a new selection area.
+          currentShape = {
+            type: MODE.SELECT,
+            linewidth: LINEWIDTH.SMALL,
+            color: DEFAULT_STROKE_COLOR_DARKMODE,
+            points: createSelectionAreaAroundShapes(copiedShapes),
+          };
+
+          // After pasting, select the new shapes and make sure to go into
+          // select mode.
+          this.setState({
+            mode: MODE.SELECT,
+            currentShape,
+            selectedShapeIndexes,
+            shapes: this.state.shapes.concat(copiedShapes),
+            history: [
+              ...this.state.history,
+              {
+                type: 'draw',
+                shapes: copiedShapes,
+              },
+            ],
+          });
+        }
+        break;
+
       case KEY.SPACEBAR:
         if (!this.isPanMode()) {
           this.setMode(MODE.PAN);
@@ -270,6 +333,7 @@ class Paper extends React.Component {
     const entry = this.state.history.slice(-1).shift();
     if (entry) {
       const newState = {
+        ...this.removeSelectionAreaState,
         history: this.state.history.slice(0, -1),
         undoHistory: this.state.undoHistory.concat(entry),
         shapes: [...this.state.shapes],
@@ -277,10 +341,12 @@ class Paper extends React.Component {
 
       switch (entry.type) {
         case 'draw':
-          newState.shapes.splice(-1);
+          // Remove the entry its shapes.
+          newState.shapes.splice(-entry.shapes.length);
           break;
 
         case 'erase':
+          // Re-insert the shapes.
           Object.keys(entry.shapes).forEach((index) => {
             newState.shapes.splice(index, 0, entry.shapes[index]);
           });
@@ -298,6 +364,7 @@ class Paper extends React.Component {
     const entry = this.state.undoHistory.slice(-1).shift();
     if (entry) {
       const newState = {
+        ...this.removeSelectionAreaState,
         undoHistory: this.state.undoHistory.slice(0, -1),
         history: this.state.history.concat(entry),
         shapes: [...this.state.shapes],
@@ -305,7 +372,8 @@ class Paper extends React.Component {
 
       switch (entry.type) {
         case 'draw':
-          newState.shapes.push(entry.shape);
+          // Re-insert the shapes.
+          newState.shapes.push(...entry.shapes);
           break;
 
         case 'erase':
@@ -387,33 +455,7 @@ class Paper extends React.Component {
       }
 
       case MODE.RECTANGLE: {
-        const height = Math.ceil(Math.abs(y2 - y1));
-        const width = Math.ceil(Math.abs(x2 - x1));
-
-        // convert the 4 sides to shapes
-
-        // top left to top right
-        const topBar = Array(width)
-          .fill(Math.min(x1, x2))
-          .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
-
-        // top right to right bottom
-        const rightBar = Array(height)
-          .fill(Math.min(y1, y2))
-          .map((value, index) => ({ x: Math.max(x1, x2), y: value + index }));
-
-        // right bottom to left bottom
-        const bottomBar = Array(width)
-          .fill(Math.max(x1, x2))
-          .map((value, index) => ({ x: value - index, y: Math.max(y1, y2) }));
-
-        // left bottom to left top
-        const leftBar = Array(height)
-          .fill(Math.max(y1, y2))
-          .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
-
-        newShape.points = removeDuplicates([...topBar, ...rightBar, ...bottomBar, ...leftBar]);
-
+        newShape.points = createRectangularShapePoints(x1, y1, x2, y2);
         break;
       }
 
@@ -595,23 +637,16 @@ class Paper extends React.Component {
       // When the user is moving the selected shape, we should update each
       // selected shape its x,y values while dragging around.
       if (this.state.isMovingSelection) {
+        const scaledDiffX = diffX / this.state.scale;
+        const scaledDiffY = diffY / this.state.scale;
         this.setState(
           {
             ...newState,
-            currentShape: {
-              ...this.state.currentShape,
-              points: this.state.currentShape.points.map((point) => ({
-                x: point.x + diffX / this.state.scale,
-                y: point.y + diffY / this.state.scale,
-              })),
-            },
+            currentShape: shiftShapePoints(this.state.currentShape, scaledDiffX, scaledDiffY),
             shapes: this.state.shapes.map((shape, index) => ({
               ...shape,
               points: this.state.selectedShapeIndexes.includes(index)
-                ? shape.points.map((point) => ({
-                    x: point.x + diffX / this.state.scale,
-                    y: point.y + diffY / this.state.scale,
-                  }))
+                ? shiftPoints(shape.points, scaledDiffX, scaledDiffY)
                 : shape.points,
             })),
           },
@@ -751,7 +786,7 @@ class Paper extends React.Component {
           ...this.state.history,
           {
             type: 'draw',
-            shape: currentShape,
+            shapes: [currentShape],
           },
         ];
       }
@@ -928,6 +963,7 @@ class Paper extends React.Component {
     scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, preferredScale || this.state.scale * scale));
 
     this.setState({
+      ...this.removeSelectionAreaState,
       translateX,
       translateY,
       scale,
@@ -959,7 +995,12 @@ class Paper extends React.Component {
     const translateX = this.state.translateX - (newX - currX);
     const translateY = this.state.translateY - (newY - currY);
 
-    this.setState({ translateX, translateY, scale });
+    this.setState({
+      ...this.removeSelectionAreaState,
+      translateX,
+      translateY,
+      scale,
+    });
   };
 
   canvasPinchStart = (event) => {

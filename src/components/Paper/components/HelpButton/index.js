@@ -137,7 +137,23 @@ export default function HelpButton() {
                   <kbd>[</kbd>
                 </div>
               </td>
-              <td>Dencrease eraser size</td>
+              <td>Decrease eraser size</td>
+            </tr>
+            <tr>
+              <td>
+                <div className="kbd-shortcut">
+                  <kbd>{ctrlOrMeta}</kbd> + <kbd>c</kbd>
+                </div>
+              </td>
+              <td>Copy selected shape</td>
+            </tr>
+            <tr>
+              <td>
+                <div className="kbd-shortcut">
+                  <kbd>{ctrlOrMeta}</kbd> + <kbd>v</kbd>
+                </div>
+              </td>
+              <td>Paste selected shape</td>
             </tr>
             <tr>
               <td>

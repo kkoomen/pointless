@@ -1,4 +1,5 @@
 import * as d3 from 'd3-shape';
+import { removeDuplicates } from '../../helpers';
 
 /**
  * Rotate a point around another point in 2D.
@@ -138,4 +139,110 @@ export function isPointInsideShape(points, point) {
 
   // If the number of intersections is odd, the point is inside the shape
   return intersections % 2 === 1;
+}
+
+/**
+ * Shift all the points by a certain value.
+ *
+ * @param {object[]} points - List of points.
+ * @param {number} xOffset - The offset that will be added to each x value.
+ * @param {number} [yOffset] - The offset that will be added to each y value.
+ * @returns {object[]} New list of points.
+ */
+export function shiftPoints(points, xOffset, yOffset = null) {
+  if (yOffset === null) {
+    yOffset = xOffset;
+  }
+
+  return points.map((point) => ({
+    x: point.x + xOffset,
+    y: point.y + yOffset,
+  }));
+}
+
+/**
+ * Shift all the points by a certain value inside a shape object.
+ *
+ * @param {object} shape - The shape object that contains the points.
+ * @param {number} xOffset - The offset that will be added to each x value.
+ * @param {number} [yOffset] - The offset that will be added to each y value.
+ * @returns {object} New shape object.
+ */
+export function shiftShapePoints(shape, xOffset, yOffset = null) {
+  if (yOffset === null) {
+    yOffset = xOffset;
+  }
+
+  return {
+    ...shape,
+    points: shiftPoints(shape.points, xOffset, yOffset),
+  };
+}
+
+/**
+ * Create a list of points representing a rectangle given its coordinates.
+ *
+ * @param {number} x1 - The top-left x-coordinate.
+ * @param {number} y2 - The top-left y-coorindate.
+ * @param {number} x2 - The bottom-right x-coordinate.
+ * @param {number} y2 - The bottom-right y-coordinate.
+ * @returns {object[]} List of points
+ */
+export function createRectangularShapePoints(x1, y1, x2, y2) {
+  const height = Math.ceil(Math.abs(y2 - y1));
+  const width = Math.ceil(Math.abs(x2 - x1));
+
+  // convert the 4 sides to shapes
+
+  // top left to top right
+  const topBar = Array(width)
+    .fill(Math.min(x1, x2))
+    .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
+
+  // top right to right bottom
+  const rightBar = Array(height)
+    .fill(Math.min(y1, y2))
+    .map((value, index) => ({ x: Math.max(x1, x2), y: value + index }));
+
+  // right bottom to left bottom
+  const bottomBar = Array(width)
+    .fill(Math.max(x1, x2))
+    .map((value, index) => ({ x: value - index, y: Math.max(y1, y2) }));
+
+  // left bottom to left top
+  const leftBar = Array(height)
+    .fill(Math.max(y1, y2))
+    .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
+
+  return removeDuplicates([...topBar, ...rightBar, ...bottomBar, ...leftBar]);
+}
+
+/**
+ * Create a new rectangular selection area shapes based on a list of shapes.
+ *
+ * @param {object[]} shapes - List of shapes.
+ * @returns {object} Rectangular selection area shape object.
+ */
+export function createSelectionAreaAroundShapes(shapes) {
+  let x1 = Infinity;
+  let y1 = Infinity;
+  let x2 = -Infinity;
+  let y2 = -Infinity;
+  let offset = 20;
+
+  shapes.forEach((shape) => {
+    shape.points.forEach((point) => {
+      if (point.x < x1) x1 = point.x;
+      if (point.x > x2) x2 = point.x;
+      if (point.y < y1) y1 = point.y;
+      if (point.y > y2) y2 = point.y;
+    });
+  });
+
+  x1 -= offset;
+  y1 -= offset;
+  x2 += offset;
+  y2 += offset;
+
+  return createRectangularShapePoints(x1, y1, x2, y2);
 }

@@ -57,6 +57,9 @@ we'll discuss it.
 - [x] Save/load state from file
 - [x] Light/dark theme
 - [x] Basic touch support
+- [x] Select shapes
+  - [x] Change color of selected shapes
+  - [x] Copy/paste selected shapes
 
 # Prerequisites
 
