@@ -41,6 +41,7 @@ import {
   shiftShapePoints,
 } from './helpers';
 import styles from './styles.module.css';
+import { isEqual } from '../../helpers';
 
 const getInitialState = (isDarkMode, args) => ({
   userLastActiveAt: new Date().toISOString(),
@@ -125,18 +126,8 @@ class Paper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // Only redraw the elements when the amount of shapes have been updated.
-    const totalShapes = this.state.shapes.reduce((total, shape) => total + shape.points.length, 0);
-    const prevTotalShapes = prevState.shapes.reduce(
-      (total, shape) => total + shape.points.length,
-      0,
-    );
-
-    if (prevTotalShapes !== totalShapes) {
-      this.setState({
-        librarySynced: false,
-        userLastActiveAt: new Date().toISOString(),
-      });
+    // Only redraw the elements when the amount of
+    if (!isEqual(this.state.shapes, prevState.shapes)) {
       this.drawCanvasElements();
       this.props.dispatch(
         setPaperShapes({
@@ -144,10 +135,18 @@ class Paper extends React.Component {
           shapes: this.state.shapes,
         }),
       );
+
+      // Indicate that a sync is required.
+      this.setState({
+        librarySynced: false,
+        userLastActiveAt: new Date().toISOString(),
+      });
     }
 
-    // Remove the select shape when leaving select mode and reset all settings.
-    if (!this.isSelectMode() && prevState.mode === MODE.SELECT) {
+    // Remove the select shape when leaving select mode and reset all settings,
+    // but not for pan mode, because it is nice to pan the canvas and then
+    // continue with moving a selected area.
+    if (prevState.mode === MODE.SELECT && !this.isSelectMode() && !this.isPanMode()) {
       this.setState(this.removeSelectionAreaState);
     }
 
@@ -164,6 +163,7 @@ class Paper extends React.Component {
 
   checkUserActivity = () => {
     // Only save the library state when user is inactive for several seconds.
+    // Here 'inactive' means the user didn't draw or move anything.
     const secsAgoSinceLastDraw = dayjs().diff(dayjs(this.state.userLastActiveAt), 'seconds');
     if (secsAgoSinceLastDraw >= 3 && !this.state.librarySynced) {
       this.props.dispatch(saveLibrary());
@@ -639,21 +639,16 @@ class Paper extends React.Component {
       if (this.state.isMovingSelection) {
         const scaledDiffX = diffX / this.state.scale;
         const scaledDiffY = diffY / this.state.scale;
-        this.setState(
-          {
-            ...newState,
-            currentShape: shiftShapePoints(this.state.currentShape, scaledDiffX, scaledDiffY),
-            shapes: this.state.shapes.map((shape, index) => ({
-              ...shape,
-              points: this.state.selectedShapeIndexes.includes(index)
-                ? shiftPoints(shape.points, scaledDiffX, scaledDiffY)
-                : shape.points,
-            })),
-          },
-          () => {
-            this.drawCanvasElements();
-          },
-        );
+        this.setState({
+          ...newState,
+          currentShape: shiftShapePoints(this.state.currentShape, scaledDiffX, scaledDiffY),
+          shapes: this.state.shapes.map((shape, index) => ({
+            ...shape,
+            points: this.state.selectedShapeIndexes.includes(index)
+              ? shiftPoints(shape.points, scaledDiffX, scaledDiffY)
+              : shape.points,
+          })),
+        });
         return;
       }
 
@@ -839,17 +834,12 @@ class Paper extends React.Component {
     // If the user did select any shapes, we want to change the color of those
     // shapes and redraw the elements.
     if (this.state.selectedShapeIndexes.length > 0) {
-      this.setState(
-        {
-          shapes: this.state.shapes.map((shape, index) => ({
-            ...shape,
-            color: this.state.selectedShapeIndexes.includes(index) ? color : shape.color,
-          })),
-        },
-        () => {
-          this.drawCanvasElements();
-        },
-      );
+      this.setState({
+        shapes: this.state.shapes.map((shape, index) => ({
+          ...shape,
+          color: this.state.selectedShapeIndexes.includes(index) ? color : shape.color,
+        })),
+      });
       return;
     }
 
