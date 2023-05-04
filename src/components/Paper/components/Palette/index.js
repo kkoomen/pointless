@@ -12,7 +12,7 @@ function Palette(props) {
 
   // If the user did select some shapes, we want to check if the shapes are all
   // of the same color. If so, we select that color. If not, we do not select
-  // any color (because they're multiple) and then the user can optionally
+  // any color (because there are multiple) and then the user can optionally
   // select a color that will be set on all of those selected shapes.
   if (props.selectedShapes.length > 0) {
     const shapeColors = props.selectedShapes.map((shape) => shape.color);
