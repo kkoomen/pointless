@@ -52,6 +52,7 @@ const getInitialState = (isDarkMode, args) => ({
   isDrawing: false,
   isPanning: false,
   isErasing: false,
+  isSelecting: false,
   translateX: 0,
   translateY: 0,
   forceUpdate: false,
@@ -126,6 +127,12 @@ class Paper extends React.Component {
       );
     }
 
+    // Remove the select shape when leaving select mode.
+    if (!this.isSelectMode() && prevState.mode === MODE.SELECT) {
+      this.setState({ currentShape: {} });
+    }
+
+    // Change the selected color if the user changes theme.
     if (prevProps.isDarkMode !== this.props.isDarkMode) {
       this.setState({
         selectedColor: this.props.isDarkMode
@@ -336,7 +343,7 @@ class Paper extends React.Component {
    * of shapes.
    */
   convertShape = (shape) => {
-    if (shape.type === MODE.FREEHAND) return shape;
+    if ([MODE.FREEHAND, MODE.SELECT].includes(shape.type)) return shape;
 
     const newShape = {
       ...shape,
@@ -449,15 +456,22 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
+      this.setState({ isErasing: true });
+    } else if (this.isSelectMode()) {
+      const [cursorX, cursorY] = this.getEventXY(event);
       this.setState({
-        isErasing: true,
-        history: [
-          ...this.state.history,
-          {
-            type: 'erase',
-            shapes: {},
-          },
-        ],
+        isSelecting: true,
+        currentShape: {
+          type: MODE.SELECT,
+          linewidth: LINEWIDTH.SMALL,
+          color: DEFAULT_STROKE_COLOR_LIGHTMODE,
+          points: [
+            {
+              x: this.toTrueX(cursorX),
+              y: this.toTrueY(cursorY),
+            },
+          ],
+        },
       });
     } else if (this.isDrawMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
@@ -549,8 +563,9 @@ class Paper extends React.Component {
         });
       }
 
-      if (this.isDrawing()) {
+      if (this.isDrawing() || this.isSelecting()) {
         switch (this.state.mode) {
+          case MODE.SELECT:
           case MODE.FREEHAND: {
             // Get the angle between the most recent shapes in order to know in which
             // direction the user is drawing.
@@ -619,6 +634,23 @@ class Paper extends React.Component {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
+    } else if (this.isSelectMode()) {
+      const firstPoint = this.state.currentShape.points[0];
+      const lastPoint = this.state.currentShape.points[this.state.currentShape.points.length - 1];
+
+      // Automatically connect the last point with the first point.
+      const currentShape = {
+        ...this.state.currentShape,
+        points: [
+          ...this.state.currentShape.points,
+          ...createLine([lastPoint.x, lastPoint.y], [firstPoint.x, firstPoint.y]),
+        ],
+      };
+
+      this.setState({
+        isSelecting: false,
+        currentShape,
+      });
     } else if (this.isDrawMode()) {
       let newState = {
         isDrawing: false,
@@ -651,6 +683,10 @@ class Paper extends React.Component {
 
   isDrawing = () => {
     return this.isDrawMode() && this.state.isDrawing;
+  };
+
+  isSelecting = () => {
+    return this.isSelectMode() && this.state.isSelecting;
   };
 
   isEraseMode = () => {
@@ -715,7 +751,7 @@ class Paper extends React.Component {
     });
   };
 
-  createShapeElement(shape, simplifyPointsTolerance) {
+  createShapeElement = (shape, simplifyPointsTolerance) => {
     let strokeColor = shape.color;
     if ([DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE].includes(strokeColor)) {
       strokeColor = this.props.isDarkMode
@@ -733,9 +769,13 @@ class Paper extends React.Component {
         strokeLinejoin="round"
         stroke={strokeColor}
         strokeWidth={shape.linewidth}
+        strokeDasharray={shape.type === MODE.SELECT ? '10,10' : null}
+        className={classNames({
+          [styles['path--select-shape']]: this.isSelectMode(),
+        })}
       />
     );
-  }
+  };
 
   togglePanMode = () => {
     this.setMode(this.isPanMode() ? this.state.prevMode : MODE.PAN);

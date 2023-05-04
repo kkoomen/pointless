@@ -38,8 +38,8 @@ export function createLine(p1, p2) {
   const stepY = dy / numPoints;
   const linePoints = [];
   for (let i = 0; i <= numPoints; i++) {
-    const x = parseInt(x1 + i * stepX);
-    const y = parseInt(y1 + i * stepY);
+    const x = x1 + i * stepX;
+    const y = y1 + i * stepY;
     linePoints.push({ x, y });
   }
   return linePoints;
