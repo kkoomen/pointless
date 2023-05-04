@@ -801,6 +801,24 @@ class Paper extends React.Component {
   };
 
   selectColorHandler = (color) => {
+    // If the user did select any shapes, we want to change the color of those
+    // shapes and redraw the elements.
+    if (this.state.selectedShapeIndexes.length > 0) {
+      this.setState(
+        {
+          shapes: this.state.shapes.map((shape, index) => ({
+            ...shape,
+            color: this.state.selectedShapeIndexes.includes(index) ? color : shape.color,
+          })),
+        },
+        () => {
+          this.drawCanvasElements();
+        },
+      );
+      return;
+    }
+
+    // Otherwise, simply set the main color to be used for drawing.
     this.setState({ selectedColor: color });
   };
 
@@ -1078,6 +1096,12 @@ class Paper extends React.Component {
     this.props.dispatch(to({ name: 'library' }));
   };
 
+  getSelectedShapes = () => {
+    if (this.state.selectedShapeIndexes.length === 0) return [];
+
+    return this.state.shapes.filter((_, index) => this.state.selectedShapeIndexes.includes(index));
+  };
+
   // In order to memoize sub-components we need to define the
   // callbacks outside of the render function.
   onClickFreehandTool = () => this.setMode(MODE.FREEHAND);
@@ -1118,7 +1142,12 @@ class Paper extends React.Component {
         </div>
 
         {this.renderCanvas()}
-        <Palette onSelectColor={this.selectColorHandler} selectedColor={this.state.selectedColor} />
+        <Palette
+          paperId={this.props.paper.id}
+          onSelectColor={this.selectColorHandler}
+          selectedColor={this.state.selectedColor}
+          selectedShapes={this.getSelectedShapes()}
+        />
         <Toolbar
           mode={this.state.mode}
           linewidth={this.state.linewidth}
