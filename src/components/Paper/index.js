@@ -352,6 +352,14 @@ class Paper extends React.Component {
           });
           break;
 
+        case 'move':
+          // Move the shapes back to the their starting position.
+          entry.shapeIndexes.forEach((shapeIndex) => {
+            const shape = newState.shapes[shapeIndex];
+            newState.shapes[shapeIndex] = shiftShapePoints(shape, -entry.diff.x, -entry.diff.y);
+          });
+          break;
+
         default:
           break;
       }
@@ -382,6 +390,14 @@ class Paper extends React.Component {
           for (let i = indexes.length - 1; i >= 0; i--) {
             newState.shapes.splice(indexes[i], 1);
           }
+          break;
+
+        case 'move':
+          // Move the shapes back to the their ending position.
+          entry.shapeIndexes.forEach((shapeIndex) => {
+            const shape = newState.shapes[shapeIndex];
+            newState.shapes[shapeIndex] = shiftShapePoints(shape, entry.diff.x, entry.diff.y);
+          });
           break;
 
         default:
@@ -510,14 +526,27 @@ class Paper extends React.Component {
 
       // If the user clicks has selected some shapes and clicked (and holds)
       // inside the selection area, the user is intending to move the shapes.
-      if (
+      const userWillMoveShape =
         Array.isArray(this.state.currentShape.points) &&
         isPointInsideShape(this.state.currentShape.points, [
           this.toTrueX(cursorX),
           this.toTrueY(cursorY),
-        ])
-      ) {
-        this.setState({ isMovingSelection: true });
+        ]);
+
+      if (userWillMoveShape) {
+        this.setState({
+          isMovingSelection: true,
+          history: [
+            ...this.state.history,
+            {
+              type: 'move',
+              shapeIndexes: this.state.selectedShapeIndexes,
+              startPos: { x: cursorX, y: cursorY },
+              endPos: {},
+              diff: {},
+            },
+          ],
+        });
       } else {
         // If the user has drawn a selection, but clicks outside of it, we want to
         // draw a new selection area.
@@ -718,15 +747,29 @@ class Paper extends React.Component {
     this.setState(newState);
   };
 
-  canvasMouseUpHandler = () => {
+  canvasMouseUpHandler = (event) => {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
     } else if (this.isSelectMode()) {
+      const [cursorX, cursorY] = this.getEventXY(event);
+
       // Check if the user was moving.
       if (this.state.isMovingSelection) {
-        this.setState({ isMovingSelection: false });
+        // Update the end position in the history log. If the user wants to
+        // undo, we know where we came from.
+        const lastHistoryItem = { ...this.state.history[this.state.history.length - 1] };
+        lastHistoryItem.endPos = { x: cursorX, y: cursorY };
+        lastHistoryItem.diff = {
+          x: cursorX - lastHistoryItem.startPos.x,
+          y: cursorY - lastHistoryItem.startPos.y,
+        };
+
+        this.setState({
+          isMovingSelection: false,
+          history: this.state.history.slice(0, -1).concat(lastHistoryItem),
+        });
       } else {
         // Otherwise, we should finish the selection shape.
         const firstPoint = this.state.currentShape.points[0];
