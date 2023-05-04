@@ -11,6 +11,7 @@ export const MODE = {
   ARROW: 'arrow',
   PAN: 'pan',
   ERASE: 'erase',
+  SELECT: 'select',
 };
 
 export const PALETTE_LIGHT = [
@@ -45,5 +46,5 @@ export const CANVAS_BACKGROUND_COLOR_DARKMODE = '#252525';
 
 export const MIN_SCALE = 0.05; // 5%
 export const MAX_SCALE = 10; // 1000%
-export const SCALE_FACTOR = 0.002;
-export const SCALE_BY = 0.5;
+export const SCALE_FACTOR = 0.002; // 0.2%
+export const SCALE_BY = 0.1; // 10%

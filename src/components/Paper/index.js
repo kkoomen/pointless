@@ -1,10 +1,11 @@
 import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
+import { easePolyOut } from 'd3-ease';
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Animate } from 'react-move';
 import { connect } from 'react-redux';
-import { removeDuplicates } from '../../helpers';
 import { to } from '../../reducers/router/routerSlice';
 import { ReactComponent as LeftArrowIcon } from './../../assets/icons/left-arrow.svg';
 import { KEY } from './../../constants';
@@ -29,10 +30,18 @@ import {
   SCALE_BY,
   SCALE_FACTOR,
 } from './constants';
-import { createLine, getSmoothPath, rotateAroundPoint } from './helpers';
+import {
+  createLine,
+  createRectangularShapePoints,
+  createSelectionAreaAroundShapes,
+  getSmoothPath,
+  isPointInsideShape,
+  rotateAroundPoint,
+  shiftPoints,
+  shiftShapePoints,
+} from './helpers';
 import styles from './styles.module.css';
-import { Animate } from 'react-move';
-import { easePolyOut } from 'd3-ease';
+import { isEqual } from '../../helpers';
 
 const getInitialState = (isDarkMode, args) => ({
   userLastActiveAt: new Date().toISOString(),
@@ -41,6 +50,7 @@ const getInitialState = (isDarkMode, args) => ({
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
   eraserSize: ERASER_SIZE,
+  clipboard: [],
   prevMode: null,
   cursorX: 0,
   cursorY: 0,
@@ -52,6 +62,9 @@ const getInitialState = (isDarkMode, args) => ({
   isDrawing: false,
   isPanning: false,
   isErasing: false,
+  isSelecting: false,
+  isMovingSelection: false,
+  selectedShapeIndexes: [],
   translateX: 0,
   translateY: 0,
   forceUpdate: false,
@@ -75,6 +88,13 @@ const getInitialState = (isDarkMode, args) => ({
 });
 
 class Paper extends React.Component {
+  // There are multiple places where we want to remove the selection area.
+  removeSelectionAreaState = {
+    currentShape: {},
+    selectedShapeIndexes: [],
+    isMovingSelection: false,
+  };
+
   constructor(props) {
     super();
     this.svg = React.createRef();
@@ -106,17 +126,8 @@ class Paper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // Only redraw the elements when the amount of shapes have been updated.
-    const totalShapes = this.state.shapes.reduce((total, shape) => total + shape.points.length, 0);
-    const prevTotalShapes = prevState.shapes.reduce(
-      (total, shape) => total + shape.points.length,
-      0,
-    );
-    if (prevTotalShapes !== totalShapes) {
-      this.setState({
-        librarySynced: false,
-        userLastActiveAt: new Date().toISOString(),
-      });
+    // Only redraw the elements when the amount of
+    if (!isEqual(this.state.shapes, prevState.shapes)) {
       this.drawCanvasElements();
       this.props.dispatch(
         setPaperShapes({
@@ -124,8 +135,22 @@ class Paper extends React.Component {
           shapes: this.state.shapes,
         }),
       );
+
+      // Indicate that a sync is required.
+      this.setState({
+        librarySynced: false,
+        userLastActiveAt: new Date().toISOString(),
+      });
     }
 
+    // Remove the select shape when leaving select mode and reset all settings,
+    // but not for pan mode, because it is nice to pan the canvas and then
+    // continue with moving a selected area.
+    if (prevState.mode === MODE.SELECT && !this.isSelectMode() && !this.isPanMode()) {
+      this.setState(this.removeSelectionAreaState);
+    }
+
+    // Change the selected color if the user changes theme.
     if (prevProps.isDarkMode !== this.props.isDarkMode) {
       this.setState({
         selectedColor: this.props.isDarkMode
@@ -138,6 +163,7 @@ class Paper extends React.Component {
 
   checkUserActivity = () => {
     // Only save the library state when user is inactive for several seconds.
+    // Here 'inactive' means the user didn't draw or move anything.
     const secsAgoSinceLastDraw = dayjs().diff(dayjs(this.state.userLastActiveAt), 'seconds');
     if (secsAgoSinceLastDraw >= 3 && !this.state.librarySynced) {
       this.props.dispatch(saveLibrary());
@@ -169,6 +195,12 @@ class Paper extends React.Component {
         this.setMode(MODE.FREEHAND);
         break;
 
+      case KEY.S:
+        if (this.isCtrlOrMetaKey(event)) {
+          this.setMode(this.isSelectMode() ? this.state.prevMode : MODE.SELECT);
+        }
+        break;
+
       case KEY.E:
         if (this.isCtrlOrMetaKey(event)) {
           this.setMode(this.isEraseMode() ? this.state.prevMode : MODE.ERASE);
@@ -190,6 +222,57 @@ class Paper extends React.Component {
           this.redo();
         } else if (this.isCtrlOrMetaKey(event)) {
           this.undo();
+        }
+        break;
+
+      case KEY.C:
+        if (this.isCtrlOrMetaKey(event)) {
+          // Copy selected shapes.
+          this.setState({
+            clipboard: this.getSelectedShapes(),
+          });
+        }
+        break;
+
+      case KEY.V:
+        // Make sure that the user can't do anything when they're drawing.
+        if (this.isDrawing() || this.isErasing() || this.isSelecting()) return;
+
+        if (this.isCtrlOrMetaKey(event)) {
+          // Paste selected shapes with a small offset.
+          const offset = 30 / this.state.scale;
+          const copiedShapes = this.state.clipboard.map((shape) => shiftShapePoints(shape, offset));
+          let currentShape = this.state.currentShape;
+
+          // The new indexes are simply the last indexes that we're appending.
+          const selectedShapeIndexes = [];
+          for (let i = 1; i <= copiedShapes.length; i++) {
+            selectedShapeIndexes.push(this.state.shapes.length - 1 + i);
+          }
+
+          // Create a new selection area.
+          currentShape = {
+            type: MODE.SELECT,
+            linewidth: LINEWIDTH.SMALL,
+            color: DEFAULT_STROKE_COLOR_DARKMODE,
+            points: createSelectionAreaAroundShapes(copiedShapes),
+          };
+
+          // After pasting, select the new shapes and make sure to go into
+          // select mode.
+          this.setState({
+            mode: MODE.SELECT,
+            currentShape,
+            selectedShapeIndexes,
+            shapes: this.state.shapes.concat(copiedShapes),
+            history: [
+              ...this.state.history,
+              {
+                type: 'draw',
+                shapes: copiedShapes,
+              },
+            ],
+          });
         }
         break;
 
@@ -250,6 +333,7 @@ class Paper extends React.Component {
     const entry = this.state.history.slice(-1).shift();
     if (entry) {
       const newState = {
+        ...this.removeSelectionAreaState,
         history: this.state.history.slice(0, -1),
         undoHistory: this.state.undoHistory.concat(entry),
         shapes: [...this.state.shapes],
@@ -257,12 +341,22 @@ class Paper extends React.Component {
 
       switch (entry.type) {
         case 'draw':
-          newState.shapes.splice(-1);
+          // Remove the entry its shapes.
+          newState.shapes.splice(-entry.shapes.length);
           break;
 
         case 'erase':
+          // Re-insert the shapes.
           Object.keys(entry.shapes).forEach((index) => {
             newState.shapes.splice(index, 0, entry.shapes[index]);
+          });
+          break;
+
+        case 'move':
+          // Move the shapes back to the their starting position.
+          entry.shapeIndexes.forEach((shapeIndex) => {
+            const shape = newState.shapes[shapeIndex];
+            newState.shapes[shapeIndex] = shiftShapePoints(shape, -entry.diff.x, -entry.diff.y);
           });
           break;
 
@@ -278,6 +372,7 @@ class Paper extends React.Component {
     const entry = this.state.undoHistory.slice(-1).shift();
     if (entry) {
       const newState = {
+        ...this.removeSelectionAreaState,
         undoHistory: this.state.undoHistory.slice(0, -1),
         history: this.state.history.concat(entry),
         shapes: [...this.state.shapes],
@@ -285,7 +380,8 @@ class Paper extends React.Component {
 
       switch (entry.type) {
         case 'draw':
-          newState.shapes.push(entry.shape);
+          // Re-insert the shapes.
+          newState.shapes.push(...entry.shapes);
           break;
 
         case 'erase':
@@ -294,6 +390,14 @@ class Paper extends React.Component {
           for (let i = indexes.length - 1; i >= 0; i--) {
             newState.shapes.splice(indexes[i], 1);
           }
+          break;
+
+        case 'move':
+          // Move the shapes back to the their ending position.
+          entry.shapeIndexes.forEach((shapeIndex) => {
+            const shape = newState.shapes[shapeIndex];
+            newState.shapes[shapeIndex] = shiftShapePoints(shape, entry.diff.x, entry.diff.y);
+          });
           break;
 
         default:
@@ -316,21 +420,21 @@ class Paper extends React.Component {
     }
   };
 
-  getEventXY(event) {
+  getEventXY = (event) => {
     // Check for touch events first
     if (typeof event.changedTouches !== 'undefined') {
       return [event.changedTouches[0].pageX, event.changedTouches[0].pageY];
     }
 
     return [event.pageX, event.pageY];
-  }
+  };
 
   /**
    * Convert a non-freehand shape containing x/y coordinates to a shape made out
    * of shapes.
    */
   convertShape = (shape) => {
-    if (shape.type === MODE.FREEHAND) return shape;
+    if ([MODE.FREEHAND, MODE.SELECT].includes(shape.type)) return shape;
 
     const newShape = {
       ...shape,
@@ -350,9 +454,7 @@ class Paper extends React.Component {
         const height = Math.abs(y2 - y1);
         const radius = Math.round(Math.max(width, height) / 2);
 
-        // Do 361 degrees to make sure the 0-degrees and 360 degrees point are
-        // connected properly.
-        for (let angle = 0; angle < 361; angle++) {
+        for (let angle = 0; angle <= 360; angle++) {
           // Convert the angle to radians.
           const theta = (angle * Math.PI) / 180;
 
@@ -367,33 +469,7 @@ class Paper extends React.Component {
       }
 
       case MODE.RECTANGLE: {
-        const height = Math.abs(y2 - y1);
-        const width = Math.abs(x2 - x1);
-
-        // convert the 4 sides to shapes
-
-        // top left to top right
-        const topBar = Array(width)
-          .fill(Math.min(x1, x2))
-          .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
-
-        // top right to right bottom
-        const rightBar = Array(height)
-          .fill(Math.min(y1, y2))
-          .map((value, index) => ({ x: Math.max(x1, x2), y: value + index }));
-
-        // right bottom to left bottom
-        const bottomBar = Array(width)
-          .fill(Math.max(x1, x2))
-          .map((value, index) => ({ x: value - index, y: Math.max(y1, y2) }));
-
-        // left bottom to left top
-        const leftBar = Array(height)
-          .fill(Math.max(y1, y2))
-          .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
-
-        newShape.points = removeDuplicates([...topBar, ...rightBar, ...bottomBar, ...leftBar]);
-
+        newShape.points = createRectangularShapePoints(x1, y1, x2, y2);
         break;
       }
 
@@ -405,7 +481,7 @@ class Paper extends React.Component {
           ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
 
         // The length of the lines of the arrow head.
-        const arrowHeadLength = 30 + shape.linewidth;
+        const arrowHeadLength = (30 + shape.linewidth) / this.state.scale;
 
         const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
           shape.x2,
@@ -432,7 +508,6 @@ class Paper extends React.Component {
       }
 
       default:
-        console.error('Unknown shape:', shape);
         break;
     }
 
@@ -443,16 +518,51 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
-      this.setState({
-        isErasing: true,
-        history: [
-          ...this.state.history,
-          {
-            type: 'erase',
-            shapes: {},
+      this.setState({ isErasing: true });
+    } else if (this.isSelectMode()) {
+      const [cursorX, cursorY] = this.getEventXY(event);
+
+      // If the user clicks has selected some shapes and clicked (and holds)
+      // inside the selection area, the user is intending to move the shapes.
+      const userWillMoveShape =
+        Array.isArray(this.state.currentShape.points) &&
+        isPointInsideShape(this.state.currentShape.points, [
+          this.toTrueX(cursorX),
+          this.toTrueY(cursorY),
+        ]);
+
+      if (userWillMoveShape) {
+        this.setState({
+          isMovingSelection: true,
+          history: [
+            ...this.state.history,
+            {
+              type: 'move',
+              shapeIndexes: this.state.selectedShapeIndexes,
+              startPos: { x: cursorX, y: cursorY },
+              endPos: {},
+              diff: {},
+            },
+          ],
+        });
+      } else {
+        // If the user has drawn a selection, but clicks outside of it, we want to
+        // draw a new selection area.
+        this.setState({
+          isSelecting: true,
+          currentShape: {
+            type: MODE.SELECT,
+            linewidth: LINEWIDTH.SMALL,
+            color: DEFAULT_STROKE_COLOR_LIGHTMODE,
+            points: [
+              {
+                x: this.toTrueX(cursorX),
+                y: this.toTrueY(cursorY),
+              },
+            ],
           },
-        ],
-      });
+        });
+      }
     } else if (this.isDrawMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
 
@@ -463,7 +573,7 @@ class Paper extends React.Component {
         undoHistory: [],
         currentShape: {
           type: this.state.mode,
-          linewidth: this.state.linewidth,
+          linewidth: this.state.linewidth / this.state.scale,
           color: this.state.selectedColor,
         },
       };
@@ -505,15 +615,15 @@ class Paper extends React.Component {
       history: [...this.state.history],
     };
 
-    const translateX = cursorX - this.state.prevCursorX;
-    const translateY = cursorY - this.state.prevCursorY;
-    const diff = Math.abs(translateX + translateY);
+    const diffX = cursorX - this.state.prevCursorX;
+    const diffY = cursorY - this.state.prevCursorY;
+    const diff = Math.abs(diffX + diffY);
 
     if (this.isPanning()) {
       this.setState({
         ...newState,
-        translateX: this.state.translateX + translateX,
-        translateY: this.state.translateY + translateY,
+        translateX: this.state.translateX + diffX,
+        translateY: this.state.translateY + diffY,
       });
       return;
     }
@@ -528,14 +638,22 @@ class Paper extends React.Component {
       if (this.isErasing()) {
         const cx = this.toTrueX(cursorX);
         const cy = this.toTrueY(cursorY);
-        newState.shapes = this.state.shapes.filter((shape, index) => {
+        newState.shapes = this.state.shapes.filter((shape, shapeIndex) => {
           for (let i = 0; i < shape.points.length; i++) {
             const point = shape.points[i];
             const { x, y } = point;
             const distance = Math.hypot(cx - x, cy - y);
             const insideEraser = distance <= this.state.eraserSize;
             if (insideEraser) {
-              newState.history[newState.history.length - 1].shapes[index] = point;
+              // Add it to the history
+              if (newState.history[newState.history.length - 1].type !== 'erase') {
+                newState.history.push({
+                  type: 'erase',
+                  shapes: [],
+                });
+              }
+              newState.history[newState.history.length - 1].shapes[shapeIndex] = shape;
+
               return false;
             }
           }
@@ -543,8 +661,27 @@ class Paper extends React.Component {
         });
       }
 
-      if (this.isDrawing()) {
+      // When the user is moving the selected shape, we should update each
+      // selected shape its x,y values while dragging around.
+      if (this.state.isMovingSelection) {
+        const scaledDiffX = diffX / this.state.scale;
+        const scaledDiffY = diffY / this.state.scale;
+        this.setState({
+          ...newState,
+          currentShape: shiftShapePoints(this.state.currentShape, scaledDiffX, scaledDiffY),
+          shapes: this.state.shapes.map((shape, index) => ({
+            ...shape,
+            points: this.state.selectedShapeIndexes.includes(index)
+              ? shiftPoints(shape.points, scaledDiffX, scaledDiffY)
+              : shape.points,
+          })),
+        });
+        return;
+      }
+
+      if (this.isDrawing() || this.isSelecting()) {
         switch (this.state.mode) {
+          case MODE.SELECT:
           case MODE.FREEHAND: {
             // Get the angle between the most recent shapes in order to know in which
             // direction the user is drawing.
@@ -608,11 +745,66 @@ class Paper extends React.Component {
     this.setState(newState);
   };
 
-  canvasMouseUpHandler = () => {
+  canvasMouseUpHandler = (event) => {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
+    } else if (this.isSelectMode()) {
+      const [cursorX, cursorY] = this.getEventXY(event);
+
+      // Check if the user was moving.
+      if (this.state.isMovingSelection) {
+        // Update the end position in the history log. If the user wants to
+        // undo, we know where we came from.
+        const lastHistoryItem = { ...this.state.history[this.state.history.length - 1] };
+        lastHistoryItem.endPos = { x: cursorX, y: cursorY };
+        lastHistoryItem.diff = {
+          x: cursorX - lastHistoryItem.startPos.x,
+          y: cursorY - lastHistoryItem.startPos.y,
+        };
+
+        this.setState({
+          isMovingSelection: false,
+          history: this.state.history.slice(0, -1).concat(lastHistoryItem),
+        });
+      } else {
+        // Otherwise, we should finish the selection shape.
+        const firstPoint = this.state.currentShape.points[0];
+        const lastPoint = this.state.currentShape.points[this.state.currentShape.points.length - 1];
+
+        // Automatically connect the last point with the first point.
+        const currentShape = {
+          ...this.state.currentShape,
+          points: [
+            ...this.state.currentShape.points,
+            ...createLine(
+              [lastPoint.x, lastPoint.y],
+              [firstPoint.x, firstPoint.y],
+              this.state.scale,
+            ),
+          ],
+        };
+
+        // Find the shapes that are fully inside the selection area.
+        const selectedShapeIndexes = [];
+        this.state.shapes.forEach((shape, index) => {
+          for (let i = 0; i < shape.points.length; i++) {
+            const point = shape.points[i];
+            if (!isPointInsideShape(currentShape.points, [point.x, point.y])) {
+              return false;
+            }
+          }
+
+          selectedShapeIndexes.push(index);
+        });
+
+        this.setState({
+          isSelecting: false,
+          currentShape: selectedShapeIndexes.length > 0 ? currentShape : {},
+          selectedShapeIndexes,
+        });
+      }
     } else if (this.isDrawMode()) {
       let newState = {
         isDrawing: false,
@@ -630,7 +822,7 @@ class Paper extends React.Component {
           ...this.state.history,
           {
             type: 'draw',
-            shape: currentShape,
+            shapes: [currentShape],
           },
         ];
       }
@@ -647,6 +839,10 @@ class Paper extends React.Component {
     return this.isDrawMode() && this.state.isDrawing;
   };
 
+  isSelecting = () => {
+    return this.isSelectMode() && this.state.isSelecting;
+  };
+
   isEraseMode = () => {
     return this.state.mode === MODE.ERASE;
   };
@@ -657,6 +853,10 @@ class Paper extends React.Component {
 
   isPanMode = () => {
     return this.state.mode === MODE.PAN;
+  };
+
+  isSelectMode = () => {
+    return this.state.mode === MODE.SELECT;
   };
 
   isPanning = () => {
@@ -672,6 +872,19 @@ class Paper extends React.Component {
   };
 
   selectColorHandler = (color) => {
+    // If the user did select any shapes, we want to change the color of those
+    // shapes and redraw the elements.
+    if (this.state.selectedShapeIndexes.length > 0) {
+      this.setState({
+        shapes: this.state.shapes.map((shape, index) => ({
+          ...shape,
+          color: this.state.selectedShapeIndexes.includes(index) ? color : shape.color,
+        })),
+      });
+      return;
+    }
+
+    // Otherwise, simply set the main color to be used for drawing.
     this.setState({ selectedColor: color });
   };
 
@@ -705,7 +918,7 @@ class Paper extends React.Component {
     });
   };
 
-  createShapeElement(shape, simplifyPointsTolerance) {
+  createShapeElement = (shape, simplifyPointsTolerance) => {
     let strokeColor = shape.color;
     if ([DEFAULT_STROKE_COLOR_DARKMODE, DEFAULT_STROKE_COLOR_LIGHTMODE].includes(strokeColor)) {
       strokeColor = this.props.isDarkMode
@@ -722,10 +935,20 @@ class Paper extends React.Component {
         strokeLinecap="round"
         strokeLinejoin="round"
         stroke={strokeColor}
-        strokeWidth={shape.linewidth}
+        strokeWidth={
+          shape.type === MODE.SELECT ? shape.linewidth / this.state.scale : shape.linewidth
+        }
+        strokeDasharray={
+          shape.type === MODE.SELECT
+            ? [10 / this.state.scale, 10 / this.state.scale].join(',')
+            : null
+        }
+        className={classNames({
+          [styles['path--select-shape']]: shape.type === MODE.SELECT,
+        })}
       />
     );
-  }
+  };
 
   togglePanMode = () => {
     this.setMode(this.isPanMode() ? this.state.prevMode : MODE.PAN);
@@ -733,6 +956,10 @@ class Paper extends React.Component {
 
   toggleEraseMode = () => {
     this.setMode(this.isEraseMode() ? this.state.prevMode : MODE.ERASE);
+  };
+
+  toggleSelectMode = () => {
+    this.setMode(this.isSelectMode() ? this.state.prevMode : MODE.SELECT);
   };
 
   /**
@@ -767,6 +994,7 @@ class Paper extends React.Component {
     scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, preferredScale || this.state.scale * scale));
 
     this.setState({
+      ...this.removeSelectionAreaState,
       translateX,
       translateY,
       scale,
@@ -798,7 +1026,12 @@ class Paper extends React.Component {
     const translateX = this.state.translateX - (newX - currX);
     const translateY = this.state.translateY - (newY - currY);
 
-    this.setState({ translateX, translateY, scale });
+    this.setState({
+      ...this.removeSelectionAreaState,
+      translateX,
+      translateY,
+      scale,
+    });
   };
 
   canvasPinchStart = (event) => {
@@ -823,7 +1056,7 @@ class Paper extends React.Component {
     this.setState({ prevPinchDist: distance });
   };
 
-  canvasPinchEnd = (event) => {
+  canvasPinchEnd = (/* event */) => {
     this.setState({ prevPinchDist: 0 });
   };
 
@@ -866,6 +1099,7 @@ class Paper extends React.Component {
 
     if (this.props.readonly && this.svg.current) {
       const bbox = this.svg.current.getBBox();
+      const padding = 30;
 
       // This scenario happens in readonly modes where the canvasElements are
       // being drawn and then the next render ends up with a zero width/height,
@@ -880,7 +1114,9 @@ class Paper extends React.Component {
         this.setState({ forceUpdate: true });
       }
 
-      attrs.viewBox = `${bbox.x} ${bbox.y} ${Math.round(bbox.width)} ${Math.round(bbox.height)}`;
+      attrs.viewBox = `${bbox.x - padding} ${bbox.y - padding} ${Math.round(
+        bbox.width + padding * 2,
+      )} ${Math.round(bbox.height + padding * 2)}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
       attrs.onTouchStart = this.canvasTouchStartHandler;
@@ -935,6 +1171,12 @@ class Paper extends React.Component {
     this.props.dispatch(to({ name: 'library' }));
   };
 
+  getSelectedShapes = () => {
+    if (this.state.selectedShapeIndexes.length === 0) return [];
+
+    return this.state.shapes.filter((_, index) => this.state.selectedShapeIndexes.includes(index));
+  };
+
   // In order to memoize sub-components we need to define the
   // callbacks outside of the render function.
   onClickFreehandTool = () => this.setMode(MODE.FREEHAND);
@@ -942,6 +1184,7 @@ class Paper extends React.Component {
   onClickRectangleTool = () => this.setMode(MODE.RECTANGLE);
   onClickArrowTool = () => this.setMode(MODE.ARROW);
   onClickEraseTool = () => this.toggleEraseMode();
+  onClickSelectTool = () => this.toggleSelectMode();
   onClickPanTool = () => this.togglePanMode();
   onClickZoomToFit = () => this.zoomToFit();
   onClickUndoTool = () => this.undo();
@@ -974,19 +1217,26 @@ class Paper extends React.Component {
         </div>
 
         {this.renderCanvas()}
-        <Palette onSelectColor={this.selectColorHandler} selectedColor={this.state.selectedColor} />
+        <Palette
+          paperId={this.props.paper.id}
+          onSelectColor={this.selectColorHandler}
+          selectedColor={this.state.selectedColor}
+          selectedShapes={this.getSelectedShapes()}
+        />
         <Toolbar
           mode={this.state.mode}
           linewidth={this.state.linewidth}
           isDrawMode={this.isDrawMode()}
           isPanMode={this.isPanMode()}
           isEraseMode={this.isEraseMode()}
+          isSelectMode={this.isSelectMode()}
           onLinewidthChange={this.changeLinewidth}
           onClickFreehandTool={this.onClickFreehandTool}
           onClickEllipseTool={this.onClickEllipseTool}
           onClickRectangleTool={this.onClickRectangleTool}
           onClickArrowTool={this.onClickArrowTool}
           onClickEraseTool={this.onClickEraseTool}
+          onClickSelectTool={this.onClickSelectTool}
           onClickPanTool={this.onClickPanTool}
           onClickZoomToFit={this.onClickZoomToFit}
           onClickUndoTool={this.onClickUndoTool}

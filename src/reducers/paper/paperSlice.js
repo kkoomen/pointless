@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   paperId: null,
-  folderId: null,
 };
 
 const paperSlice = createSlice({

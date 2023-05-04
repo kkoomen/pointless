@@ -64,6 +64,10 @@ hr {
   font-size: 1.4rem;
 }
 
+.rc-tooltip-arrow {
+  margin: 0 !important;
+}
+
 .rc-tooltip-inner {
   border: 0;
   color: #000;

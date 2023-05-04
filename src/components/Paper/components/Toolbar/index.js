@@ -4,6 +4,7 @@ import { LINEWIDTH, MODE } from './../../constants';
 
 import { ReactComponent as PanIcon } from './../../../../assets/icons/move.svg';
 import { ReactComponent as EraserIcon } from './../../../../assets/icons/eraser.svg';
+import { ReactComponent as SelectIcon } from './../../../../assets/icons/select.svg';
 import { ReactComponent as MaximizeIcon } from './../../../../assets/icons/maximize.svg';
 import { ReactComponent as ZoomInIcon } from './../../../../assets/icons/zoom-in.svg';
 import { ReactComponent as ZoomOutIcon } from './../../../../assets/icons/zoom-out.svg';
@@ -169,6 +170,26 @@ function Toolbar(props) {
             })}
           >
             <EraserIcon />
+          </div>
+        </Tooltip>
+        <Tooltip
+          placement="top"
+          overlay={
+            <>
+              selection
+              <div className="kbd-shortcut">
+                <kbd>{ctrlOrMeta}</kbd> + <kbd>s</kbd>
+              </div>
+            </>
+          }
+        >
+          <div
+            onClick={props.onClickSelectTool}
+            className={classNames(styles['toolbar__item'], {
+              [styles['toolbar__item-active']]: props.isSelectMode,
+            })}
+          >
+            <SelectIcon />
           </div>
         </Tooltip>
         <Tooltip

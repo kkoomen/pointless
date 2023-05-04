@@ -54,9 +54,12 @@ we'll discuss it.
   - [x] Create ellipse shapes
   - [ ] Text
 - [x] Create folders
-- [x] Save/load state from file
+- [x] Local file state persistence
 - [x] Light/dark theme
 - [x] Basic touch support
+- [x] Select shapes
+  - [x] Change color of selected shapes
+  - [x] Copy/paste selected shapes
 
 # Prerequisites
 
