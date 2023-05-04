@@ -100,19 +100,21 @@ class ExportButton extends React.Component {
               {sanitizeFilename(this.props.paper.name)}.{this.state.exportType}
             </div>
           </div>
-          <div className="form-group">
-            <div className="form-label">Theme</div>
-            <div className="display-flex">
-              <FormSelect defaultValue={this.theme} onChange={this.updateTheme}>
-                <option value="dark">dark</option>
-                <option value="light">light</option>
-              </FormSelect>
+          {this.state.exportType !== 'svg' && (
+            <div className="form-group">
+              <div className="form-label">Theme</div>
+              <div className="display-flex">
+                <FormSelect defaultValue={this.theme} onChange={this.updateTheme}>
+                  <option value="dark">dark</option>
+                  <option value="light">light</option>
+                </FormSelect>
+              </div>
             </div>
-          </div>
+          )}
           <div className="form-group">
             <div className="form-label">Type</div>
             <div className="display-flex">
-              <FormSelect defaultValue={this.exportType} onChange={this.updateType}>
+              <FormSelect defaultValue={this.state.exportType} onChange={this.updateType}>
                 <option value="jpeg">jpeg</option>
                 <option value="png">png</option>
                 <option value="svg">svg</option>
