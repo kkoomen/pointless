@@ -324,7 +324,10 @@ class Paper extends React.Component {
   clearCanvas = () => {
     confirm('Are you sure you want to clear the canvas?').then((shouldClear) => {
       if (shouldClear) {
-        this.setState(getInitialState(this.props.isDarkMode));
+        this.setState({
+          ...getInitialState(this.props.isDarkMode),
+          linewidth: this.state.linewidth,
+        });
       }
     });
   };
@@ -346,10 +349,10 @@ class Paper extends React.Component {
           break;
 
         case 'erase':
-          // Re-insert the shapes.
-          Object.keys(entry.shapes).forEach((index) => {
-            newState.shapes.splice(index, 0, entry.shapes[index]);
-          });
+          // Re-insert the shapes, starting from the back.
+          for (let i = entry.shapes.length - 1; i >= 0; i--) {
+            newState.shapes.splice(entry.shapes[i].index, 0, entry.shapes[i].shape);
+          }
           break;
 
         case 'move':
@@ -385,11 +388,10 @@ class Paper extends React.Component {
           break;
 
         case 'erase':
-          // Remove the shapes again but start from the end of the shapes array.
-          const indexes = Object.keys(entry.shapes);
-          for (let i = indexes.length - 1; i >= 0; i--) {
-            newState.shapes.splice(indexes[i], 1);
-          }
+          // Remove the shapes again.
+          entry.shapes.forEach((obj) => {
+            newState.shapes.splice(obj.index, 1);
+          });
           break;
 
         case 'move':
@@ -518,7 +520,16 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
     } else if (this.isEraseMode()) {
-      this.setState({ isErasing: true });
+      this.setState({
+        isErasing: true,
+
+        // Prepare a history object, which will be removed on mouseUp if
+        // remained empty.
+        history: this.state.history.concat({
+          type: 'erase',
+          shapes: [],
+        }),
+      });
     } else if (this.isSelectMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
 
@@ -645,14 +656,11 @@ class Paper extends React.Component {
             const distance = Math.hypot(cx - x, cy - y);
             const insideEraser = distance <= this.state.eraserSize;
             if (insideEraser) {
-              // Add it to the history
-              if (newState.history[newState.history.length - 1].type !== 'erase') {
-                newState.history.push({
-                  type: 'erase',
-                  shapes: [],
-                });
-              }
-              newState.history[newState.history.length - 1].shapes[shapeIndex] = shape;
+              // Add it to the history.
+              newState.history[newState.history.length - 1].shapes.push({
+                index: shapeIndex,
+                shape,
+              });
 
               return false;
             }
@@ -749,7 +757,14 @@ class Paper extends React.Component {
     if (this.isPanMode()) {
       this.setState({ isPanning: false });
     } else if (this.isEraseMode()) {
-      this.setState({ isErasing: false });
+      // No shapes got removed, so remove the unused history item.
+      let history = this.state.history;
+      const lastHistoryItem = this.state.history[this.state.history.length - 1];
+      if (lastHistoryItem.shapes.length === 0) {
+        history = history.slice(0, -1);
+      }
+
+      this.setState({ isErasing: false, history });
     } else if (this.isSelectMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
 
