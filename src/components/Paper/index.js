@@ -1099,6 +1099,7 @@ class Paper extends React.Component {
 
     if (this.props.readonly && this.svg.current) {
       const bbox = this.svg.current.getBBox();
+      const padding = 30;
 
       // This scenario happens in readonly modes where the canvasElements are
       // being drawn and then the next render ends up with a zero width/height,
@@ -1113,7 +1114,9 @@ class Paper extends React.Component {
         this.setState({ forceUpdate: true });
       }
 
-      attrs.viewBox = `${bbox.x} ${bbox.y} ${Math.round(bbox.width)} ${Math.round(bbox.height)}`;
+      attrs.viewBox = `${bbox.x - padding} ${bbox.y - padding} ${Math.round(
+        bbox.width + padding * 2,
+      )} ${Math.round(bbox.height + padding * 2)}`;
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
       attrs.onTouchStart = this.canvasTouchStartHandler;
