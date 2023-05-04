@@ -87,6 +87,14 @@
   color: #fd5865;
 }
 
+.path--select-shape:hover {
+  cursor: grab;
+}
+
+.path--select-shape:active {
+  cursor: grabbing;
+}
+
 @media (prefers-color-scheme: dark) {
   .back-button__container svg {
     fill: #fff;

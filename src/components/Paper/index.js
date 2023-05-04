@@ -29,7 +29,7 @@ import {
   SCALE_BY,
   SCALE_FACTOR,
 } from './constants';
-import { createLine, getSmoothPath, rotateAroundPoint } from './helpers';
+import { createLine, getSmoothPath, isPointInsideShape, rotateAroundPoint } from './helpers';
 import styles from './styles.module.css';
 import { Animate } from 'react-move';
 import { easePolyOut } from 'd3-ease';
@@ -41,6 +41,7 @@ const getInitialState = (isDarkMode, args) => ({
   linewidth: LINEWIDTH.SMALL,
   mode: MODE.FREEHAND,
   eraserSize: ERASER_SIZE,
+  selectedShapeIndexes: [],
   prevMode: null,
   cursorX: 0,
   cursorY: 0,
@@ -53,6 +54,7 @@ const getInitialState = (isDarkMode, args) => ({
   isPanning: false,
   isErasing: false,
   isSelecting: false,
+  isMovingSelection: false,
   translateX: 0,
   translateY: 0,
   forceUpdate: false,
@@ -113,6 +115,7 @@ class Paper extends React.Component {
       (total, shape) => total + shape.points.length,
       0,
     );
+
     if (prevTotalShapes !== totalShapes) {
       this.setState({
         librarySynced: false,
@@ -127,9 +130,13 @@ class Paper extends React.Component {
       );
     }
 
-    // Remove the select shape when leaving select mode.
+    // Remove the select shape when leaving select mode and reset all settings.
     if (!this.isSelectMode() && prevState.mode === MODE.SELECT) {
-      this.setState({ currentShape: {} });
+      this.setState({
+        currentShape: {},
+        selectedShapeIndexes: [],
+        isMovingSelection: false,
+      });
     }
 
     // Change the selected color if the user changes theme.
@@ -459,20 +466,35 @@ class Paper extends React.Component {
       this.setState({ isErasing: true });
     } else if (this.isSelectMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
-      this.setState({
-        isSelecting: true,
-        currentShape: {
-          type: MODE.SELECT,
-          linewidth: LINEWIDTH.SMALL,
-          color: DEFAULT_STROKE_COLOR_LIGHTMODE,
-          points: [
-            {
-              x: this.toTrueX(cursorX),
-              y: this.toTrueY(cursorY),
-            },
-          ],
-        },
-      });
+
+      // If the user clicks has selected some shapes and clicked (and holds)
+      // inside the selection area, the user is intending to move the shapes.
+      if (
+        Array.isArray(this.state.currentShape.points) &&
+        isPointInsideShape(this.state.currentShape.points, [
+          this.toTrueX(cursorX),
+          this.toTrueY(cursorY),
+        ])
+      ) {
+        this.setState({ isMovingSelection: true });
+      } else {
+        // If the user has drawn a selection, but clicks outside of it, we want to
+        // draw a new selection area.
+        this.setState({
+          isSelecting: true,
+          currentShape: {
+            type: MODE.SELECT,
+            linewidth: LINEWIDTH.SMALL,
+            color: DEFAULT_STROKE_COLOR_LIGHTMODE,
+            points: [
+              {
+                x: this.toTrueX(cursorX),
+                y: this.toTrueY(cursorY),
+              },
+            ],
+          },
+        });
+      }
     } else if (this.isDrawMode()) {
       const [cursorX, cursorY] = this.getEventXY(event);
 
@@ -525,15 +547,15 @@ class Paper extends React.Component {
       history: [...this.state.history],
     };
 
-    const translateX = cursorX - this.state.prevCursorX;
-    const translateY = cursorY - this.state.prevCursorY;
-    const diff = Math.abs(translateX + translateY);
+    const diffX = cursorX - this.state.prevCursorX;
+    const diffY = cursorY - this.state.prevCursorY;
+    const diff = Math.abs(diffX + diffY);
 
     if (this.isPanning()) {
       this.setState({
         ...newState,
-        translateX: this.state.translateX + translateX,
-        translateY: this.state.translateY + translateY,
+        translateX: this.state.translateX + diffX,
+        translateY: this.state.translateY + diffY,
       });
       return;
     }
@@ -561,6 +583,36 @@ class Paper extends React.Component {
           }
           return true;
         });
+      }
+
+      // When the user is moving the selected shape, we should update each
+      // selected shape its x,y values while dragging around.
+      if (this.state.isMovingSelection) {
+        this.setState(
+          {
+            ...newState,
+            currentShape: {
+              ...this.state.currentShape,
+              points: this.state.currentShape.points.map((point) => ({
+                x: point.x + diffX / this.state.scale,
+                y: point.y + diffY / this.state.scale,
+              })),
+            },
+            shapes: this.state.shapes.map((shape, index) => ({
+              ...shape,
+              points: this.state.selectedShapeIndexes.includes(index)
+                ? shape.points.map((point) => ({
+                    x: point.x + diffX / this.state.scale,
+                    y: point.y + diffY / this.state.scale,
+                  }))
+                : shape.points,
+            })),
+          },
+          () => {
+            this.drawCanvasElements();
+          },
+        );
+        return;
       }
 
       if (this.isDrawing() || this.isSelecting()) {
@@ -635,22 +687,42 @@ class Paper extends React.Component {
     } else if (this.isEraseMode()) {
       this.setState({ isErasing: false });
     } else if (this.isSelectMode()) {
-      const firstPoint = this.state.currentShape.points[0];
-      const lastPoint = this.state.currentShape.points[this.state.currentShape.points.length - 1];
+      // Check if the user was moving.
+      if (this.state.isMovingSelection) {
+        this.setState({ isMovingSelection: false });
+      } else {
+        // Otherwise, we should finish the selection shape.
+        const firstPoint = this.state.currentShape.points[0];
+        const lastPoint = this.state.currentShape.points[this.state.currentShape.points.length - 1];
 
-      // Automatically connect the last point with the first point.
-      const currentShape = {
-        ...this.state.currentShape,
-        points: [
-          ...this.state.currentShape.points,
-          ...createLine([lastPoint.x, lastPoint.y], [firstPoint.x, firstPoint.y]),
-        ],
-      };
+        // Automatically connect the last point with the first point.
+        const currentShape = {
+          ...this.state.currentShape,
+          points: [
+            ...this.state.currentShape.points,
+            ...createLine([lastPoint.x, lastPoint.y], [firstPoint.x, firstPoint.y]),
+          ],
+        };
 
-      this.setState({
-        isSelecting: false,
-        currentShape,
-      });
+        // Find the shapes that are fully inside the selection area.
+        const selectedShapeIndexes = [];
+        this.state.shapes.forEach((shape, index) => {
+          for (let i = 0; i < shape.points.length; i++) {
+            const point = shape.points[i];
+            if (!isPointInsideShape(currentShape.points, [point.x, point.y])) {
+              return false;
+            }
+          }
+
+          selectedShapeIndexes.push(index);
+        });
+
+        this.setState({
+          isSelecting: false,
+          currentShape: selectedShapeIndexes.length > 0 ? currentShape : {},
+          selectedShapeIndexes,
+        });
+      }
     } else if (this.isDrawMode()) {
       let newState = {
         isDrawing: false,
@@ -768,10 +840,14 @@ class Paper extends React.Component {
         strokeLinecap="round"
         strokeLinejoin="round"
         stroke={strokeColor}
-        strokeWidth={shape.linewidth}
-        strokeDasharray={shape.type === MODE.SELECT ? '10,10' : null}
+        strokeWidth={shape.linewidth / this.state.scale}
+        strokeDasharray={
+          shape.type === MODE.SELECT
+            ? [10 / this.state.scale, 10 / this.state.scale].join(',')
+            : null
+        }
         className={classNames({
-          [styles['path--select-shape']]: this.isSelectMode(),
+          [styles['path--select-shape']]: shape.type === MODE.SELECT,
         })}
       />
     );

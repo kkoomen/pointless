@@ -108,3 +108,34 @@ function perpendicularDistance(point, line) {
   const denominator = Math.sqrt(dy ** 2 + dx ** 2);
   return numerator / denominator;
 }
+
+/**
+ * Use the ray-casting algorithm to check if a point is within the boundaries of
+ * a given list of points.
+ *
+ * @param {array} points - The list of points representing a certain shape.
+ * @param {array} point - The point to check if it is inside.
+ * @returns {bool} true if the point is within the boundaries of points.
+ */
+export function isPointInsideShape(points, point) {
+  let intersections = 0;
+
+  // Iterate over each edge of the shape
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const xi = points[i].x;
+    const yi = points[i].y;
+    const xj = points[j].x;
+    const yj = points[j].y;
+
+    // Check if the edge intersects with a horizontal ray from the point
+    if (
+      yi > point[1] !== yj > point[1] &&
+      point[0] < ((xj - xi) * (point[1] - yi)) / (yj - yi) + xi
+    ) {
+      intersections++;
+    }
+  }
+
+  // If the number of intersections is odd, the point is inside the shape
+  return intersections % 2 === 1;
+}
