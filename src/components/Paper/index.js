@@ -569,14 +569,22 @@ class Paper extends React.Component {
       if (this.isErasing()) {
         const cx = this.toTrueX(cursorX);
         const cy = this.toTrueY(cursorY);
-        newState.shapes = this.state.shapes.filter((shape, index) => {
+        newState.shapes = this.state.shapes.filter((shape, shapeIndex) => {
           for (let i = 0; i < shape.points.length; i++) {
             const point = shape.points[i];
             const { x, y } = point;
             const distance = Math.hypot(cx - x, cy - y);
             const insideEraser = distance <= this.state.eraserSize;
             if (insideEraser) {
-              newState.history[newState.history.length - 1].shapes[index] = point;
+              // Add it to the history
+              if (newState.history[newState.history.length - 1].type !== 'erase') {
+                newState.history.push({
+                  type: 'erase',
+                  shapes: [],
+                });
+              }
+              newState.history[newState.history.length - 1].shapes[shapeIndex] = shape;
+
               return false;
             }
           }
