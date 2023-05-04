@@ -42,7 +42,7 @@ function Palette(props) {
 }
 
 Palette.propTypes = {
-  paperId: PropTypes.number,
+  paperId: PropTypes.string,
   onSelectColor: PropTypes.func,
   selectedColor: PropTypes.string,
   selectedShapes: PropTypes.array,
