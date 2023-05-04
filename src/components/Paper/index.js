@@ -1,8 +1,10 @@
 import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
+import { easePolyOut } from 'd3-ease';
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Animate } from 'react-move';
 import { connect } from 'react-redux';
 import { removeDuplicates } from '../../helpers';
 import { to } from '../../reducers/router/routerSlice';
@@ -31,8 +33,6 @@ import {
 } from './constants';
 import { createLine, getSmoothPath, isPointInsideShape, rotateAroundPoint } from './helpers';
 import styles from './styles.module.css';
-import { Animate } from 'react-move';
-import { easePolyOut } from 'd3-ease';
 
 const getInitialState = (isDarkMode, args) => ({
   userLastActiveAt: new Date().toISOString(),
@@ -387,8 +387,8 @@ class Paper extends React.Component {
       }
 
       case MODE.RECTANGLE: {
-        const height = Math.abs(y2 - y1);
-        const width = Math.abs(x2 - x1);
+        const height = Math.ceil(Math.abs(y2 - y1));
+        const width = Math.ceil(Math.abs(x2 - x1));
 
         // convert the 4 sides to shapes
 
@@ -425,7 +425,7 @@ class Paper extends React.Component {
           ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
 
         // The length of the lines of the arrow head.
-        const arrowHeadLength = 30 + shape.linewidth;
+        const arrowHeadLength = (30 + shape.linewidth) / this.state.scale;
 
         const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
           shape.x2,
@@ -452,7 +452,6 @@ class Paper extends React.Component {
       }
 
       default:
-        console.error('Unknown shape:', shape);
         break;
     }
 
@@ -505,7 +504,7 @@ class Paper extends React.Component {
         undoHistory: [],
         currentShape: {
           type: this.state.mode,
-          linewidth: this.state.linewidth,
+          linewidth: this.state.linewidth / this.state.scale,
           color: this.state.selectedColor,
         },
       };
@@ -700,7 +699,11 @@ class Paper extends React.Component {
           ...this.state.currentShape,
           points: [
             ...this.state.currentShape.points,
-            ...createLine([lastPoint.x, lastPoint.y], [firstPoint.x, firstPoint.y]),
+            ...createLine(
+              [lastPoint.x, lastPoint.y],
+              [firstPoint.x, firstPoint.y],
+              this.state.scale,
+            ),
           ],
         };
 
@@ -840,7 +843,9 @@ class Paper extends React.Component {
         strokeLinecap="round"
         strokeLinejoin="round"
         stroke={strokeColor}
-        strokeWidth={shape.linewidth / this.state.scale}
+        strokeWidth={
+          shape.type === MODE.SELECT ? shape.linewidth / this.state.scale : shape.linewidth
+        }
         strokeDasharray={
           shape.type === MODE.SELECT
             ? [10 / this.state.scale, 10 / this.state.scale].join(',')

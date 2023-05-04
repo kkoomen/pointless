@@ -28,12 +28,12 @@ export function rotateAroundPoint(cx, cy, x, y, angle) {
  * @param {array} p2 - The [x,y] coordinates of point 2
  * @returns {array} The array of points representing the line from p1 to p2.
  */
-export function createLine(p1, p2) {
+export function createLine(p1, p2, scale = 1) {
   const [x1, y1] = p1;
   const [x2, y2] = p2;
   const dx = x2 - x1;
   const dy = y2 - y1;
-  const numPoints = Math.max(Math.abs(dx), Math.abs(dy));
+  const numPoints = Math.max(Math.abs(dx), Math.abs(dy)) * scale;
   const stepX = dx / numPoints;
   const stepY = dy / numPoints;
   const linePoints = [];
