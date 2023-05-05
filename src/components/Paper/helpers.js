@@ -116,7 +116,7 @@ function perpendicularDistance(point, line) {
  *
  * @param {array} points - The list of points representing a certain shape.
  * @param {array} point - The point to check if it is inside.
- * @returns {bool} true if the point is within the boundaries of points.
+ * @returns {boolean} true if the point is within the boundaries of points.
  */
 export function isPointInsideShape(points, point) {
   let intersections = 0;
@@ -186,33 +186,45 @@ export function shiftShapePoints(shape, xOffset, yOffset = null) {
  * @param {number} y2 - The top-left y-coorindate.
  * @param {number} x2 - The bottom-right x-coordinate.
  * @param {number} y2 - The bottom-right y-coordinate.
+ * @param {boolean} preserveAspectRatio - Whether it should always be a square.
  * @returns {object[]} List of points
  */
-export function createRectangularShapePoints(x1, y1, x2, y2) {
-  const height = Math.ceil(Math.abs(y2 - y1));
-  const width = Math.ceil(Math.abs(x2 - x1));
+export function createRectangularShapePoints(x1, y1, x2, y2, preserveAspectRatio = false) {
+  let height = Math.ceil(Math.abs(y2 - y1));
+  let width = Math.ceil(Math.abs(x2 - x1));
+
+  if (preserveAspectRatio) {
+    const maxVal = Math.max(height, width);
+    height = width = maxVal;
+    x2 = x2 > x1 ? x1 + width : x1 - width;
+    y2 = y2 > y1 ? y1 + height : y1 - height;
+  }
 
   // convert the 4 sides to shapes
+  let topBar, rightBar, bottomBar, leftBar;
 
   // top left to top right
-  const topBar = Array(width)
+  topBar = Array(width)
     .fill(Math.min(x1, x2))
     .map((value, index) => ({ x: value + index, y: Math.min(y1, y2) }));
 
   // top right to right bottom
-  const rightBar = Array(height)
+  rightBar = Array(height)
     .fill(Math.min(y1, y2))
     .map((value, index) => ({ x: Math.max(x1, x2), y: value + index }));
 
   // right bottom to left bottom
-  const bottomBar = Array(width)
+  bottomBar = Array(width)
     .fill(Math.max(x1, x2))
     .map((value, index) => ({ x: value - index, y: Math.max(y1, y2) }));
 
   // left bottom to left top
-  const leftBar = Array(height)
+  leftBar = Array(height)
     .fill(Math.max(y1, y2))
     .map((value, index) => ({ x: Math.min(x1, x2), y: value - index }));
+
+  if (preserveAspectRatio) {
+  }
 
   return removeDuplicates([...topBar, ...rightBar, ...bottomBar, ...leftBar]);
 }
