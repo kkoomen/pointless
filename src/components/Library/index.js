@@ -193,7 +193,6 @@ class Library extends React.Component {
 }
 
 function mapStateToProps(state) {
-  console.log('state.settings >>>>', state.settings);
   return {
     library: state.library,
     appVersion: state.settings.appVersion,

@@ -105,6 +105,8 @@ hr {
   font-weight: bold;
   font-size: 1rem;
   text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
   color: #888;
 }
 

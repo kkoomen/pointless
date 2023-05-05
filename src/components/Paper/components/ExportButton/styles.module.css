@@ -1,3 +1,12 @@
+.revert-filename-changes:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.revert-filename-changes {
+  color: black;
+}
+
 .export-icon:hover {
   cursor: pointer;
 }

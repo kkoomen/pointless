@@ -78,6 +78,10 @@ class ExportButton extends React.Component {
     });
   };
 
+  revertFilenameBackToOriginal = () => {
+    this.setState({ filename: this.props.paper.name });
+  };
+
   getFilename = () => {
     return `${sanitizeFilename(this.state.filename)}.${this.state.exportType}`;
   };
@@ -87,7 +91,17 @@ class ExportButton extends React.Component {
       return 'Filename';
     }
 
-    return 'Filename (edited)';
+    return (
+      <>
+        <span>Filename (edited)</span>
+        <span
+          className={styles['revert-filename-changes']}
+          onClick={this.revertFilenameBackToOriginal}
+        >
+          revert
+        </span>
+      </>
+    );
   };
 
   render() {
