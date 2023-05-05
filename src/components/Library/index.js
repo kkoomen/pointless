@@ -1,13 +1,13 @@
+import classNames from 'classnames';
+import dayjs from 'dayjs';
 import React from 'react';
 import { connect } from 'react-redux';
-import styles from './styles.module.css';
-import { newPaperInFolder, newFolder } from './../../reducers/library/librarySlice';
+import { newFolder, newPaperInFolder } from './../../reducers/library/librarySlice';
 import { setCurrentPaper } from './../../reducers/paper/paperSlice';
 import { to } from './../../reducers/router/routerSlice';
 import FolderListItem from './components/FolderListItem';
-import classNames from 'classnames';
 import PaperListItem from './components/PaperListItem';
-import dayjs from 'dayjs';
+import styles from './styles.module.css';
 
 class Library extends React.Component {
   state = {
@@ -29,19 +29,15 @@ class Library extends React.Component {
     const { folders } = this.props.library;
     if (folders.length === 0) return null;
 
-    return (
-      <div className={styles['folders-list__container']}>
-        {folders.map((folder) => (
-          <FolderListItem
-            key={folder.id}
-            folder={folder}
-            isActive={folder.id === this.state.currentFolderId}
-            onClick={() => this.setCurrentFolder(folder.id)}
-            onDelete={() => this.setCurrentFolder(null)}
-          />
-        ))}
-      </div>
-    );
+    return folders.map((folder) => (
+      <FolderListItem
+        key={folder.id}
+        folder={folder}
+        isActive={folder.id === this.state.currentFolderId}
+        onClick={() => this.setCurrentFolder(folder.id)}
+        onDelete={() => this.setCurrentFolder(null)}
+      />
+    ));
   };
 
   openPaper = (paperId) => {
@@ -157,6 +153,12 @@ class Library extends React.Component {
     );
   };
 
+  renderVersion = () => {
+    if (!this.props.appVersion) return null;
+
+    return <div className={styles['app-version']}>Pointless v{this.props.appVersion}</div>;
+  };
+
   render() {
     return (
       <div className={styles['library__container']}>
@@ -167,7 +169,8 @@ class Library extends React.Component {
               new folder
             </button>
           </div>
-          {this.renderFolders()}
+          <div className={styles['folders-list__container']}>{this.renderFolders()}</div>
+          {this.renderVersion()}
         </div>
 
         <div
@@ -190,8 +193,10 @@ class Library extends React.Component {
 }
 
 function mapStateToProps(state) {
+  console.log('state.settings >>>>', state.settings);
   return {
     library: state.library,
+    appVersion: state.settings.appVersion,
   };
 }
 
