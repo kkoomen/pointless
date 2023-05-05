@@ -1,7 +1,9 @@
+import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import InlineEdit from '../../../InlineEdit';
 import { ReactComponent as FolderIcon } from './../../../../assets/icons/folder.svg';
+import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
 import {
   deleteFolder,
   loadFolderContents,
@@ -9,9 +11,6 @@ import {
 } from './../../../../reducers/library/librarySlice';
 import { store } from './../../../../store';
 import styles from './styles.module.css';
-import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
-import { confirm } from '@tauri-apps/api/dialog';
-import { useState } from 'react';
 
 function FolderListItem(props) {
   const onEditDone = (name) => {
