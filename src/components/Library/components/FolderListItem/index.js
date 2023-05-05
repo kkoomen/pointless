@@ -1,12 +1,16 @@
+import { confirm } from '@tauri-apps/api/dialog';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import InlineEdit from '../../../InlineEdit';
 import { ReactComponent as FolderIcon } from './../../../../assets/icons/folder.svg';
-import { deleteFolder, updateFolderName } from './../../../../reducers/library/librarySlice';
+import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
+import {
+  deleteFolder,
+  loadFolderContents,
+  updateFolderName,
+} from './../../../../reducers/library/librarySlice';
 import { store } from './../../../../store';
 import styles from './styles.module.css';
-import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
-import { confirm } from '@tauri-apps/api/dialog';
 
 function FolderListItem(props) {
   const onEditDone = (name) => {
@@ -21,6 +25,8 @@ function FolderListItem(props) {
   const onClick = (e) => {
     // Do not trigger the onClick when we click on a button.
     if (e.target.nodeName === 'BUTTON') return false;
+
+    store.dispatch(loadFolderContents(props.folder.id));
 
     props.onClick();
   };

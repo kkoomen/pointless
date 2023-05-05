@@ -14,7 +14,6 @@ const saveStateMiddleware = (store) => (next) => (action) => {
 
     // Auto-save the library for every library action.
     const whitelistedActions = [
-      'newPaperInFolder',
       'updateFolderName',
       'updatePaperName',
       'deleteFolder',

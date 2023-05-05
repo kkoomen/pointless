@@ -63,7 +63,7 @@ const librarySlice = createSlice({
         }
       }
     },
-    deleteFolder: (state, action) => {
+    deleteFolderFromState: (state, action) => {
       const folderId = action.payload;
 
       // Delete the folder itself.
@@ -72,24 +72,23 @@ const librarySlice = createSlice({
       // Delete all the corresponding papers.
       state.papers = state.papers.filter((paper) => paper.folderId !== folderId);
     },
-    deletePaper: (state, action) => {
+    deletePaperFromState: (state, action) => {
       const id = action.payload;
       state.papers = state.papers.filter((paper) => paper.id !== id);
     },
-    loadLibrary: (state, action) => {
-      if (action.payload) {
-        state.folders = action.payload.folders;
-        state.papers = action.payload.papers;
+    loadFolders: (state, action) => {
+      if (Array.isArray(action.payload)) {
+        state.folders = action.payload;
+      }
+    },
+    loadPapers: (state, action) => {
+      if (Array.isArray(action.payload)) {
+        state.papers = action.payload;
       }
     },
     saveLibrary: (state) => {
       invoke('save_library', { libraryState: JSON.stringify(state) });
     },
-
-    // TODO:
-    // exportFolder: (state, action) => {
-    //   const folderId = action.payload;
-    // }
   },
 });
 
@@ -109,16 +108,37 @@ export const exportPaper = (payload) => async (dispatch, getState) => {
   fn(paper, filename, payload);
 };
 
+export const loadFolderContents = (payload) => async (dispatch, getState) => {
+  const folderId = payload;
+  const papers = await invoke('load_library_folder_papers', { folderId });
+  dispatch(loadPapers(papers));
+};
+
+export const deleteFolder = (payload) => async (dispatch, getState) => {
+  const folderId = payload;
+  await invoke('delete_library_folder', { folderId });
+  dispatch(deleteFolderFromState(folderId));
+};
+
+export const deletePaper = (payload) => async (dispatch, getState) => {
+  const state = getState();
+  const paperId = payload;
+  const { folderId } = state.library.papers.find((paper) => paper.id === paperId);
+  await invoke('delete_library_paper', { folderId, paperId });
+  dispatch(deletePaperFromState(paperId));
+};
+
 export const {
   newFolder,
   newPaperInFolder,
   updateFolderName,
   updatePaperName,
   setPaperShapes,
-  deleteFolder,
-  deletePaper,
+  loadPapers,
+  deletePaperFromState,
+  deleteFolderFromState,
+  loadFolders,
   saveLibrary,
-  loadLibrary,
 } = librarySlice.actions;
 
 export default librarySlice.reducer;

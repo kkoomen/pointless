@@ -1160,9 +1160,12 @@ class Paper extends React.Component {
         this.setState({ forceUpdate: true });
       }
 
-      attrs.viewBox = `${bbox.x - padding} ${bbox.y - padding} ${Math.round(
-        bbox.width + padding * 2,
-      )} ${Math.round(bbox.height + padding * 2)}`;
+      attrs.viewBox = [
+        bbox.x - padding,
+        bbox.y - padding,
+        Math.round(bbox.width + padding * 2),
+        Math.round(bbox.height + padding * 2),
+      ].join(' ');
       attrs.preserveAspectRatio = 'xMidYMid meet';
     } else {
       attrs.onTouchStart = this.canvasTouchStartHandler;
