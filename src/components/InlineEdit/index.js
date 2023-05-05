@@ -85,7 +85,7 @@ class InlineEdit extends React.Component {
           defaultValue={this.props.defaultValue}
           onChange={this.onChange}
           onBlur={this.onBlur}
-          onKeyPress={this.onInputKeyPress}
+          onKeyUp={this.onInputKeyPress}
           maxLength={this.props.maxlength}
         />
       );

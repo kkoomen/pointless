@@ -10,6 +10,7 @@ import { ReactComponent as ExportIcon } from './../../../../assets/icons/export.
 import { sanitizeFilename } from './../../../../helpers';
 import styles from './styles.module.css';
 import classNames from 'classnames';
+import InlineEdit from '../../../InlineEdit';
 
 const ALLOWED_TYPES = ['jpeg', 'png', 'svg'];
 
@@ -23,6 +24,7 @@ class ExportButton extends React.Component {
       exportType: ALLOWED_TYPES[0],
       transparent: false,
       location: 'unknown',
+      filename: props.paper.name,
     };
 
     this.state = this.initialState;
@@ -41,6 +43,7 @@ class ExportButton extends React.Component {
       exportPaper({
         id: this.props.paper.id,
         theme: this.state.theme,
+        filename: this.getFilename(),
         exportType: this.state.exportType,
         transparent: this.state.transparent,
       }),
@@ -69,6 +72,24 @@ class ExportButton extends React.Component {
     });
   };
 
+  updateFilename = (filename) => {
+    this.setState({
+      filename: filename.replace(new RegExp(`(.(${ALLOWED_TYPES.join('|')}))+`, 'g'), ''),
+    });
+  };
+
+  getFilename = () => {
+    return `${sanitizeFilename(this.state.filename)}.${this.state.exportType}`;
+  };
+
+  getFilenameLabel = () => {
+    if (sanitizeFilename(this.state.filename) === sanitizeFilename(this.props.paper.name)) {
+      return 'Filename';
+    }
+
+    return 'Filename (edited)';
+  };
+
   render() {
     return (
       <>
@@ -95,9 +116,9 @@ class ExportButton extends React.Component {
             <div className="display-flex ellipsis">{this.state.location}</div>
           </div>
           <div className="form-group">
-            <div className="form-label">Name</div>
+            <div className="form-label">{this.getFilenameLabel()}</div>
             <div className="display-flex ellipsis">
-              {sanitizeFilename(this.props.paper.name)}.{this.state.exportType}
+              <InlineEdit defaultValue={this.getFilename()} onEditDone={this.updateFilename} />
             </div>
           </div>
           {this.state.exportType !== 'svg' && (

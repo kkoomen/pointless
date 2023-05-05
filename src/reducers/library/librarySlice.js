@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { invoke } from '@tauri-apps/api/tauri';
 import { v4 as uuidv4 } from 'uuid';
-import { sanitizeFilename } from '../../helpers';
 import { imageExport, svgExport } from '../../utils/paper-export';
 import { exists } from '@tauri-apps/api/fs';
 import { EXPORTS_DIR } from '../../constants';
@@ -96,10 +95,9 @@ const librarySlice = createSlice({
 
 export const exportPaper = (payload) => async (dispatch, getState) => {
   const state = getState();
-  const { id, exportType } = payload;
+  const { id, filename, exportType } = payload;
 
   const paper = state.library.papers.find((paper) => paper.id === id);
-  const filename = `${sanitizeFilename(paper.name)}.${exportType}`;
   const alreadyExists = await exists(`${filename}`, { dir: EXPORTS_DIR });
 
   if (alreadyExists) {
