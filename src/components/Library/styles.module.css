@@ -1,3 +1,10 @@
+.app-version {
+  color: #888;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 1.4rem;
+}
+
 .library__container {
   display: flex;
 }

@@ -19,6 +19,8 @@ export const KEY = {
   MINUS: 189,
   LEFT_SQUARE_BRACKET: 219,
   RIGHT_SQUARE_BRACKET: 221,
+  DELETE: 46,
+  BACKSPACE: 8,
 };
 
 export const BASE_DIR = BaseDirectory.App;

@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isDarkMode: window.matchMedia('(prefers-color-scheme: dark)'),
+  platform: null,
+  appVersion: null,
 };
 
 const settingsSlice = createSlice({
@@ -14,9 +16,12 @@ const settingsSlice = createSlice({
     setPlatform: (state, action) => {
       state.platform = action.payload;
     },
+    setAppVersion: (state, action) => {
+      state.appVersion = action.payload;
+    },
   },
 });
 
-export const { setDarkMode, setPlatform } = settingsSlice.actions;
+export const { setDarkMode, setPlatform, setAppVersion } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

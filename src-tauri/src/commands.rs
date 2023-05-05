@@ -19,7 +19,6 @@ async fn load_library(handle: AppHandle) -> Option<serde_json::Value> {
 #[tauri::command]
 async fn save_library(handle: AppHandle, library_state: String) {
     let library_config_file = config::get_library_filename_path(handle);
-    println!("Saving library");
     compress(&library_config_file, &library_state);
 }
 

@@ -276,6 +276,26 @@ class Paper extends React.Component {
         }
         break;
 
+      case KEY.BACKSPACE:
+      case KEY.DELETE:
+        if (this.hasSelectedShapes()) {
+          // Delete the selected shapes.
+          this.setState({
+            ...this.removeSelectionAreaState,
+            shapes: this.state.shapes.filter(
+              (_, index) => !this.state.selectedShapeIndexes.includes(index),
+            ),
+            history: this.state.history.concat({
+              type: 'delete',
+              shapes: this.state.selectedShapeIndexes.map((shapeIndex) => ({
+                index: shapeIndex,
+                shape: this.state.shapes[shapeIndex],
+              })),
+            }),
+          });
+        }
+        break;
+
       case KEY.SPACEBAR:
         if (!this.isPanMode()) {
           this.setMode(MODE.PAN);
@@ -348,6 +368,7 @@ class Paper extends React.Component {
           newState.shapes.splice(-entry.shapes.length);
           break;
 
+        case 'delete':
         case 'erase':
           // Re-insert the shapes, starting from the back.
           for (let i = entry.shapes.length - 1; i >= 0; i--) {
@@ -387,6 +408,7 @@ class Paper extends React.Component {
           newState.shapes.push(...entry.shapes);
           break;
 
+        case 'delete':
         case 'erase':
           // Remove the shapes again.
           entry.shapes.forEach((obj) => {
@@ -886,10 +908,19 @@ class Paper extends React.Component {
     return y / this.state.scale - this.state.translateY / this.state.scale;
   };
 
+  /**
+   * Check whether the user did select some actual shapes.
+   *
+   * @returns {bool} True when the user did select some shapes, false otherwise.
+   */
+  hasSelectedShapes = () => {
+    return this.state.selectedShapeIndexes.length > 0;
+  };
+
   selectColorHandler = (color) => {
     // If the user did select any shapes, we want to change the color of those
     // shapes and redraw the elements.
-    if (this.state.selectedShapeIndexes.length > 0) {
+    if (this.hasSelectedShapes()) {
       this.setState({
         shapes: this.state.shapes.map((shape, index) => ({
           ...shape,
@@ -1187,7 +1218,7 @@ class Paper extends React.Component {
   };
 
   getSelectedShapes = () => {
-    if (this.state.selectedShapeIndexes.length === 0) return [];
+    if (!this.hasSelectedShapes()) return [];
 
     return this.state.shapes.filter((_, index) => this.state.selectedShapeIndexes.includes(index));
   };
