@@ -493,7 +493,7 @@ class Paper extends React.Component {
       }
 
       case MODE.RECTANGLE: {
-        newShape.points = createRectangularShapePoints(x1, y1, x2, y2);
+        newShape.points = createRectangularShapePoints(x1, y1, x2, y2, shape.preserveAspectRatio);
         break;
       }
 
@@ -911,7 +911,7 @@ class Paper extends React.Component {
   /**
    * Check whether the user did select some actual shapes.
    *
-   * @returns {bool} True when the user did select some shapes, false otherwise.
+   * @returns {boolean} True when the user did select some shapes, false otherwise.
    */
   hasSelectedShapes = () => {
     return this.state.selectedShapeIndexes.length > 0;

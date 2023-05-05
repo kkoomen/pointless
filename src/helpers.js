@@ -32,7 +32,7 @@ export function ctrlOrMetaChar(platform) {
  *
  * @param {object} obj1 - The first object to compare.
  * @param {object} obj2 - The second object to compare.
- * @returns {bool} True if both object are exactly the same in key-values.
+ * @returns {boolean} True if both object are exactly the same in key-values.
  */
 export function isEqual(obj1, obj2) {
   if (obj1 === undefined && obj2 === undefined) {
