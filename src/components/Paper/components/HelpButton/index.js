@@ -158,6 +158,14 @@ export default function HelpButton() {
             <tr>
               <td>
                 <div className="kbd-shortcut">
+                  <kbd>Delete</kbd> or <kbd>Backspace</kbd>
+                </div>
+              </td>
+              <td>Delete selected shape</td>
+            </tr>
+            <tr>
+              <td>
+                <div className="kbd-shortcut">
                   <kbd>{ctrlOrMeta}</kbd> + <kbd>q</kbd>
                 </div>
               </td>
