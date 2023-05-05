@@ -6,15 +6,15 @@ import { Provider } from 'react-redux';
 import './assets/vendor/bootstrap/bootstrap-grid.min.css';
 import App from './components/App';
 import './index.css';
-import { loadLibrary } from './reducers/library/librarySlice';
+import { loadFolders } from './reducers/library/librarySlice';
 import { setAppVersion, setDarkMode, setPlatform } from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 import { getVersion } from '@tauri-apps/api/app';
 
-// Load the library state on load.
-invoke('load_library').then((libraryState) => {
-  store.dispatch(loadLibrary(libraryState));
+// Load the library folders.
+invoke('load_library_folders').then((folders) => {
+  store.dispatch(loadFolders(folders));
 });
 
 // Get the current app version.
