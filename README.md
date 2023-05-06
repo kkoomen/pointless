@@ -54,7 +54,7 @@ we'll discuss it.
   - [x] Create arrow shapes
   - [x] Create rectangle shapes
   - [x] Create ellipse shapes
-  - [x] Select shapes
+  - [x] Selection
     - [x] Move selected shapes
     - [x] Change color of selected shapes
     - [x] Copy/paste selected shapes
