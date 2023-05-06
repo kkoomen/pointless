@@ -166,6 +166,14 @@ export default function HelpButton() {
             <tr>
               <td>
                 <div className="kbd-shortcut">
+                  <kbd>Shift</kbd>
+                </div>
+              </td>
+              <td>Preserve aspect ratio while drawing shapes</td>
+            </tr>
+            <tr>
+              <td>
+                <div className="kbd-shortcut">
                   <kbd>{ctrlOrMeta}</kbd> + <kbd>q</kbd>
                 </div>
               </td>
