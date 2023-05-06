@@ -32,7 +32,7 @@ are saved with brotli-unicode compression to ensure small file sizes.
 :package: If you want to use the app, grab yourself a prebuild binary
 [here](https://github.com/kkoomen/pointless/releases/latest) and enjoy!
 
-Arch linux users can use the [pointless AUR package](https://aur.archlinux.org/packages/pointless).
+Arch linux users can use the pointless [AUR](https://aur.archlinux.org/packages/pointless) package.
 
 :handshake: Feel like contributing? Submit an issue with your ideas (or bugs) and
 we'll discuss it.
