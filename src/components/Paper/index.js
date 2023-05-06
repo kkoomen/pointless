@@ -476,15 +476,19 @@ class Paper extends React.Component {
         // Calculate the radius of the circle.
         const width = Math.abs(x2 - x1);
         const height = Math.abs(y2 - y1);
-        const radius = Math.round(Math.max(width, height) / 2);
+        let radiusX = width / 2;
+        let radiusY = height / 2;
+        if (shape.preserveAspectRatio) {
+          radiusX = radiusY = Math.max(radiusX, radiusY);
+        }
 
         for (let angle = 0; angle <= 360; angle++) {
           // Convert the angle to radians.
           const theta = (angle * Math.PI) / 180;
 
           // Calculate the Cartesian coordinates of the point.
-          const x = cx + radius * Math.cos(theta);
-          const y = cy + radius * Math.sin(theta);
+          const x = cx + radiusX * Math.cos(theta);
+          const y = cy + radiusY * Math.sin(theta);
 
           newShape.points.push({ x, y });
         }
@@ -498,27 +502,38 @@ class Paper extends React.Component {
       }
 
       case MODE.ARROW: {
+        let { x1, y1, x2, y2 } = shape;
+
+        if (shape.preserveAspectRatio) {
+          const width = Math.abs(x1 - x2);
+          const height = Math.abs(y1 - y2);
+          if (height < width) {
+            y2 = y1;
+          } else {
+            x2 = x1;
+          }
+        }
+
         // Calculate the angle for the arrow head based on the slope of the
         // middle line. We add 45 (degrees) at the end, in order to make angle
         // 45 degrees between the middle line and the arrow head line.
-        const angle =
-          ((Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1) * 180) / Math.PI) * -1 + 45;
+        const angle = ((Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI) * -1 + 45;
 
         // The length of the lines of the arrow head.
         const arrowHeadLength = (30 + shape.linewidth) / this.state.scale;
 
         const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
-          shape.x2,
-          shape.y2,
-          shape.x2,
-          shape.y2 - arrowHeadLength,
+          x2,
+          y2,
+          x2,
+          y2 - arrowHeadLength,
           angle,
         );
         const [arrowHeadRightX, arrowHeadRightY] = rotateAroundPoint(
-          shape.x2,
-          shape.y2,
-          shape.x2 - arrowHeadLength,
-          shape.y2,
+          x2,
+          y2,
+          x2 - arrowHeadLength,
+          y2,
           angle,
         );
 
