@@ -347,6 +347,7 @@ class Paper extends React.Component {
         this.setState({
           ...getInitialState(this.props.isDarkMode),
           linewidth: this.state.linewidth,
+          mode: this.state.mode,
         });
       }
     });
