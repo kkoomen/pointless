@@ -347,6 +347,7 @@ class Paper extends React.Component {
         this.setState({
           ...getInitialState(this.props.isDarkMode),
           linewidth: this.state.linewidth,
+          mode: this.state.mode,
         });
       }
     });
@@ -525,24 +526,33 @@ class Paper extends React.Component {
         const [arrowHeadLeftX, arrowHeadLeftY] = rotateAroundPoint(
           x2,
           y2,
-          x2,
-          y2 - arrowHeadLength,
+          x2 - arrowHeadLength,
+          y2,
           angle,
         );
         const [arrowHeadRightX, arrowHeadRightY] = rotateAroundPoint(
           x2,
           y2,
-          x2 - arrowHeadLength,
-          y2,
+          x2,
+          y2 - arrowHeadLength,
           angle,
         );
 
         const arrowHeadLeftLine = createLine([arrowHeadLeftX, arrowHeadLeftY], [x2, y2]);
-        const middleLine =
-          x1 === x2 && y1 === y2 ? [{ x: x1, y: y2 }] : createLine([x1, y1], [x2, y2]);
+        const middleLine = createLine([x1, y1], [x2, y2]);
         const arrowHeadRightLine = createLine([arrowHeadRightX, arrowHeadRightY], [x2, y2]);
 
-        newShape.points = [...arrowHeadLeftLine, ...middleLine, ...arrowHeadRightLine];
+        // Since d3 will connect the lines, we add the end-point in-between so
+        // that the lines will transition smoothly.
+        const endpoint = { x: x2, y: y2 };
+        newShape.points = [
+          ...middleLine,
+          endpoint,
+          ...arrowHeadLeftLine,
+          endpoint,
+          ...arrowHeadRightLine,
+          endpoint,
+        ];
         break;
       }
 
