@@ -39,7 +39,7 @@ we'll discuss it.
 
 # Features
 
-- [x] Export as PNG
+- [x] Export individual papers
   - [x] PNG
   - [x] JPEG
   - [x] SVG
