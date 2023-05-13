@@ -34,6 +34,12 @@ class ExportButton extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.paper.name !== this.props.paper.name) {
+      this.setState({ filename: this.props.paper.name });
+    }
+  }
+
   toggleOpen = () => {
     this.setState({ open: !this.state.open });
   };
