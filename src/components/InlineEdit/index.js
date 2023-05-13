@@ -33,6 +33,7 @@ class InlineEdit extends React.Component {
 
   onInputKeyPress = (e) => {
     if (e.which === KEY.ENTER) {
+      this.input.current.blur();
       this.toggleEdit(true);
     }
   };
