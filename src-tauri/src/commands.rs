@@ -116,12 +116,33 @@ async fn save_library(handle: AppHandle, library_state: String) {
     }
 }
 
+#[tauri::command]
+async fn save_settings(handle: AppHandle, settings: String) {
+    let settings_filepath = config::get_settings_filepath(handle);
+    compress(&settings_filepath, &settings);
+}
+
+#[tauri::command]
+async fn load_settings(handle: AppHandle) -> Option<serde_json::Value> {
+    let settings_filepath = config::get_settings_filepath(handle);
+
+    if Path::new(&settings_filepath).exists() {
+        let contents = decompress(&settings_filepath).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&contents).expect("Unable to load settings");
+        return Some(json);
+    }
+
+    None
+}
+
 pub fn get_handlers() -> Box<dyn Fn(tauri::Invoke<tauri::Wry>) + Send + Sync> {
     Box::new(tauri::generate_handler![
         load_library_folders,
         load_library_folder_papers,
         delete_library_folder,
         delete_library_paper,
-        save_library
+        save_library,
+        load_settings,
+        save_settings
     ])
 }

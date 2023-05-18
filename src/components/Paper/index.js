@@ -42,6 +42,7 @@ import {
 } from './helpers';
 import styles from './styles.module.css';
 import { isEqual } from '../../helpers';
+import { setPreferredLinewidth } from '../../reducers/settings/settingsSlice';
 
 const getInitialState = (isDarkMode, args) => ({
   userLastActiveAt: new Date().toISOString(),
@@ -101,6 +102,7 @@ class Paper extends React.Component {
     this.ctx = null;
     this.state = getInitialState(props.isDarkMode, {
       shapes: props.paper.shapes,
+      linewidth: props.preferredLinewidth,
     });
   }
 
@@ -961,6 +963,7 @@ class Paper extends React.Component {
 
   changeLinewidth = (linewidth) => {
     this.setState({ linewidth });
+    this.props.dispatch(setPreferredLinewidth(linewidth));
   };
 
   setMode = (mode) => {
@@ -1353,6 +1356,7 @@ function mapStateToProps(state, props) {
     paper: state.library.papers.find((paper) => paper.id === props.paperId),
     isDarkMode: state.settings.isDarkMode,
     platform: state.settings.platform,
+    preferredLinewidth: state.settings.canvasPreferredLinewidth,
   };
 }
 

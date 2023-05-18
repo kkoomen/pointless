@@ -23,5 +23,11 @@ export const KEY = {
   BACKSPACE: 8,
 };
 
+export const SORT_BY = {
+  NAME_AZ: 1,
+  NAME_ZA: 2,
+  LAST_EDIT: 3,
+};
+
 export const BASE_DIR = BaseDirectory.App;
 export const EXPORTS_DIR = BaseDirectory.Download;

@@ -8,12 +8,18 @@ import { to } from './../../reducers/router/routerSlice';
 import FolderListItem from './components/FolderListItem';
 import PaperListItem from './components/PaperListItem';
 import styles from './styles.module.css';
+import { SORT_BY } from '../../constants';
+import { setSortPapersBy } from '../../reducers/settings/settingsSlice';
 
 class Library extends React.Component {
-  state = {
-    currentFolderId: null,
-    sortBy: 'last-edit',
-  };
+  constructor(props) {
+    super();
+
+    this.state = {
+      currentFolderId: null,
+      sortBy: props.preferredSortBy,
+    };
+  }
 
   newFolder = () => {
     this.props.dispatch(newFolder());
@@ -25,19 +31,33 @@ class Library extends React.Component {
     });
   };
 
+  sortFolders = (objA, objB) => {
+    if (objA.name < objB.name) {
+      return -1;
+    }
+
+    if (objA.name > objB.name) {
+      return 1;
+    }
+
+    return 0;
+  };
+
   renderFolders = () => {
     const { folders } = this.props.library;
     if (folders.length === 0) return null;
 
-    return folders.map((folder) => (
-      <FolderListItem
-        key={folder.id}
-        folder={folder}
-        isActive={folder.id === this.state.currentFolderId}
-        onClick={() => this.setCurrentFolder(folder.id)}
-        onDelete={() => this.setCurrentFolder(null)}
-      />
-    ));
+    return [...folders]
+      .sort(this.sortFolders)
+      .map((folder) => (
+        <FolderListItem
+          key={folder.id}
+          folder={folder}
+          isActive={folder.id === this.state.currentFolderId}
+          onClick={() => this.setCurrentFolder(folder.id)}
+          onDelete={() => this.setCurrentFolder(null)}
+        />
+      ));
   };
 
   openPaper = (paperId) => {
@@ -55,7 +75,9 @@ class Library extends React.Component {
   };
 
   onSort = (e) => {
-    this.setState({ sortBy: e.target.value });
+    const sortBy = parseInt(e.target.value);
+    this.setState({ sortBy });
+    this.props.dispatch(setSortPapersBy(sortBy));
   };
 
   renderPapers = () => {
@@ -69,7 +91,7 @@ class Library extends React.Component {
     );
 
     switch (this.state.sortBy) {
-      case 'name-az':
+      case SORT_BY.NAME_AZ:
         papers = papers.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
@@ -83,7 +105,7 @@ class Library extends React.Component {
         });
         break;
 
-      case 'name-za':
+      case SORT_BY.NAME_ZA:
         papers = papers.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
@@ -97,7 +119,7 @@ class Library extends React.Component {
         });
         break;
 
-      case 'last-edit':
+      case SORT_BY.LAST_EDIT:
       default:
         papers = papers.sort((a, b) => {
           if (dayjs(a.updatedAt).isBefore(dayjs(b.updatedAt))) {
@@ -125,9 +147,9 @@ class Library extends React.Component {
               onChange={this.onSort}
               value={this.state.sortBy}
             >
-              <option value="name-az">Name A-Z</option>
-              <option value="name-za">Name Z-A</option>
-              <option value="last-edit">Last edit</option>
+              <option value={SORT_BY.NAME_AZ}>Name A-Z</option>
+              <option value={SORT_BY.NAME_ZA}>Name Z-A</option>
+              <option value={SORT_BY.LAST_EDIT}>Last edit</option>
             </select>
           </div>
         </div>
@@ -196,6 +218,7 @@ function mapStateToProps(state) {
   return {
     library: state.library,
     appVersion: state.settings.appVersion,
+    preferredSortBy: state.settings.sortPapersBy,
   };
 }
 

@@ -7,6 +7,12 @@ pub fn get_app_data_dir_path(handle: AppHandle) -> PathBuf {
     return handle.path_resolver().app_data_dir().unwrap();
 }
 
+pub fn get_settings_filepath(handle: AppHandle) -> String {
+    let app_data_dir = get_app_data_dir_path(handle);
+
+    return format!("{}/settings.dat", app_data_dir.display());
+}
+
 pub fn get_library_dir_path(handle: AppHandle) -> String {
     let config_dir = get_app_data_dir_path(handle);
 
