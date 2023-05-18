@@ -7,14 +7,28 @@ import './assets/vendor/bootstrap/bootstrap-grid.min.css';
 import App from './components/App';
 import './index.css';
 import { loadFolders } from './reducers/library/librarySlice';
-import { setAppVersion, setDarkMode, setPlatform } from './reducers/settings/settingsSlice';
+import {
+  loadSettings,
+  setAppVersion,
+  setDarkMode,
+  setPlatform,
+} from './reducers/settings/settingsSlice';
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 import { getVersion } from '@tauri-apps/api/app';
 
 // Load the library folders.
 invoke('load_library_folders').then((folders) => {
-  store.dispatch(loadFolders(folders));
+  if (folders) {
+    store.dispatch(loadFolders(folders));
+  }
+});
+
+// Load the saved user settings.
+invoke('load_settings').then((settings) => {
+  if (settings) {
+    store.dispatch(loadSettings(settings));
+  }
 });
 
 // Get the current app version.
