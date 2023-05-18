@@ -306,7 +306,7 @@ class Paper extends React.Component {
 
       case KEY.ZERO:
         if (this.state.scale !== 1) {
-          this.zoomToFit(1);
+          this.resetZoom();
         }
         break;
 
@@ -1135,7 +1135,7 @@ class Paper extends React.Component {
   };
 
   resetZoom = () => {
-    this.zoomToFit(1);
+    this.zoomBy(1 - this.state.scale);
   };
 
   drawCurrentShape = () => {
