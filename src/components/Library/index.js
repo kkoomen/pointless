@@ -16,7 +16,7 @@ class Library extends React.Component {
     super();
 
     this.state = {
-      currentFolderId: null,
+      currentFolderId: props.activeFolderId,
       sortBy: props.preferredSortBy,
     };
   }
@@ -217,6 +217,7 @@ class Library extends React.Component {
 function mapStateToProps(state) {
   return {
     library: state.library,
+    activeFolderId: state.router.current.args.activeFolderId,
     appVersion: state.settings.appVersion,
     preferredSortBy: state.settings.sortPapersBy,
   };
