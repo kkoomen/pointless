@@ -1254,7 +1254,12 @@ class Paper extends React.Component {
 
   onBackButtonClick = () => {
     this.props.dispatch(saveLibrary());
-    this.props.dispatch(to({ name: 'library' }));
+    this.props.dispatch(
+      to({
+        name: 'library',
+        args: { activeFolderId: this.props.paper.folderId },
+      }),
+    );
   };
 
   getSelectedShapes = () => {
