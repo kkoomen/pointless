@@ -19,7 +19,8 @@ async fn load_library_folder_papers(handle: AppHandle, folder_id: String) -> Opt
                 continue;
             }
             let paper_path = format!("{}/{}", &folder_path, paper_id);
-            let contents = decompress(&paper_path).unwrap();
+            let err_msg = format!("Failed to decompress \"{}/{}\"", &folder_path, &paper_id);
+            let contents = decompress(&paper_path).expect(&err_msg);
             let json: serde_json::Value = serde_json::from_str(&contents).expect("Unable to parse paper");
             papers.push(json);
         }

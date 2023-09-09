@@ -89,6 +89,10 @@ const getInitialState = (isDarkMode, args) => ({
 });
 
 class Paper extends React.Component {
+  // Define a ratio between 0 and 1 of how much points of a shape should be
+  // inside the selection area for the shape to be considered inside it.
+  SELECTION_POINTS_RATIO = 0.9;
+
   // There are multiple places where we want to remove the selection area.
   removeSelectionAreaState = {
     currentShape: {},
@@ -853,14 +857,19 @@ class Paper extends React.Component {
         // Find the shapes that are fully inside the selection area.
         const selectedShapeIndexes = [];
         this.state.shapes.forEach((shape, index) => {
+          let pointsInSelection = 0;
+
           for (let i = 0; i < shape.points.length; i++) {
             const point = shape.points[i];
-            if (!isPointInsideShape(currentShape.points, [point.x, point.y])) {
-              return false;
+            if (isPointInsideShape(currentShape.points, [point.x, point.y])) {
+              pointsInSelection += 1;
             }
           }
 
-          selectedShapeIndexes.push(index);
+          // Only append if a certain ratio of points are within the selection.
+          if (pointsInSelection / shape.points.length >= this.SELECTION_POINTS_RATIO) {
+            selectedShapeIndexes.push(index);
+          }
         });
 
         this.setState({

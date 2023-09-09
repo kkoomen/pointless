@@ -236,7 +236,7 @@ export function createRectangularShapePoints(x1, y1, x2, y2, preserveAspectRatio
 }
 
 /**
- * Create a new rectangular selection area shapes based on a list of shapes.
+ * Create a new rectangular selection area shape based on a list of shapes.
  *
  * @param {object[]} shapes - List of shapes.
  * @returns {object} Rectangular selection area shape object.
