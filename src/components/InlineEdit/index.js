@@ -66,6 +66,11 @@ class InlineEdit extends React.Component {
    */
   getInputWidth = () => {
     var span = document.createElement('span');
+
+    if (this.input.current) {
+      span.style.fontSize = window.getComputedStyle(this.input.current).fontSize;
+    }
+
     span.classList.add(styles['inline-edit__tmp-element']);
     const value = this.state.value !== null ? this.state.value : this.props.defaultValue;
     span.innerHTML = value.replaceAll(' ', '&nbsp;');
