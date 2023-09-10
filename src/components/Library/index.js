@@ -11,7 +11,6 @@ import styles from './styles.module.css';
 import { SORT_BY, VIEW_MODE } from '../../constants';
 import { setSortPapersBy, setViewMode } from '../../reducers/settings/settingsSlice';
 import Sortable from '../Sortable';
-import { formatDate } from '../../helpers';
 
 class Library extends React.Component {
   constructor(props) {
