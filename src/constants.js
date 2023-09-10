@@ -23,10 +23,18 @@ export const KEY = {
   BACKSPACE: 8,
 };
 
+export const VIEW_MODE = {
+  GRID: 1,
+  LIST: 2,
+};
+
 export const SORT_BY = {
   NAME_AZ: 1,
   NAME_ZA: 2,
-  LAST_EDIT: 3,
+  LAST_MODIFIED_ASC: 3,
+  LAST_MODIFIED_DESC: 4,
+  CREATED_ASC: 5,
+  CREATED_DESC: 6,
 };
 
 export const BASE_DIR = BaseDirectory.App;

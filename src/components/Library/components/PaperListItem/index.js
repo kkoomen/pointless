@@ -8,6 +8,8 @@ import InlineEdit from './../../../InlineEdit';
 import { ReactComponent as TrashcanIcon } from './../../../../assets/icons/trashcan.svg';
 import { store } from './../../../../store';
 import { confirm } from '@tauri-apps/api/dialog';
+import { VIEW_MODE } from '../../../../constants';
+import { formatDate } from '../../../../helpers';
 
 function PaperListItem(props) {
   const onDeletePaper = () => {
@@ -20,8 +22,15 @@ function PaperListItem(props) {
     );
   };
 
-  const onClick = (e) => {
-    // Do not trigger the onClick when it's not the SVG
+  const onClickListViewItem = (e) => {
+    // Do not trigger the onClick when it's not a table cell.
+    if (e.target.nodeName.toLowerCase() !== 'td') return false;
+
+    props.onClick();
+  };
+
+  const onClickGridViewItem = (e) => {
+    // Do not trigger the onClick when it's not the SVG.
     if (e.target.nodeName.toLowerCase() !== 'svg') return false;
 
     props.onClick();
@@ -38,9 +47,36 @@ function PaperListItem(props) {
     }
   };
 
+  if (props.viewMode === VIEW_MODE.LIST) {
+    return (
+      <tr className={styles['paper-list-item--view-mode--list']} onClick={onClickListViewItem}>
+        <td>{props.index + 1}</td>
+        <td>
+          <InlineEdit defaultValue={props.paper.name} onEditDone={onEditPaperName} />
+        </td>
+        <td>{formatDate(props.paper.updatedAt)}</td>
+        <td>{formatDate(props.paper.createdAt)}</td>
+        <td className="text-align--right">
+          <button
+            className={classNames('btn', 'btn-icon', styles['paper-list-item__delete-btn'])}
+            onClick={onDeletePaper}
+          >
+            <TrashcanIcon />
+          </button>
+        </td>
+      </tr>
+    );
+  }
+
+  // Return grid view by default
   return (
-    <div className={styles['paper-list-item__container']} onClick={onClick}>
-      <Paper paperId={props.paper.id} readonly />
+    <div
+      className={classNames(styles['paper-list-item__container'], {
+        [styles['paper-list-item--view-mode--list']]: props.viewMode === VIEW_MODE.LIST,
+      })}
+      onClick={onClickGridViewItem}
+    >
+      {props.viewMode === VIEW_MODE.GRID && <Paper paperId={props.paper.id} readonly />}
       <div className={classNames('ellipsis', styles['paper-list-item__name'])}>
         <InlineEdit defaultValue={props.paper.name} onEditDone={onEditPaperName} />
       </div>
@@ -56,6 +92,8 @@ function PaperListItem(props) {
 
 PaperListItem.propTypes = {
   paper: PropTypes.object.isRequired,
+  viewMode: PropTypes.number,
+  index: PropTypes.number,
   onClick: PropTypes.func,
 };
 

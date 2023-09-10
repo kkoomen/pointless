@@ -85,10 +85,18 @@ hr {
 
 .rc-tooltip-placement-right .rc-tooltip-arrow {
   border-right-color: #f9bd3f;
+  left: auto !important;
+  right: 100%;
+  top: 50% !important;
+  transform: translateY(-50%);
 }
 
 .rc-tooltip-placement-left .rc-tooltip-arrow {
   border-left-color: #f9bd3f;
+  right: auto !important;
+  left: 100%;
+  top: 50% !important;
+  transform: translateY(-50%);
 }
 
 .display-flex {
@@ -200,7 +208,12 @@ hr {
 }
 
 .text-align--right {
-  text-align: right;
+  text-align: right !important;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
 }
 
 .table th {
@@ -212,14 +225,19 @@ hr {
   padding: 4px 1rem;
 }
 
+.table.bordered td + td,
+.table.bordered th + th {
+  border-left: 1px solid white;
+}
+
+.table .kbd-shortcut {
+  margin-left: 0;
+}
+
 .table kbd {
   background-color: #f8f8f8;
   font-size: 1.4rem;
   padding: 4px 0.8rem;
-}
-
-.table tr {
-  border-top: 1px solid #d1d1d1;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -16,6 +16,9 @@ import {
 import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 import { getVersion } from '@tauri-apps/api/app';
+import dayjs from 'dayjs';
+
+dayjs.extend(require('dayjs/plugin/relativeTime'));
 
 // Load the library folders.
 invoke('load_library_folders').then((folders) => {
