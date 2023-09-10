@@ -1,7 +1,13 @@
 import dayjs from 'dayjs';
 
-export function formatDate(date, format = 'DD-MM-YYYY HH:mm') {
-  return dayjs(date).format(format);
+export function formatDate(date, options) {
+  const opts = {
+    format: 'YYYY-MM-DD HH:mm',
+    relative: true,
+    ...options,
+  };
+
+  return opts.relative ? dayjs(date).fromNow() : dayjs(date).format(opts.format);
 }
 
 export function removeDuplicates(arr) {

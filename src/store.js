@@ -36,7 +36,7 @@ const saveSettingsMiddleware = (store) => (next) => (action) => {
     const actionName = action.type.split('/')[1];
 
     // Auto-save the library for every library action.
-    const whitelistedActions = ['setSortPapersBy', 'setPreferredLinewidth'];
+    const whitelistedActions = ['setSortPapersBy', 'setViewMode', 'setPreferredLinewidth'];
 
     if (reducerName === 'settings' && whitelistedActions.includes(actionName)) {
       store.dispatch(saveSettings());

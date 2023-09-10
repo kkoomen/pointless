@@ -95,6 +95,27 @@
   flex-wrap: wrap;
 }
 
+/* Number column */
+.library__paper-list-view table tr th:nth-child(1),
+.library__paper-list-view table tr td:nth-child(1) {
+  width: 50px;
+  text-align: right;
+}
+
+/* Last modified and Created column */
+.library__paper-list-view table tr th:nth-last-child(3),
+.library__paper-list-view table tr td:nth-last-child(3),
+.library__paper-list-view table tr th:nth-last-child(2),
+.library__paper-list-view table tr td:nth-last-child(2) {
+  width: 160px;
+}
+
+/* Actions column */
+.library__paper-list-view table tr th:nth-last-child(1),
+.library__paper-list-view table tr td:nth-last-child(1) {
+  width: 120px;
+}
+
 .library__paper-list-view__title {
   max-width: calc(100% - 20rem);
 }
@@ -104,6 +125,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.library__paper-list-view__filters {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.library__paper-list-view__filter-group {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.library__paper-list-view__filter-group + .library__paper-list-view__filter-group {
+  margin-left: 2rem;
 }
 
 .library__paper-list-view__filters label {
@@ -119,5 +154,11 @@
 @media (prefers-color-scheme: light) {
   .library__folders-container {
     background-color: #fff;
+  }
+}
+
+@media (max-width: 1000px) {
+  .library__paper-list-view__filters label {
+    display: none;
   }
 }

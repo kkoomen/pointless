@@ -7,6 +7,7 @@ import Modal from '../../../Modal';
 import { ReactComponent as InfoIcon } from './../../../../assets/icons/info.svg';
 import { formatDate } from './../../../../helpers';
 import styles from './styles.module.css';
+import Tooltip from 'rc-tooltip';
 
 class InfoButton extends React.Component {
   state = {
@@ -61,12 +62,22 @@ class InfoButton extends React.Component {
             </div>
           </div>
           <div className="form-group">
-            <div className="form-label">Last edit</div>
-            <div>{formatDate(this.props.paper.updatedAt)}</div>
+            <div className="form-label">Last modified</div>
+            <Tooltip
+              placement="right"
+              overlay={formatDate(this.props.paper.updatedAt, { relative: false })}
+            >
+              <span>{formatDate(this.props.paper.updatedAt)}</span>
+            </Tooltip>
           </div>
           <div className="form-group">
-            <div className="form-label">Created at</div>
-            <div>{formatDate(this.props.paper.createdAt)}</div>
+            <div className="form-label">Created</div>
+            <Tooltip
+              placement="right"
+              overlay={formatDate(this.props.paper.createdAt, { relative: false })}
+            >
+              <span>{formatDate(this.props.paper.createdAt)}</span>
+            </Tooltip>
           </div>
         </Modal>
       </>
