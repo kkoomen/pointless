@@ -572,6 +572,13 @@ class Paper extends React.Component {
   canvasMouseDownHandler = (event) => {
     if (this.isPanMode()) {
       this.setState({ isPanning: true });
+    } else if (event.button === 1) {
+      // pan with middle mouse button
+      this.setState({
+        prevMode: this.state.mode,
+        mode: MODE.PAN,
+        isPanning: true,
+      });
     } else if (this.isEraseMode()) {
       this.setState({
         isErasing: true,
@@ -808,7 +815,17 @@ class Paper extends React.Component {
 
   canvasMouseUpHandler = (event) => {
     if (this.isPanMode()) {
-      this.setState({ isPanning: false });
+      if (event.button === 1) {
+        // User was panning with the middle mouse button, therefore we want to
+        // immediately go back to the previous mode.
+        this.setState({
+          isPanning: false,
+          prevMode: this.state.mode,
+          mode: this.state.prevMode,
+        });
+      } else {
+        this.setState({ isPanning: false });
+      }
     } else if (this.isEraseMode()) {
       // No shapes got removed, so remove the unused history item.
       let history = this.state.history;
