@@ -12,6 +12,34 @@
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
 }
 
+.color-palette__selector {
+  cursor: default;
+  position: fixed;
+  top: 10rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 7px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
+}
+
+.color-palette__selector-header {
+  cursor: default;
+  position: fixed;
+  top: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 7px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
+}
+
 .color-palette__color {
   width: 2.5rem;
   height: 2.5rem;
@@ -45,4 +73,24 @@
     background: #fff;
     border: 1px solid #d1d1d1;
   }
+}
+
+.close-btn svg {
+  fill: #fd5865;
+  height: 100%;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
+  padding: 3px;
+  background-color: #ccc;
+  border-radius: 100%;
+  margin: 1px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.close-btn svg:hover {
+  cursor: pointer;
+  background-color: #bbb;
 }
