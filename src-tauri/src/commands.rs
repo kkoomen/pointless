@@ -57,12 +57,10 @@ async fn delete_library_folder(handle: AppHandle, folder_id: String) {
 
     let folder_path_buf = PathBuf::from(&folder_path);
 
-    if folder_path_buf.exists() {
-        if folder_path_buf.is_dir() {
-            match fs::remove_dir_all(&folder_path_buf) {
-                Ok(_) => {},
-                Err(e) => eprintln!("Error removing folder {}: {:?}", folder_id, e),
-            }
+    if folder_path_buf.exists() && folder_path_buf.is_dir() {
+        match fs::remove_dir_all(&folder_path_buf) {
+            Ok(_) => {},
+            Err(e) => eprintln!("Error removing folder {}: {:?}", folder_id, e),
         }
     }
 }
@@ -74,12 +72,10 @@ async fn delete_library_paper(handle: AppHandle, folder_id: String, paper_id: St
 
     let paper_filepath_buf = PathBuf::from(&paper_filepath);
 
-    if paper_filepath_buf.exists() {
-        if paper_filepath_buf.is_file() {
-            match fs::remove_file(&paper_filepath_buf) {
-                Ok(_) => {},
-                Err(e) => eprintln!("Error removing folder {}: {:?}", folder_id, e),
-            }
+    if paper_filepath_buf.exists() && paper_filepath_buf.is_file() {
+        match fs::remove_file(&paper_filepath_buf) {
+            Ok(_) => {},
+            Err(e) => eprintln!("Error removing folder {}: {:?}", folder_id, e),
         }
     }
 }
