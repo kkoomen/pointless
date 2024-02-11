@@ -12,6 +12,20 @@
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
 }
 
+.color-palette__selector {
+  background: #fff;
+  cursor: default;
+  position: fixed;
+  top: 10rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .2);
+}
+
 .color-palette__color {
   width: 2.5rem;
   height: 2.5rem;
@@ -34,6 +48,44 @@
   transform: scale(0.6);
 }
 
+.color-palette__custom-color svg {
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  transform: scale(0.7) rotate(90deg);
+  fill: #000;
+}
+
+.color-palette__custom-color--dark svg {
+  fill: #fff;
+}
+
+.custom-color-container__handle {
+  background-color: #fff;
+  border-radius: 5px 5px 0 0;
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+  margin: 3px;
+  top: 3px;
+}
+
+.custom-color-container__close-btn svg {
+  height: 100%;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
+  padding: 5px;
+  border-radius: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.custom-color-container__close-btn svg:hover {
+  cursor: pointer;
+}
+
 @media (prefers-color-scheme: dark) {
   .color-palette__container {
     background: #323232;
@@ -41,6 +93,9 @@
 }
 
 @media (prefers-color-scheme: light) {
+  .color-palette__selector {
+    border: 1px solid #d1d1d1;
+  }
   .color-palette__container {
     background: #fff;
     border: 1px solid #d1d1d1;

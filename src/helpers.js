@@ -73,3 +73,25 @@ export function isEqual(obj1, obj2) {
 
   return true;
 }
+
+/**
+ * Check if a color is dark or light.
+ *
+ * @param {string} hex - The hex code to check.
+ * @returns {boolean} True when the color is considered a dark color.
+ */
+export function isDarkColor(hex) {
+  if (hex.length === 4) {
+    hex = hex.replace(/#(.)(.)(.)/, '#$1$1$2$2$3$3');
+  }
+
+  // Convert hex to RGB.
+  let r = parseInt(hex.substring(1, 3), 16);
+  let g = parseInt(hex.substring(3, 5), 16);
+  let b = parseInt(hex.substring(5, 7), 16);
+
+  let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Check if the color is dark.
+  return luminance < 0.5;
+}
