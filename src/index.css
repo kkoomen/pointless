@@ -256,6 +256,11 @@ hr {
   }
 }
 
+.sketch-picker {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
 @media (prefers-color-scheme: light) {
   hr {
     border-top: 1px solid #d1d1d1;

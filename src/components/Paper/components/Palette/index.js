@@ -2,21 +2,25 @@ import styles from './styles.module.css';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { PALETTE_DARK, PALETTE_LIGHT } from './../../constants';
+import { isDarkColor } from './../../../../helpers';
 import { useSelector } from 'react-redux';
 import { memo } from 'react';
 import { useState } from 'react';
 import { SketchPicker } from 'react-color';
 import Draggable from 'react-draggable';
 import { ReactComponent as CloseIcon } from './../../../../assets/icons/close.svg';
+import { ReactComponent as AdjustIcon } from './../../../../assets/icons/adjust.svg';
 import { useEffect } from 'react';
+import Tooltip from 'rc-tooltip';
 
 function Palette(props) {
   const isDarkMode = useSelector((state) => state.settings.isDarkMode);
   const palette = isDarkMode ? PALETTE_DARK : PALETTE_LIGHT;
   let selectedColor = props.selectedColor;
 
-  const [paletteColor, setPaletteColor] = useState('#fff');
-  const [selectingColor, setSelectingColor] = useState(false);
+  const [paletteColor, setPaletteColor] = useState(isDarkMode ? '#fff' : '#000');
+  const [customColor, setCustomColor] = useState(false);
+  const [colorSelectorToolVisible, enableColorSelectorTool] = useState(false);
 
   // If the user did select some shapes, we want to check if the shapes are all
   // of the same color. If so, we select that color. If not, we do not select
@@ -33,40 +37,44 @@ function Palette(props) {
     }
   }
 
-  // change in custom color palette menu
+  // Change in custom color palette menu.
   const handlePaletteChange = (color) => {
     setPaletteColor(color.hex);
-  }
+  };
 
-  // change in custom color palette menu completed
+  // Change in custom color palette menu completed.
   const handleChangeComplete = (color) => {
     setPaletteColor(color.hex);
     props.onSelectColor(color.hex);
-  }
+  };
 
-  // custom color selected in top palette
+  // Custom color selected in top palette.
   const handleSelectCustom = () => {
-    setSelectingColor(!selectingColor);
+    setCustomColor(true);
     props.onSelectColor(paletteColor);
-  }
+  };
 
-  // non-custom color selected in top palette
+  // Non-custom color selected in top palette.
   const handleSelectColor = (color) => {
-    setSelectingColor(false);
+    setCustomColor(false);
     props.onSelectColor(color);
-  }
+  };
+
+  const handleColorSelectorTool = () => {
+    enableColorSelectorTool(!colorSelectorToolVisible);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       const selector = document.querySelector(`.${styles['color-palette__selector']}`);
       if (selector && !selector.contains(event.target)) {
-        setSelectingColor(false);
+        enableColorSelectorTool(false);
       }
-    }
+    };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setSelectingColor]);
+  }, [enableColorSelectorTool]);
 
   return (
     <div>
@@ -76,43 +84,50 @@ function Palette(props) {
             key={`color-palette__${color.substring(1)}`}
             onClick={() => handleSelectColor(color)}
             className={classNames(styles['color-palette__color'], {
-              [styles['color-palette__color-active']]: color === selectedColor,
+              [styles['color-palette__color-active']]: color === selectedColor && !customColor,
             })}
             style={{ backgroundColor: color }}
           />
         ))}
-        <div
-          className={classNames(styles['color-palette__color'], {
-            [styles['color-palette__color-active']]: paletteColor === selectedColor,
-          })}
-          style={{ backgroundColor: paletteColor }}
-          onClick={handleSelectCustom}
-        >
-        </div>
+
+        <Tooltip placement="bottom" overlay="Double click to select custom colors">
+          <div
+            className={classNames(
+              styles['color-palette__color'],
+              styles['color-palette__custom-color'],
+              {
+                [styles['color-palette__color-active']]:
+                  paletteColor === selectedColor && customColor,
+                [styles['color-palette__custom-color--dark']]: isDarkColor(paletteColor),
+              },
+            )}
+            style={{ backgroundColor: paletteColor }}
+            onClick={handleSelectCustom}
+            onDoubleClick={handleColorSelectorTool}
+          >
+            <AdjustIcon />
+          </div>
+        </Tooltip>
       </div>
-      {selectingColor && 
-        <Draggable handle='.handle'>
+      {colorSelectorToolVisible && (
+        <Draggable handle={`.${classNames(styles['custom-color-container__handle'])}`}>
           <div className={styles['color-palette__selector']}>
-            <div
-              className='handle'
-              style={{backgroundColor: '#fff', borderRadius: '5px 5px 0 0', display: 'flex', justifyContent: 'space-between'}}
-            >
-              <div style={{ flexGrow: 1 }}/>
+            <div className={classNames(styles['custom-color-container__handle'])}>
               <div
-                className={classNames(styles['close-btn'])}
-                onClick={() => setSelectingColor(false)}
+                className={classNames(styles['custom-color-container__close-btn'])}
+                onClick={() => enableColorSelectorTool(false)}
               >
                 <CloseIcon />
               </div>
             </div>
-            <SketchPicker 
+            <SketchPicker
               color={paletteColor}
               handleChange={handlePaletteChange}
               onChangeComplete={handleChangeComplete}
             />
           </div>
         </Draggable>
-      }
+      )}
     </div>
   );
 }
